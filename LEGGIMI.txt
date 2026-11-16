@@ -134,6 +134,19 @@ LIMITI DA CONOSCERE
   - Nessun backup automatico (vedi consigli sopra).
 
 
+STRUTTURA DELLE SCHEDE
+-----------------------
+  📊 Dashboard                 Nuova Home esecutiva: schede KPI (totali, in linea, in ritardo,
+                               criticità), avvisi scadenze nei prossimi 15 giorni, tabella
+                               sintetica con semafori (🟢/🟡/🔴), barre % e filtri rapidi.
+  📋 Quadro Sinottico          La tabella analitica completa a 16 colonne con tutti i dettagli
+                               di WP, fabbricazione, MR e ordini materiali, con export CSV e stampa.
+  📅 Scadenziario Attività     Gestione scadenze e milestone con priorità.
+  📦 Archivio Commesse         Commesse completate e archiviate.
+  🔍 Dettaglio Commessa        Fasi di dettaglio MS Project, avanzamenti e archivio PDF certificati.
+  ➕ Nuova Commessa            Creazione manuale o importazione XML MS Project.
+  📔 Diario & Problematiche    Registro eventi, note e criticità di produzione.
+
 COMANDI PRINCIPALI DELL'APP
 ---------------------------
   💾 Salva Dati Condivisi      Scrive sul file JSON collegato
