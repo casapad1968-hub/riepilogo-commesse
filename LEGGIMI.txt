@@ -35,12 +35,32 @@ COME INIZIARE — PRIMO AVVIO
   4. Per collegare il TUO database: "Collega Archivio Condiviso" -> scegli il file.
 
 
-PERCHE' L'APP NON SI COLLEGA DA SOLA AL FILE
---------------------------------------------
+DUE MODI DI FUNZIONARE
+----------------------
+  A) FILE LOCALE (uso normale, sul tuo PC)
+     I dati dimostrativi sono dentro l'HTML. Il tuo database vero si collega
+     con il pulsante "Collega Archivio Condiviso": da quel momento puoi salvare.
+
+  B) SUL SITO (solo per provare le modifiche)
+     Se apri la pagina da un indirizzo http/https, l'app legge da sola il file
+     demo/database_commesse.json della repository. Nessun collegamento da fare:
+     apri e vedi. In questa modalita' NON si salva: e' sola lettura, apposta,
+     perche' non c'e' nessun file tuo da scrivere.
+
+     Indirizzo online:
+     https://casapad1968-hub.github.io/riepilogo-commesse/Commesse.html
+
+     Per aggiornare i dati mostrati online basta modificare il file
+     demo/database_commesse.json nella repository e ricaricare la pagina.
+
+
+PERCHE' IL BROWSER NON SI COLLEGA DA SOLO A UN FILE TUO
+-------------------------------------------------------
   Il browser non permette a una pagina web di aprire un file sul disco senza
   un tuo clic. E' una regola di sicurezza, non un limite dell'app.
-  Per questo i dati dimostrativi sono dentro l'HTML stesso, mentre il tuo
-  database vero si collega con un clic.
+  Per questo i dati dimostrativi sono dentro l'HTML, mentre il tuo database
+  vero si collega con un clic - e solo cosi' il browser ti da' il permesso
+  di SCRIVERE sul file, cioe' di salvare le modifiche.
 
 
 ATTENZIONE — PRIMA DI USARLA CON I TUOI DATI
