@@ -44,6 +44,21 @@ Le commesse chiuse escono dalla home ma restano consultabili e ripristinabili.
 
 Report stampabile di tutte le commesse o della singola commessa, impaginato in orizzontale su A4.
 
+## Provala subito
+
+Nella cartella [`demo/`](demo/) c'è `database_commesse.json`: un database dimostrativo con **dati completamente inventati** (clienti "Cliente A/B", officine "Officina 1/2").
+
+Contiene due commesse:
+
+- **70777** — in ritardo: 1 MR scaduto, 1 ordine scaduto, 2 materiali scaduti, inizio fabbricazione +11 giorni, ultimo WP a +36 giorni dalla velina. Due avanzamenti e un'allerta nel diario.
+- **70812** — in linea: tutti i contatori a zero.
+
+Più quattro scadenze manuali e tre voci di diario.
+
+Per provarla: apri `Commesse.html`, seleziona `demo/database_commesse.json` quando richiesto, e clicca sul numero blu `70777` nella Home.
+
+**Attenzione:** se salvi mentre è aperto il database demo, sovrascrivi quel file. Tienilo in una cartella separata dai dati reali.
+
 ## Come si usa
 
 1. Scarica `Commesse.html`
