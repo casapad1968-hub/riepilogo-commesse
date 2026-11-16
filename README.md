@@ -8,7 +8,7 @@ Nata da un'esigenza concreta: gestire decine di commesse in produzione senza apr
 
 **Quadro sinottico delle commesse attive**
 
-Una sola tabella con, per ogni commessa: date di apertura e consegna da velina, attività in ritardo, ritardi su emissione ordini e arrivo materiali, giorni di ritardo sull'inizio fabbricazione, scostamento dell'ultimo WP rispetto alla consegna contrattuale. Le celle critiche si colorano da sole.
+Una sola tabella con, per ogni commessa: date di apertura e consegna da ordine, attività in ritardo, ritardi su emissione ordini e arrivo materiali, giorni di ritardo sull'inizio fabbricazione, scostamento dell'ultimo WP rispetto alla consegna contrattuale. Le celle critiche si colorano da sole.
 
 **Import da MS Project**
 
@@ -50,7 +50,7 @@ Nella cartella [`demo/`](demo/) c'è `database_commesse.json`: un database dimos
 
 Contiene due commesse:
 
-- **70777** — in ritardo: 1 MR scaduto, 1 ordine scaduto, 2 materiali scaduti, inizio fabbricazione +11 giorni, ultimo WP a +36 giorni dalla velina. Due avanzamenti e un'allerta nel diario.
+- **70777** — in ritardo: 1 MR scaduto, 1 ordine scaduto, 2 materiali scaduti, inizio fabbricazione +11 giorni, ultimo WP a +36 giorni dalla consegna ordine. Due avanzamenti e un'allerta nel diario.
 - **70812** — in linea: tutti i contatori a zero.
 
 Più quattro scadenze manuali e tre voci di diario.
