@@ -113,19 +113,20 @@ CONSIGLI PER LA SICUREZZA DEI DATI
      di saturazione.
 
 
-PROTEZIONE CONCORRENZA MULTI-UTENTE
-------------------------------------
-  - Protezione attiva contro sovrascritture accidentali:
-    1) Rilevamento automatico timestamp: se un collega salva modifiche sul disco
-       mentre hai l'app aperta, l'applicazione lo rileva istantaneamente.
-       Al momento del tuo salvataggio ti avvisa con un chiaro messaggio di conflitto,
-       mostrando data e ora della modifica del collega e permettendoti di scegliere
-       se sovrascrivere o ricaricare i dati freschi da disco senza sovrascrivere alla cieca.
-    2) File di lock condiviso (database_commesse.lock): registra l'operatore attivo
-       e l'orario di apertura nella cartella condivisa.
-    3) Rilascio automatico del lock alla chiusura della finestra o scheda del browser.
-    4) Badge Operatore in testata: permette di impostare la propria sigla/nome
-       (es. 👤 Gaetano) con un semplice clic.
+PROTEZIONE CONCORRENZA MULTI-UTENTE (LOCK BLOCCANTE & SOLA VISUALIZZAZIONE)
+----------------------------------------------------------------------------
+  - Gestione concorrenza avanzata con blocco all'apertura:
+    1) Avviso bloccante immediato all'apertura: se un collega ha già aperto il database
+       in modifica, il secondo utente riceve una schermata di avviso bloccante che indica
+       chi sta modificando il file e da che ora. L'accesso viene impostato automaticamente
+       in SOLA VISUALIZZAZIONE (sola lettura protetta, pulsanti di modifica e salvataggio disattivati).
+    2) Banner e badge di stato: in cima alla pagina un riquadro rosso e un badge
+       indicano chiaramente che l'app è in consultazione e proteggono i dati da qualsiasi
+       modifica accidentale.
+    3) File di lock condiviso (database_commesse.lock): registra l'operatore attivo,
+       la macchina e l'orario esatto. Rilasciato in automatico alla chiusura della scheda.
+    4) Rilevamento timestamp & conflitti: controllo aggiuntivo prima di ogni salvataggio
+       con avviso e opzione di ricaricare i dati aggiornati.
 
 LIMITI DA CONOSCERE
 -------------------
