@@ -1,0 +1,13 @@
+# Database e dati personali — MAI versionare
+*.json
+!package.json
+database_commesse.json
+*.bak1
+*.bak2
+documenti/
+PRIVATE/
+
+# Sistema
+.DS_Store
+Thumbs.db
+desktop.ini
