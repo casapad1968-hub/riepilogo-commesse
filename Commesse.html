@@ -332,7 +332,7 @@
                                 <th>NUMERO COMMESSA</th>
                                 <th>DESCRIZIONE / CLIENTE</th>
                                 <th>DATA APERTURA VELINA</th>
-                                <th>DATA CONSEGNA DA VELINA</th>
+                                <th>DATA CONSEGNA DA ORDINE</th>
                                 <th>ATTIVITÀ IN RITARDO</th>
                                 <th>MR IN RITARDO</th>
                                 <th>RITARDO EMISSIONE ORDINI</th>
@@ -340,7 +340,7 @@
                                 <th>INIZIO FABBRICAZIONE DA WP</th>
                                 <th>INIZIO REALE</th>
                                 <th>GIORNI RITARDO INIZIO FABBRICAZIONE</th>
-                                <th>RITARDO ULTIMO WP RISPETTO A CONSEGNA VELINA</th>
+                                <th>RITARDO ULTIMO WP RISPETTO A CONSEGNA ORDINE</th>
                                 <th>DATA COMPLETAMENTO PREVISTA DA ULTIMO WP</th>
                                 <th>MANUFACTURING IN RITARDO (INIZIO)</th>
                                 <th>MANUFACTURING IN RITARDO (FINE)</th>
@@ -446,7 +446,7 @@
                                 <th>NUMERO COMMESSA</th>
                                 <th>DESCRIZIONE / CLIENTE</th>
                                 <th>DATA APERTURA VELINA</th>
-                                <th>DATA CONSEGNA DA VELINA</th>
+                                <th>DATA CONSEGNA DA ORDINE</th>
                                 <th>INIZIO FABBRICAZIONE DA WP</th>
                                 <th>INIZIO REALE</th>
                                 <th>DATA COMPLETAMENTO PREVISTA DA ULTIMO WP</th>
@@ -493,7 +493,7 @@
                             <input type="text" id="d_dataAperturaVelina" class="form-control" placeholder="GG/MM/AAAA" oninput="eseguiCalcoloRitardoUltimoWpDettaglio()">
                         </div>
                         <div class="form-group">
-                            <label>Data Consegna da Velina:</label>
+                            <label>Data Consegna da Ordine:</label>
                             <input type="text" id="d_dataConsegnaVelina" class="form-control" placeholder="GG/MM/AAAA" oninput="eseguiCalcoloRitardoUltimoWpDettaglio()">
                         </div>
                     </div>
@@ -533,7 +533,7 @@
                             <input type="text" id="d_giorniRitardo" class="form-control" readonly style="font-weight: bold; background: #fff;">
                         </div>
                         <div class="form-group">
-                            <label>Ritardo Ultimo WP vs Consegna Velina (gg):</label>
+                            <label>Ritardo Ultimo WP vs Consegna Ordine (gg):</label>
                             <input type="number" id="d_ritardoComplFasi" class="form-control" readonly style="background-color: #f3f4f6; font-weight: bold;">
                         </div>
                         <div class="grid-2" style="gap:0.5rem;">
@@ -661,7 +661,7 @@
                 <div class="form-group"><label>Descrizione / Cliente:</label><input type="text" id="m_descrizione" class="form-control" placeholder="Descrizione"></div>
                 <div class="grid-2" style="gap:0.5rem;">
                     <div class="form-group"><label>Data Apertura Velina:</label><input type="text" id="m_dataAperturaVelina" class="form-control" placeholder="GG/MM/AAAA" value="-"></div>
-                    <div class="form-group"><label>Data Consegna da Velina:</label><input type="text" id="m_dataConsegnaVelina" class="form-control" placeholder="GG/MM/AAAA" value="-"></div>
+                    <div class="form-group"><label>Data Consegna da Ordine:</label><input type="text" id="m_dataConsegnaVelina" class="form-control" placeholder="GG/MM/AAAA" value="-"></div>
                 </div>
                 <div class="form-group"><label>Inizio Fabbricazione da WP:</label><input type="text" id="m_inizioPrevFab" class="form-control" placeholder="GG/MM/AAAA" value="-"></div>
                 <div class="form-group"><label>Fabbricante:</label><input type="text" id="m_fabbricante" class="form-control" placeholder="es. AB" value="-"></div>
@@ -2530,7 +2530,7 @@
                 <div class="item"><div class="label">Descrizione / Cliente</div><div class="value">${esc(meta.descrizione || "-")}</div></div>
                 <div class="item"><div class="label">Fabbricante</div><div class="value">${esc(meta.fabbricante || "-")}</div></div>
                 <div class="item"><div class="label">Data apertura velina</div><div class="value">${esc(meta.dataAperturaVelina || "-")}</div></div>
-                <div class="item"><div class="label">Consegna da velina</div><div class="value">${esc(meta.dataConsegnaVelina || "-")}</div></div>
+                <div class="item"><div class="label">Consegna da ordine</div><div class="value">${esc(meta.dataConsegnaVelina || "-")}</div></div>
                 <div class="item"><div class="label">Ultima revisione WP</div><div class="value">${esc(ultimoWp)}</div></div>
                 <div class="item"><div class="label">Inizio fabbricazione da WP</div><div class="value">${esc(meta.inizioPrevFab || "-")}</div></div>
                 <div class="item"><div class="label">Inizio reale</div><div class="value">${esc(meta.inizioReale || "-")}</div></div>
