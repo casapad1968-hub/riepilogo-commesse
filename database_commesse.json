@@ -1,0 +1,284 @@
+{
+  "commesse": {
+    "70777": [
+      {
+        "name": "PO ISSUANCE",
+        "start": "2026-01-10",
+        "finish": "2026-04-30",
+        "pct": 75,
+        "level": 1,
+        "isSummary": true
+      },
+      {
+        "name": "PO 001 - Riduttori",
+        "start": "2026-01-10",
+        "finish": "2026-03-15",
+        "pct": 100,
+        "level": 2,
+        "isSummary": false
+      },
+      {
+        "name": "PO 002 - Motori elettrici",
+        "start": "2026-02-01",
+        "finish": "2026-04-20",
+        "pct": 40,
+        "level": 2,
+        "isSummary": false
+      },
+      {
+        "name": "PO 003 - Quadri elettrici",
+        "start": "2026-02-15",
+        "finish": "2026-12-10",
+        "pct": 10,
+        "level": 2,
+        "isSummary": false
+      },
+      {
+        "name": "MATERIAL DELIVERABLES",
+        "start": "2026-05-01",
+        "finish": "2026-10-31",
+        "pct": 55,
+        "level": 1,
+        "isSummary": true
+      },
+      {
+        "name": "MD - Lamiera carpenteria",
+        "start": "2026-05-01",
+        "finish": "2026-09-30",
+        "pct": 60,
+        "level": 2,
+        "isSummary": false
+      },
+      {
+        "name": "MD - Valvole e raccorderia",
+        "start": "2026-06-01",
+        "finish": "2026-10-15",
+        "pct": 35,
+        "level": 2,
+        "isSummary": false
+      },
+      {
+        "name": "MD - Strumentazione",
+        "start": "2026-07-01",
+        "finish": "2026-12-15",
+        "pct": 0,
+        "level": 2,
+        "isSummary": false
+      },
+      {
+        "name": "MANUFACTURING",
+        "start": "2026-10-01",
+        "finish": "2026-12-20",
+        "pct": 20,
+        "level": 1,
+        "isSummary": true
+      },
+      {
+        "name": "Fabrication - Skid principale",
+        "start": "2026-10-01",
+        "finish": "2026-12-10",
+        "pct": 25,
+        "level": 2,
+        "isSummary": false
+      },
+      {
+        "name": "Assembly - Cablaggio",
+        "start": "2026-11-15",
+        "finish": "2026-12-20",
+        "pct": 0,
+        "level": 2,
+        "isSummary": false
+      },
+      {
+        "name": "DELIVERY",
+        "start": "2027-01-15",
+        "finish": "2027-01-20",
+        "pct": 0,
+        "level": 1,
+        "isSummary": false
+      }
+    ],
+    "70812": [
+      {
+        "name": "PO ISSUANCE",
+        "start": "2026-06-01",
+        "finish": "2026-08-31",
+        "pct": 100,
+        "level": 1,
+        "isSummary": true
+      },
+      {
+        "name": "PO 010 - Pompa centrifuga",
+        "start": "2026-06-01",
+        "finish": "2026-07-20",
+        "pct": 100,
+        "level": 2,
+        "isSummary": false
+      },
+      {
+        "name": "PO 011 - Scambiatore",
+        "start": "2026-06-15",
+        "finish": "2026-08-30",
+        "pct": 100,
+        "level": 2,
+        "isSummary": false
+      },
+      {
+        "name": "MATERIAL DELIVERABLES",
+        "start": "2026-09-01",
+        "finish": "2026-12-31",
+        "pct": 70,
+        "level": 1,
+        "isSummary": true
+      },
+      {
+        "name": "MD - Tubazioni",
+        "start": "2026-09-01",
+        "finish": "2026-10-31",
+        "pct": 100,
+        "level": 2,
+        "isSummary": false
+      },
+      {
+        "name": "MD - Flange",
+        "start": "2026-09-15",
+        "finish": "2027-01-15",
+        "pct": 40,
+        "level": 2,
+        "isSummary": false
+      },
+      {
+        "name": "MANUFACTURING",
+        "start": "2027-01-10",
+        "finish": "2027-02-28",
+        "pct": 0,
+        "level": 1,
+        "isSummary": true
+      },
+      {
+        "name": "Fabrication - Skid pompa",
+        "start": "2027-01-10",
+        "finish": "2027-02-20",
+        "pct": 0,
+        "level": 2,
+        "isSummary": false
+      },
+      {
+        "name": "DELIVERY",
+        "start": "2027-03-05",
+        "finish": "2027-03-10",
+        "pct": 0,
+        "level": 1,
+        "isSummary": false
+      }
+    ]
+  },
+  "metadata": {
+    "70777": {
+      "descrizione": "Cliente A - Skid di compressione gas",
+      "dataAperturaVelina": "10/01/2026",
+      "dataConsegnaOrdine": "15/12/2026",
+      "mrRitardo": "1",
+      "ritardoOrdini": "1",
+      "ritardoArrivoMat": "2",
+      "inizioPrevFab": "01/10/2026",
+      "inizioReale": "12/10/2026",
+      "giorniRitardo": "11",
+      "ritardoComplFasi": "36",
+      "manufRitardoInizio": "0",
+      "manufRitardoFine": "0",
+      "fabbricante": "Officina 1",
+      "dataComplPrev": "20/01/2027",
+      "archiviata": false,
+      "documentiPdf": [],
+      "ultimoWpCaricato": "WP_2026_11.mpp.xml",
+      "dataUltimoWpCaricato": "10/11/2026",
+      "avanzamenti": [
+        {
+          "data": "05/11/2026",
+          "testo": "Carpenteria consegnata con 3 settimane di ritardo. Recupero previsto in fase di assemblaggio."
+        },
+        {
+          "data": "12/11/2026",
+          "testo": "Motori elettrici: confermata spedizione dal fornitore per il 20/11."
+        }
+      ]
+    },
+    "70812": {
+      "descrizione": "Cliente B - Skid pompa centrifuga",
+      "dataAperturaVelina": "01/06/2026",
+      "dataConsegnaOrdine": "30/03/2027",
+      "mrRitardo": "0",
+      "ritardoOrdini": "0",
+      "ritardoArrivoMat": "0",
+      "inizioPrevFab": "10/01/2027",
+      "inizioReale": "-",
+      "giorniRitardo": "0",
+      "ritardoComplFasi": "0",
+      "manufRitardoInizio": "0",
+      "manufRitardoFine": "0",
+      "fabbricante": "Officina 2",
+      "dataComplPrev": "10/03/2027",
+      "archiviata": false,
+      "documentiPdf": [],
+      "ultimoWpCaricato": "WP_2026_11.mpp.xml",
+      "dataUltimoWpCaricato": "10/11/2026",
+      "avanzamenti": [
+        {
+          "data": "10/11/2026",
+          "testo": "Commessa in linea con la velina. Materiali principali ordinati."
+        }
+      ]
+    }
+  },
+  "diario": [
+    {
+      "commessa": "70777",
+      "tipo": "Allerta",
+      "nota": "Fornitore motori elettrici ha comunicato slittamento di 2 settimane. Impatto sul montaggio finale da valutare.",
+      "data": "12/11/2026"
+    },
+    {
+      "commessa": "70777",
+      "tipo": "Nota",
+      "nota": "Visita cliente in officina effettuata, nessuna osservazione critica.",
+      "data": "14/11/2026"
+    },
+    {
+      "commessa": "70812",
+      "tipo": "Nota",
+      "nota": "Ordine flange piazzato.",
+      "data": "10/11/2026"
+    }
+  ],
+  "scadenziario": [
+    {
+      "idScad": 1763312400000,
+      "nome": "Sollecito fornitore motori elettrici",
+      "commessa": "70777",
+      "dataFine": "20/11/2026",
+      "stato": "In corso"
+    },
+    {
+      "idScad": 1764176400000,
+      "nome": "Invio disegno costruttivo al cliente",
+      "commessa": "70777",
+      "dataFine": "05/11/2026",
+      "stato": "Da fare"
+    },
+    {
+      "idScad": 1765904400000,
+      "nome": "Controllo qualità saldature",
+      "commessa": "70777",
+      "dataFine": "10/12/2026",
+      "stato": "Da fare"
+    },
+    {
+      "idScad": 1768496400000,
+      "nome": "Conferma data collaudo",
+      "commessa": "70812",
+      "dataFine": "15/01/2027",
+      "stato": "Da fare"
+    }
+  ]
+}
