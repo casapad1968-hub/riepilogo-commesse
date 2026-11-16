@@ -314,7 +314,8 @@
         </div>
         <div class="tabs no-print">
             <div class="tab-group">
-                <button id="btn-tab-report" class="tab-btn active" onclick="openTab('report')">🏠 Home (Active Orders)</button>
+                <button id="btn-tab-dashboard" class="tab-btn active" onclick="openTab('dashboard')">📊 Dashboard</button>
+                <button id="btn-tab-report" class="tab-btn" onclick="openTab('report')">📋 Full Overview Table</button>
                 <button id="btn-tab-scadenziario" class="tab-btn" onclick="openTab('scadenziario')">📅 Activity Schedule</button>
                 <button id="btn-tab-archivio" class="tab-btn" onclick="openTab('archivio')">📦 Orders Archive</button>
                 <button id="btn-tab-dettaglio" class="tab-btn" style="display:none;" onclick="openTab('dettaglio')">🔍 Selected Order Details</button>
@@ -336,7 +337,109 @@
         </div>
 
         <!-- TAB HOME (Commesse Attive) -->
-        <div id="report" class="tab-content active">
+        <!-- TAB DASHBOARD (NEW EXECUTIVE HOME) -->
+        <div id="dashboard" class="tab-content active">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:10px;">
+                <div>
+                    <h3 style="margin:0; color:#1e3a8a; font-size:1.35rem;">📊 Executive Orders Dashboard</h3>
+                    <div style="color:#6b7280; font-size:0.88rem; margin-top:2px;">High-level overview, order completion progress and critical milestones</div>
+                </div>
+                <div style="display:flex; gap:8px;">
+                    <button class="btn btn-primary" onclick="openTab('report')" style="font-size:0.85rem; padding:0.45rem 0.9rem;">📋 View Full Overview Table</button>
+                </div>
+            </div>
+
+            <!-- SUMMARY KPI CARDS -->
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
+                <!-- KPI Total Active -->
+                <div style="background:#fff; border-radius:10px; padding:16px 20px; box-shadow:0 2px 6px rgba(0,0,0,0.06); border-left:5px solid #3b82f6;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:0.85rem; font-weight:600; color:#6b7280; text-transform:uppercase;">Active Orders</span>
+                        <span style="font-size:1.4rem;">📦</span>
+                    </div>
+                    <div id="kpiTotaliAttive" style="font-size:2rem; font-weight:bold; color:#1e3a8a; margin-top:4px;">0</div>
+                    <div style="font-size:0.75rem; color:#9ca3af; margin-top:2px;">Currently in production</div>
+                </div>
+
+                <!-- KPI On Track -->
+                <div style="background:#fff; border-radius:10px; padding:16px 20px; box-shadow:0 2px 6px rgba(0,0,0,0.06); border-left:5px solid #10b981;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:0.85rem; font-weight:600; color:#065f46; text-transform:uppercase;">On Track</span>
+                        <span style="font-size:1.4rem;">🟢</span>
+                    </div>
+                    <div id="kpiInLinea" style="font-size:2rem; font-weight:bold; color:#10b981; margin-top:4px;">0</div>
+                    <div style="font-size:0.75rem; color:#059669; margin-top:2px;">WP meets contractual delivery date</div>
+                </div>
+
+                <!-- KPI Delayed -->
+                <div style="background:#fff; border-radius:10px; padding:16px 20px; box-shadow:0 2px 6px rgba(0,0,0,0.06); border-left:5px solid #ef4444;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:0.85rem; font-weight:600; color:#991b1b; text-transform:uppercase;">Delivery Delay</span>
+                        <span style="font-size:1.4rem;">🔴</span>
+                    </div>
+                    <div id="kpiInRitardo" style="font-size:2rem; font-weight:bold; color:#ef4444; margin-top:4px;">0</div>
+                    <div style="font-size:0.75rem; color:#b91c1c; margin-top:2px;">Projected WP date after contractual delivery</div>
+                </div>
+
+                <!-- KPI Issues / Materials -->
+                <div style="background:#fff; border-radius:10px; padding:16px 20px; box-shadow:0 2px 6px rgba(0,0,0,0.06); border-left:5px solid #f59e0b;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:0.85rem; font-weight:600; color:#92400e; text-transform:uppercase;">Material / Task Issues</span>
+                        <span style="font-size:1.4rem;">🟡</span>
+                    </div>
+                    <div id="kpiCriticita" style="font-size:2rem; font-weight:bold; color:#f59e0b; margin-top:4px;">0</div>
+                    <div style="font-size:0.75rem; color:#d97706; margin-top:2px;">Delays in MR, purchase orders or tasks</div>
+                </div>
+            </div>
+
+            <!-- UPCOMING MILESTONES (NEXT 15 DAYS) -->
+            <div id="boxAlertScadenzeImminenti" style="margin-bottom:1.5rem; background:#fff; border-radius:10px; padding:16px 20px; box-shadow:0 2px 6px rgba(0,0,0,0.06); border:1px solid #fed7aa; display:none;">
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
+                    <span style="font-size:1.2rem;">⏰</span>
+                    <strong style="color:#c2410c; font-size:1rem;">Upcoming Deliveries & Milestones in next 15 days</strong>
+                </div>
+                <div id="listaAlertScadenzeImminenti" style="display:flex; flex-direction:column; gap:6px; font-size:0.88rem;"></div>
+            </div>
+
+            <!-- STATUS TABLE WITH QUICK FILTERS -->
+            <div class="card" style="margin:0; padding:16px 20px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.06);">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+                    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                        <span style="font-weight:600; font-size:0.9rem; color:#374151;">Quick filter:</span>
+                        <button id="btnFiltroDashTutte" class="btn btn-primary" onclick="impostaFiltroDashboard('tutte')" style="font-size:0.8rem; padding:0.35rem 0.8rem; border-radius:20px;">All (<span id="countDashTutte">0</span>)</button>
+                        <button id="btnFiltroDashRitardo" class="btn btn-secondary" onclick="impostaFiltroDashboard('ritardo')" style="font-size:0.8rem; padding:0.35rem 0.8rem; border-radius:20px; color:#b91c1c;">🔴 Delayed (<span id="countDashRitardo">0</span>)</button>
+                        <button id="btnFiltroDashCriticita" class="btn btn-secondary" onclick="impostaFiltroDashboard('criticita')" style="font-size:0.8rem; padding:0.35rem 0.8rem; border-radius:20px; color:#b45309;">🟡 Attention (<span id="countDashCriticita">0</span>)</button>
+                        <button id="btnFiltroDashInLinea" class="btn btn-secondary" onclick="impostaFiltroDashboard('inlinea')" style="font-size:0.8rem; padding:0.35rem 0.8rem; border-radius:20px; color:#047857;">🟢 On Track (<span id="countDashInLinea">0</span>)</button>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <label for="searchDashboard" style="font-size:0.85rem; font-weight:600; color:#6b7280;">Search:</label>
+                        <input type="text" id="searchDashboard" class="form-control" placeholder="Search order, client..." oninput="renderingDashboard()" style="padding:0.35rem 0.7rem; font-size:0.85rem; max-width:240px;">
+                    </div>
+                </div>
+
+                <div class="table-wrapper">
+                    <table class="sinottico" style="font-size:0.88rem;">
+                        <thead>
+                            <tr style="background:#f8fafc;">
+                                <th style="width:110px;">STATUS</th>
+                                <th style="width:100px;">JOB ORDER</th>
+                                <th>CLIENT / DESCRIPTION</th>
+                                <th style="width:130px;">ORDER DELIVERY</th>
+                                <th style="width:130px;">PROJECTED WP</th>
+                                <th style="width:110px;">PROGRESS</th>
+                                <th>CRITICAL ISSUES</th>
+                                <th style="width:110px; text-align:center;">ACTIONS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyDashboard">
+                            <!-- Dynamically populated -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="report" class="tab-content">
             <div class="card" style="border:none; padding:0; margin:0;">
                 <h3 class="no-print">Home - Active Orders Dashboard</h3>
                 <p class="no-print">Click on the <strong>blue order ID</strong> to open its <strong>WBS Phase Details and PDF documents</strong>.</p>
@@ -767,7 +870,8 @@
         let xmlTemporaneoDettaglioDataCaricamento = null;
         let xmlTemporaneoCreazione = null; 
         let idCommessaSelezionata = null;
-        let tabOrigine = 'report';
+        let tabOrigine = 'dashboard';
+        let filtroAttivoDashboard = 'tutte';
 
         if(!E_IN_RETE && localStorage.getItem('AppData_Sinottico_V10_Fasi')) {
             AppData = normalizzaDatiCompatibilita(JSON.parse(localStorage.getItem('AppData_Sinottico_V10_Fasi')));
@@ -777,13 +881,16 @@
 
         function openTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
+            const targetContent = document.getElementById(tabId);
+            if(targetContent) targetContent.classList.add('active');
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             const targetBtn = document.getElementById('btn-tab-' + tabId);
             if(targetBtn) targetBtn.classList.add('active');
             
-            if(tabId === 'report') renderingSinottico();
-        ripristinaCartellaPdfHandle();
+            if(tabId === 'dashboard') renderingDashboard();
+            if(tabId === 'report') renderingDashboard();
+                        renderingSinottico();
+            ripristinaCartellaPdfHandle();
             if(tabId === 'archivio') renderingArchivio();
             if(tabId === 'scadenziario') {
                 aggiornaSelectCommesseScadenziario();
@@ -1227,6 +1334,7 @@
                             await acquisisciLockCondiviso();
                         }
 
+                        renderingDashboard();
                         renderingSinottico();
                         renderingArchivio();
                         renderingScadenziario();
@@ -1272,6 +1380,7 @@
                             await acquisisciLockCondiviso();
                         }
 
+                        renderingDashboard();
                         renderingSinottico();
                         renderingArchivio();
                         renderingScadenziario();
@@ -1422,7 +1531,9 @@
             AppData = { commesse: {}, metadata: {}, diario: [], scadenziario: [] };
             databaseModificato = true;
             try { localStorage.removeItem('AppData_Sinottico_V10_Fasi'); } catch(err) {}
-            renderingSinottico();
+            renderingDashboard();
+                        renderingDashboard();
+        renderingSinottico();
         ripristinaCartellaPdfHandle();
             renderingArchivio();
             renderingScadenziario();
@@ -1447,7 +1558,8 @@
                 databaseModificato = false;
                 origineDati = "JSON del sito (" + URL_DATABASE_REMOTO + ")";
                 aggiornaStatoArchivioCondiviso("Dati dal sito • sola lettura • " + new Date().toLocaleTimeString('it-IT'), "#15803d");
-                renderingSinottico();
+                renderingDashboard();
+                        renderingSinottico();
         ripristinaCartellaPdfHandle();
                 renderingArchivio();
                 renderingScadenziario();
@@ -1492,6 +1604,7 @@
                         if(!AppData.scadenziario) AppData.scadenziario = [];
                         salvaDatiCondivisi();
                         alert("Database loaded successfully! All data updated.");
+                        renderingDashboard();
                         renderingSinottico();
         ripristinaCartellaPdfHandle();
                         renderingArchivio();
@@ -2784,6 +2897,225 @@
             openTab(AppData.metadata[id].archiviata ? 'archivio' : 'report');
         }
 
+                function impostaFiltroDashboard(tipo) {
+            filtroAttivoDashboard = tipo;
+            ['tutte', 'ritardo', 'criticita', 'inlinea'].forEach(t => {
+                const btn = document.getElementById('btnFiltroDash' + t.charAt(0).toUpperCase() + t.slice(1));
+                if(btn) {
+                    if(t === tipo) {
+                        btn.className = 'btn btn-primary';
+                    } else {
+                        btn.className = 'btn btn-secondary';
+                    }
+                }
+            });
+            renderingDashboard();
+        }
+
+        function calcolaAvanzamentoComplessivoCommessa(attivita) {
+            if(!attivita || !attivita.length) return 0;
+            let sumPct = 0;
+            let count = 0;
+            attivita.forEach(t => {
+                if(!t.isSummary && typeof t.pct === 'number') {
+                    sumPct += t.pct;
+                    count++;
+                }
+            });
+            return count > 0 ? Math.round(sumPct / count) : 0;
+        }
+
+        function renderingDashboard() {
+            const tbody = document.getElementById("tbodyDashboard");
+            if(!tbody) return;
+            tbody.innerHTML = "";
+
+            const oggi = new Date();
+            oggi.setHours(0,0,0,0);
+            const tra15gg = new Date(oggi.getTime() + 15 * 86400000);
+
+            const searchQ = document.getElementById("searchDashboard") ? document.getElementById("searchDashboard").value.toLowerCase().trim() : "";
+
+            let countTotali = 0;
+            let countInLinea = 0;
+            let countInRitardo = 0;
+            let countCriticita = 0;
+            const righeDash = [];
+            const alerts15gg = [];
+
+            for(let id in AppData.metadata) {
+                let meta = AppData.metadata[id];
+                if(meta.archiviata) continue;
+                countTotali++;
+
+                let attInRitardo = 0;
+                let pctTotale = 0;
+                if(AppData.commesse[id] && AppData.commesse[id].length) {
+                    pctTotale = calcolaAvanzamentoComplessivoCommessa(AppData.commesse[id]);
+                    AppData.commesse[id].forEach(t => {
+                        if(!t.isSummary && t.finish) {
+                            let dFine = analizzaDataItaliana(t.finish);
+                            if(dFine) {
+                                dFine.setHours(0,0,0,0);
+                                if(dFine < oggi && t.pct < 100) attInRitardo++;
+                            }
+                        }
+                    });
+                }
+
+                let mrVisualizzato = 0;
+                let ordiniVisualizzato = 0;
+                let materialiVisualizzato = 0;
+                let manufInizio = 0;
+                let manufFine = 0;
+                let ritardoWp = 0;
+
+                if(AppData.commesse[id] && AppData.commesse[id].length > 0) {
+                    mrVisualizzato = calcolaMRRitardoDaAttivita(AppData.commesse[id]);
+                    ordiniVisualizzato = calcolaRitardoOrdiniDaAttivita(AppData.commesse[id]);
+                    materialiVisualizzato = calcolaRitardoArrivoMaterialiDaAttivita(AppData.commesse[id]);
+                    let mDett = calcolaManufacturingDettagliatoInRitardo(AppData.commesse[id]);
+                    manufInizio = mDett.inizio;
+                    manufFine = mDett.fine;
+
+                    let dCons = analizzaDataItaliana(meta.dataConsegnaOrdine || "");
+                    let dWp = analizzaDataItaliana(meta.dataComplPrev || "");
+                    if(dCons && dWp && dWp > dCons) {
+                        ritardoWp = Math.round((dWp.getTime() - dCons.getTime()) / (1000 * 60 * 60 * 24));
+                    }
+                } else {
+                    ritardoWp = parseInt(meta.ritardoComplFasi) || 0;
+                    mrVisualizzato = parseInt(meta.mrRitardo) || 0;
+                    ordiniVisualizzato = parseInt(meta.ritardoOrdini) || 0;
+                    materialiVisualizzato = parseInt(meta.ritardoArrivoMat) || 0;
+                }
+
+                let statoTipo = 'inlinea';
+                let badgeStatoHtml = '';
+                let puntiCritici = [];
+
+                if(ritardoWp > 0) {
+                    statoTipo = 'ritardo';
+                    countInRitardo++;
+                    badgeStatoHtml = `<span style="background:#fee2e2; color:#991b1b; padding:4px 8px; border-radius:12px; font-weight:bold; font-size:0.78rem; display:inline-flex; align-items:center; gap:4px;">🔴 +${ritardoWp} d</span>`;
+                    puntiCritici.push(`WP delay: +${ritardoWp} d after order delivery`);
+                } else if(mrVisualizzato > 0 || ordiniVisualizzato > 0 || materialiVisualizzato > 0 || attInRitardo > 0 || manufInizio > 0 || manufFine > 0) {
+                    statoTipo = 'criticita';
+                    countCriticita++;
+                    badgeStatoHtml = `<span style="background:#fef3c7; color:#92400e; padding:4px 8px; border-radius:12px; font-weight:bold; font-size:0.78rem; display:inline-flex; align-items:center; gap:4px;">🟡 Attention</span>`;
+                } else {
+                    statoTipo = 'inlinea';
+                    countInLinea++;
+                    badgeStatoHtml = `<span style="background:#d1fae5; color:#065f46; padding:4px 8px; border-radius:12px; font-weight:bold; font-size:0.78rem; display:inline-flex; align-items:center; gap:4px;">🟢 On Track</span>`;
+                }
+
+                if(mrVisualizzato > 0) puntiCritici.push(`MR delayed: ${mrVisualizzato}`);
+                if(ordiniVisualizzato > 0) puntiCritici.push(`Orders delayed: ${ordiniVisualizzato}`);
+                if(materialiVisualizzato > 0) puntiCritici.push(`Material delayed: ${materialiVisualizzato}`);
+                if(attInRitardo > 0) puntiCritici.push(`Overdue tasks: ${attInRitardo}`);
+                if(manufInizio > 0 || manufFine > 0) puntiCritici.push(`Manuf: start:${manufInizio} end:${manufFine}`);
+
+                const dCons = analizzaDataItaliana(meta.dataConsegnaOrdine || "");
+                if(dCons && dCons >= oggi && dCons <= tra15gg) {
+                    const delta = Math.round((dCons.getTime() - oggi.getTime()) / 86400000);
+                    alerts15gg.push({
+                        tipo: 'consegna',
+                        id,
+                        desc: meta.descrizione || '',
+                        data: meta.dataConsegnaOrdine,
+                        delta
+                    });
+                }
+
+                if(filtroAttivoDashboard !== 'tutte' && filtroAttivoDashboard !== statoTipo) continue;
+                if(searchQ !== "") {
+                    let mId = id.toLowerCase().includes(searchQ);
+                    let mDesc = (meta.descrizione || "").toLowerCase().includes(searchQ);
+                    let mFab = (meta.fabbricante || "").toLowerCase().includes(searchQ);
+                    if(!mId && !mDesc && !mFab) continue;
+                }
+
+                const dConsVal = dCons ? dCons.getTime() : Number.POSITIVE_INFINITY;
+
+                let criticiText = puntiCritici.length > 0 
+                    ? `<span style="color:#b91c1c; font-size:0.8rem;">${puntiCritici.join(" • ")}</span>` 
+                    : `<span style="color:#10b981; font-size:0.8rem;">No anomalies reported</span>`;
+
+                righeDash.push({
+                    dConsVal,
+                    html: `<tr>
+                        <td>${badgeStatoHtml}</td>
+                        <td class="id-cell" onclick="apriDettaglioCommessa('${id}', 'dashboard')">${id}</td>
+                        <td class="desc-cell">
+                            <strong>${meta.descrizione || '-'}</strong>
+                            <div style="font-size:0.75rem; color:#6b7280;">Manufacturer: ${meta.fabbricante || '-'}</div>
+                        </td>
+                        <td>${meta.dataConsegnaOrdine || '-'}</td>
+                        <td><strong>${meta.dataComplPrev || '-'}</strong></td>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:6px;">
+                                <div style="flex:1; background:#e5e7eb; border-radius:4px; height:8px; overflow:hidden;">
+                                    <div style="background:${pctTotale >= 100 ? '#10b981' : (statoTipo === 'ritardo' ? '#ef4444' : '#3b82f6')}; width:${pctTotale}%; height:100%;"></div>
+                                </div>
+                                <span style="font-size:0.75rem; font-weight:bold; min-width:32px;">${pctTotale}%</span>
+                            </div>
+                        </td>
+                        <td>${criticiText}</td>
+                        <td style="text-align:center;">
+                            <button class="btn btn-secondary" onclick="apriDettaglioCommessa('${id}', 'dashboard')" style="font-size:0.75rem; padding:3px 8px;">🔍 Details</button>
+                        </td>
+                    </tr>`
+                });
+            }
+
+            const elTot = document.getElementById("kpiTotaliAttive");
+            const elInL = document.getElementById("kpiInLinea");
+            const elRit = document.getElementById("kpiInRitardo");
+            const elCrit = document.getElementById("kpiCriticita");
+            if(elTot) elTot.textContent = countTotali;
+            if(elInL) elInL.textContent = countInLinea;
+            if(elRit) elRit.textContent = countInRitardo;
+            if(elCrit) elCrit.textContent = countCriticita;
+
+            const cTutte = document.getElementById("countDashTutte");
+            const cRit = document.getElementById("countDashRitardo");
+            const cCrit = document.getElementById("countDashCriticita");
+            const cInL = document.getElementById("countDashInLinea");
+            if(cTutte) cTutte.textContent = countTotali;
+            if(cRit) cRit.textContent = countInRitardo;
+            if(cCrit) cCrit.textContent = countCriticita;
+            if(cInL) cInL.textContent = countInLinea;
+
+            const boxAlert = document.getElementById("boxAlertScadenzeImminenti");
+            const listaAlert = document.getElementById("listaAlertScadenzeImminenti");
+            if(boxAlert && listaAlert) {
+                if(alerts15gg.length > 0) {
+                    boxAlert.style.display = "block";
+                    listaAlert.innerHTML = alerts15gg.map(a => `
+                        <div style="display:flex; justify-content:space-between; align-items:center; background:#fff7ed; padding:6px 12px; border-radius:6px; border:1px solid #ffedd5;">
+                            <div>
+                                <strong style="color:#1e3a8a; cursor:pointer;" onclick="apriDettaglioCommessa('${a.id}', 'dashboard')">${a.id}</strong> - ${a.desc}
+                            </div>
+                            <div>
+                                <span style="color:#c2410c; font-weight:bold;">Delivery on ${a.data}</span> 
+                                <span style="background:#ea580c; color:#fff; padding:1px 6px; border-radius:10px; font-size:0.75rem; margin-left:6px;">in ${a.delta} days</span>
+                            </div>
+                        </div>
+                    `).join("");
+                } else {
+                    boxAlert.style.display = "none";
+                }
+            }
+
+            righeDash.sort((a,b) => a.dConsVal - b.dConsVal);
+            if(righeDash.length > 0) {
+                righeDash.forEach(r => tbody.innerHTML += r.html);
+            } else {
+                tbody.innerHTML = "<tr><td colspan='8' style='text-align:center; padding:1.2rem; color:#6b7280;'>No job orders matching selected filter.</td></tr>";
+            }
+        }
+
+
         function renderingSinottico() {
             const tbody = document.getElementById("tbodySinottico");
             tbody.innerHTML = "";
@@ -3270,7 +3602,8 @@
             const btnDemo = document.getElementById('btnSvuotaDemo');
             if(btnDemo) btnDemo.style.display = 'inline-flex';
         }
-        renderingSinottico();
+        renderingDashboard();
+                        renderingSinottico();
         ripristinaCartellaPdfHandle();
         if(E_IN_RETE) {
             caricaDatabaseRemoto();
