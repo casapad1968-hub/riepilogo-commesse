@@ -1,0 +1,132 @@
+RIEPILOGO COMMESSE — ISTRUZIONI D'USO
+=====================================
+
+Cosa c'è in questa cartella
+---------------------------
+  Commesse.html                  L'applicazione (un unico file, non serve installare nulla)
+  database_commesse.json         Database DIMOSTRATIVO con dati inventati (per provare)
+  database_vuoto.json            Database vuoto, per iniziare da zero con le tue commesse
+  demo\                          Copia del database dimostrativo (la stessa cosa)
+  LEGGIMI.txt                    Questo file
+  README.md                      Descrizione tecnica del progetto
+  LICENSE                        Licenza MIT
+
+
+REQUISITI
+---------
+  Browser: Microsoft Edge o Google Chrome (aggiornati)
+  NON funziona su Firefox o Safari: manca il supporto per il salvataggio diretto su file
+  Non serve internet, non serve installare niente
+
+
+COME INIZIARE — PRIMO AVVIO
+---------------------------
+  1. Apri Commesse.html con doppio clic (o tasto destro > Apri con > Chrome/Edge)
+
+  2. L'app si apre GIA' POPOLATA con due commesse dimostrative:
+       70777 - Cliente A, in ritardo
+       70812 - Cliente B, in linea
+
+     Non devi selezionare nessun file. Guarda, clicca, prova.
+
+  3. Quando hai capito come funziona, premi "Svuota dati demo" (pulsante rosso
+     in alto a destra nella barra dei comandi) per partire da zero.
+
+  4. Per collegare il TUO database: "Collega Archivio Condiviso" -> scegli il file.
+
+
+PERCHE' L'APP NON SI COLLEGA DA SOLA AL FILE
+--------------------------------------------
+  Il browser non permette a una pagina web di aprire un file sul disco senza
+  un tuo clic. E' una regola di sicurezza, non un limite dell'app.
+  Per questo i dati dimostrativi sono dentro l'HTML stesso, mentre il tuo
+  database vero si collega con un clic.
+
+
+ATTENZIONE — PRIMA DI USARLA CON I TUOI DATI
+--------------------------------------------
+  Quando l'app è collegata a un file JSON, ogni salvataggio SOVRASCRIVE quel file.
+  Se provi con il database dimostrativo e poi salvi, i dati demo vengono modificati.
+  Per questo conviene:
+     - tenere il dimostrativo in una cartella a parte
+     - usare database_vuoto.json (o una copia) per il lavoro vero
+
+
+CARICARE LE TUE COMMESSE DA MS PROJECT
+--------------------------------------
+  Nella scheda "Nuova Commessa (Manuale / XML)":
+     - Opzione A: carica il file XML esportato da MS Project
+       L'app compila da sola numero commessa, descrizione, attività, date
+     - Compila a mano solo i campi che l'XML non contiene:
+       date velina, fabbricante, inizio fabbricazione
+
+  Per AGGIORNARE una commessa esistente:
+     - entra nel dettaglio della commessa
+     - sezione "AGGIORNA FILE PROJECT XML DEL MESE"
+     - carica il nuovo XML: le attività vengono sostituite, i dati inseriti a mano restano
+
+
+DOVE STANNO I DATI
+------------------
+  Il database è il file JSON che hai selezionato all'avvio. Nient'altro.
+  L'app non manda dati da nessuna parte: nessun server, nessun account, nessun cloud.
+
+  Il browser tiene anche una copia temporanea interna (localStorage), usata per
+  riaprire l'app con i dati già caricati.
+
+
+CONSIGLI PER LA SICUREZZA DEI DATI
+----------------------------------
+  1. FAI UNA COPIA DEL JSON OGNI TANTO. Non c'è backup automatico.
+     Suggerimento: una volta a settimana copia database_commesse.json in una
+     cartella "backup" con la data nel nome (es. database_commesse_2026-11-16.json)
+
+  2. NON mettere il file su un cloud pubblico (Drive/Dropbox condivisi)
+     Se lo metti su un disco di rete condiviso, va bene: è il caso d'uso previsto
+
+  3. I PDF caricati dentro l'app vengono salvati DENTRO il JSON.
+     Il browser ha un limite di circa 5 MB per il salvataggio automatico:
+     con molti PDF pesanti il salvataggio in cache può fallire.
+     Il file JSON su disco resta comunque valido.
+
+
+LIMITI DA CONOSCERE
+-------------------
+  - Un solo utente alla volta. Se due persone modificano lo stesso JSON
+    contemporaneamente, vince l'ultima che salva.
+  - Nessuna password: chi apre il file vede tutto. Va bene per uso locale.
+  - Nessun backup automatico (vedi sopra).
+
+
+COMANDI PRINCIPALI DELL'APP
+---------------------------
+  💾 Salva Dati Condivisi      Scrive sul file JSON collegato
+  🔗 Collega Archivio Condiviso  Cambia il file JSON (o lo ricollega dopo un riavvio)
+  📂 Carica JSON Manuale       Importa un JSON senza collegarlo in scrittura
+  📊 Esporta CSV               Scarica la tabella come foglio di calcolo
+  🖨️ Stampa Report             Report impaginato in orizzontale su A4
+
+  Dopo ogni riavvio del browser l'app chiede di ricollegare il database:
+  è normale, il browser non memorizza i permessi sui file tra una sessione e l'altra.
+
+
+DOMANDE FREQUENTI
+-----------------
+  L'app si apre ma la tabella è vuota?
+    -> Non hai collegato il database. Usa "🔗 Collega Archivio Condiviso"
+
+  Mi dice "Il browser in uso non supporta il collegamento diretto al file"
+    -> Stai usando Firefox o Safari. Apri con Chrome o Edge.
+
+  Ho perso le modifiche?
+    -> Controlla in basso a destra lo stato: "Salvato: <file> • <ora>"
+       Se dice "Errore salvataggio condiviso", il file è aperto da un altro
+       programma (o da un'altra persona) e non è scrivibile.
+
+  Posso usarla su più computer?
+    -> Sì, mettendo il JSON su un disco di rete. Un utente alla volta.
+
+
+---
+Progetto open source: https://github.com/casapad1968-hub/riepilogo-commesse
+Licenza MIT
