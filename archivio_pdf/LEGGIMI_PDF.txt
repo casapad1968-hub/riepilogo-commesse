@@ -1,0 +1,26 @@
+CARTELLA ARCHIVIO DOCUMENTI E CERTIFICATI PDF
+==============================================
+
+In questa cartella vengono salvati i documenti e certificati PDF allegati
+alle commesse (es. Certificati di collaudo 3.1, Disegni, Schede tecniche).
+
+Organizzazione:
+---------------
+L'applicazione crea e gestisce automaticamente una sottocartella per ogni
+singola commessa usando il suo numero identificativo.
+
+Esempio di struttura:
+  archivio_pdf/
+    ├── 70777/
+    │   ├── Certificato_Materiali_3.1.pdf
+    │   └── Verbale_Collaudo_Finale.pdf
+    ├── 70812/
+    │   └── Disegno_Costruttivo_Rev2.pdf
+    └── LEGGIMI_PDF.txt
+
+Vantaggi:
+---------
+1. I file PDF restano file reali sul tuo computer o disco di rete: puoi aprirli,
+   copiarli, inviarli via email o consultarli anche senza aprire l'applicazione.
+2. Il database delle commesse (database_commesse.json) rimane leggerissimo (pochi KB),
+   eliminando qualsiasi problema di memoria o rallentamento del browser.
