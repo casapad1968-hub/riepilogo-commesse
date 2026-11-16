@@ -177,7 +177,7 @@
     "70777": {
       "descrizione": "Cliente A - Skid di compressione gas",
       "dataAperturaVelina": "10/01/2026",
-      "dataConsegnaVelina": "15/12/2026",
+      "dataConsegnaOrdine": "15/12/2026",
       "mrRitardo": "1",
       "ritardoOrdini": "1",
       "ritardoArrivoMat": "2",
@@ -207,7 +207,7 @@
     "70812": {
       "descrizione": "Cliente B - Skid pompa centrifuga",
       "dataAperturaVelina": "01/06/2026",
-      "dataConsegnaVelina": "30/03/2027",
+      "dataConsegnaOrdine": "30/03/2027",
       "mrRitardo": "0",
       "ritardoOrdini": "0",
       "ritardoArrivoMat": "0",
