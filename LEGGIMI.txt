@@ -113,12 +113,24 @@ CONSIGLI PER LA SICUREZZA DEI DATI
      di saturazione.
 
 
+PROTEZIONE CONCORRENZA MULTI-UTENTE
+------------------------------------
+  - Protezione attiva contro sovrascritture accidentali:
+    1) Rilevamento automatico timestamp: se un collega salva modifiche sul disco
+       mentre hai l'app aperta, l'applicazione lo rileva istantaneamente.
+       Al momento del tuo salvataggio ti avvisa con un chiaro messaggio di conflitto,
+       mostrando data e ora della modifica del collega e permettendoti di scegliere
+       se sovrascrivere o ricaricare i dati freschi da disco senza sovrascrivere alla cieca.
+    2) File di lock condiviso (database_commesse.lock): registra l'operatore attivo
+       e l'orario di apertura nella cartella condivisa.
+    3) Rilascio automatico del lock alla chiusura della finestra o scheda del browser.
+    4) Badge Operatore in testata: permette di impostare la propria sigla/nome
+       (es. 👤 Gaetano) con un semplice clic.
+
 LIMITI DA CONOSCERE
 -------------------
-  - Un solo utente alla volta. Se due persone modificano lo stesso JSON
-    contemporaneamente, vince l'ultima che salva.
-  - Nessuna password: chi apre il file vede tutto. Va bene per uso locale.
-  - Nessun backup automatico (vedi sopra).
+  - Nessuna password: chi apre il file vede tutto. Va bene per uso locale/aziendale protetto.
+  - Nessun backup automatico (vedi consigli sopra).
 
 
 COMANDI PRINCIPALI DELL'APP
