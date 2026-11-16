@@ -282,6 +282,10 @@
     <header class="no-print">
         <div class="header-title-container">
             <h2>Riepilogo commesse</h2>
+            <div style="margin-left: 1rem; display: flex; gap: 0.3rem;">
+                <span style="background: rgba(255,255,255,0.25); padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">🇮🇹 IT</span>
+                <a href="Orders.html" style="color: white; text-decoration: none; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; background: rgba(0,0,0,0.2);">🇬🇧 EN</a>
+            </div>
         </div>
         <div id="clock"></div>
     </header>
@@ -494,7 +498,7 @@
                         </div>
                         <div class="form-group">
                             <label>Data Consegna da Ordine:</label>
-                            <input type="text" id="d_dataConsegnaVelina" class="form-control" placeholder="GG/MM/AAAA" oninput="eseguiCalcoloRitardoUltimoWpDettaglio()">
+                            <input type="text" id="d_dataConsegnaOrdine" class="form-control" placeholder="GG/MM/AAAA" oninput="eseguiCalcoloRitardoUltimoWpDettaglio()">
                         </div>
                     </div>
 
@@ -661,7 +665,7 @@
                 <div class="form-group"><label>Descrizione / Cliente:</label><input type="text" id="m_descrizione" class="form-control" placeholder="Descrizione"></div>
                 <div class="grid-2" style="gap:0.5rem;">
                     <div class="form-group"><label>Data Apertura Velina:</label><input type="text" id="m_dataAperturaVelina" class="form-control" placeholder="GG/MM/AAAA" value="-"></div>
-                    <div class="form-group"><label>Data Consegna da Ordine:</label><input type="text" id="m_dataConsegnaVelina" class="form-control" placeholder="GG/MM/AAAA" value="-"></div>
+                    <div class="form-group"><label>Data Consegna da Ordine:</label><input type="text" id="m_dataConsegnaOrdine" class="form-control" placeholder="GG/MM/AAAA" value="-"></div>
                 </div>
                 <div class="form-group"><label>Inizio Fabbricazione da WP:</label><input type="text" id="m_inizioPrevFab" class="form-control" placeholder="GG/MM/AAAA" value="-"></div>
                 <div class="form-group"><label>Fabbricante:</label><input type="text" id="m_fabbricante" class="form-control" placeholder="es. AB" value="-"></div>
@@ -695,16 +699,29 @@
         // === DATABASE PRECARICATO ===
         // Dati dimostrativi inclusi nel file: l'app si apre gia' popolata.
         // Sostituito automaticamente quando colleghi il tuo archivio JSON.
-        const DATABASE_PRECARICATO = {"commesse":{"70777":[{"name":"PO ISSUANCE","start":"2026-01-10","finish":"2026-04-30","pct":75,"level":1,"isSummary":true},{"name":"PO 001 - Riduttori","start":"2026-01-10","finish":"2026-03-15","pct":100,"level":2,"isSummary":false},{"name":"PO 002 - Motori elettrici","start":"2026-02-01","finish":"2026-04-20","pct":40,"level":2,"isSummary":false},{"name":"PO 003 - Quadri elettrici","start":"2026-02-15","finish":"2026-12-10","pct":10,"level":2,"isSummary":false},{"name":"MATERIAL DELIVERABLES","start":"2026-05-01","finish":"2026-10-31","pct":55,"level":1,"isSummary":true},{"name":"MD - Lamiera carpenteria","start":"2026-05-01","finish":"2026-09-30","pct":60,"level":2,"isSummary":false},{"name":"MD - Valvole e raccorderia","start":"2026-06-01","finish":"2026-10-15","pct":35,"level":2,"isSummary":false},{"name":"MD - Strumentazione","start":"2026-07-01","finish":"2026-12-15","pct":0,"level":2,"isSummary":false},{"name":"MANUFACTURING","start":"2026-10-01","finish":"2026-12-20","pct":20,"level":1,"isSummary":true},{"name":"Fabrication - Skid principale","start":"2026-10-01","finish":"2026-12-10","pct":25,"level":2,"isSummary":false},{"name":"Assembly - Cablaggio","start":"2026-11-15","finish":"2026-12-20","pct":0,"level":2,"isSummary":false},{"name":"DELIVERY","start":"2027-01-15","finish":"2027-01-20","pct":0,"level":1,"isSummary":false}],"70812":[{"name":"PO ISSUANCE","start":"2026-06-01","finish":"2026-08-31","pct":100,"level":1,"isSummary":true},{"name":"PO 010 - Pompa centrifuga","start":"2026-06-01","finish":"2026-07-20","pct":100,"level":2,"isSummary":false},{"name":"PO 011 - Scambiatore","start":"2026-06-15","finish":"2026-08-30","pct":100,"level":2,"isSummary":false},{"name":"MATERIAL DELIVERABLES","start":"2026-09-01","finish":"2026-12-31","pct":70,"level":1,"isSummary":true},{"name":"MD - Tubazioni","start":"2026-09-01","finish":"2026-10-31","pct":100,"level":2,"isSummary":false},{"name":"MD - Flange","start":"2026-09-15","finish":"2027-01-15","pct":40,"level":2,"isSummary":false},{"name":"MANUFACTURING","start":"2027-01-10","finish":"2027-02-28","pct":0,"level":1,"isSummary":true},{"name":"Fabrication - Skid pompa","start":"2027-01-10","finish":"2027-02-20","pct":0,"level":2,"isSummary":false},{"name":"DELIVERY","start":"2027-03-05","finish":"2027-03-10","pct":0,"level":1,"isSummary":false}]},"metadata":{"70777":{"descrizione":"Cliente A - Skid di compressione gas","dataAperturaVelina":"10/01/2026","dataConsegnaVelina":"15/12/2026","mrRitardo":"1","ritardoOrdini":"1","ritardoArrivoMat":"2","inizioPrevFab":"01/10/2026","inizioReale":"12/10/2026","giorniRitardo":"11","ritardoComplFasi":"36","manufRitardoInizio":"0","manufRitardoFine":"0","fabbricante":"Officina 1","dataComplPrev":"20/01/2027","archiviata":false,"documentiPdf":[],"ultimoWpCaricato":"WP_2026_11.mpp.xml","dataUltimoWpCaricato":"10/11/2026","avanzamenti":[{"data":"05/11/2026","testo":"Carpenteria consegnata con 3 settimane di ritardo. Recupero previsto in fase di assemblaggio."},{"data":"12/11/2026","testo":"Motori elettrici: confermata spedizione dal fornitore per il 20/11."}]},"70812":{"descrizione":"Cliente B - Skid pompa centrifuga","dataAperturaVelina":"01/06/2026","dataConsegnaVelina":"30/03/2027","mrRitardo":"0","ritardoOrdini":"0","ritardoArrivoMat":"0","inizioPrevFab":"10/01/2027","inizioReale":"-","giorniRitardo":"0","ritardoComplFasi":"0","manufRitardoInizio":"0","manufRitardoFine":"0","fabbricante":"Officina 2","dataComplPrev":"10/03/2027","archiviata":false,"documentiPdf":[],"ultimoWpCaricato":"WP_2026_11.mpp.xml","dataUltimoWpCaricato":"10/11/2026","avanzamenti":[{"data":"10/11/2026","testo":"Commessa in linea con la velina. Materiali principali ordinati."}]}},"diario":[{"commessa":"70777","tipo":"Allerta","nota":"Fornitore motori elettrici ha comunicato slittamento di 2 settimane. Impatto sul montaggio finale da valutare.","data":"12/11/2026"},{"commessa":"70777","tipo":"Nota","nota":"Visita cliente in officina effettuata, nessuna osservazione critica.","data":"14/11/2026"},{"commessa":"70812","tipo":"Nota","nota":"Ordine flange piazzato.","data":"10/11/2026"}],"scadenziario":[{"idScad":1763312400000,"nome":"Sollecito fornitore motori elettrici","commessa":"70777","dataFine":"20/11/2026","stato":"In corso"},{"idScad":1764176400000,"nome":"Invio disegno costruttivo al cliente","commessa":"70777","dataFine":"05/11/2026","stato":"Da fare"},{"idScad":1765904400000,"nome":"Controllo qualità saldature","commessa":"70777","dataFine":"10/12/2026","stato":"Da fare"},{"idScad":1768496400000,"nome":"Conferma data collaudo","commessa":"70812","dataFine":"15/01/2027","stato":"Da fare"}]};
+        const DATABASE_PRECARICATO = {"commesse":{"70777":[{"name":"PO ISSUANCE","start":"2026-01-10","finish":"2026-04-30","pct":75,"level":1,"isSummary":true},{"name":"PO 001 - Riduttori","start":"2026-01-10","finish":"2026-03-15","pct":100,"level":2,"isSummary":false},{"name":"PO 002 - Motori elettrici","start":"2026-02-01","finish":"2026-04-20","pct":40,"level":2,"isSummary":false},{"name":"PO 003 - Quadri elettrici","start":"2026-02-15","finish":"2026-12-10","pct":10,"level":2,"isSummary":false},{"name":"MATERIAL DELIVERABLES","start":"2026-05-01","finish":"2026-10-31","pct":55,"level":1,"isSummary":true},{"name":"MD - Lamiera carpenteria","start":"2026-05-01","finish":"2026-09-30","pct":60,"level":2,"isSummary":false},{"name":"MD - Valvole e raccorderia","start":"2026-06-01","finish":"2026-10-15","pct":35,"level":2,"isSummary":false},{"name":"MD - Strumentazione","start":"2026-07-01","finish":"2026-12-15","pct":0,"level":2,"isSummary":false},{"name":"MANUFACTURING","start":"2026-10-01","finish":"2026-12-20","pct":20,"level":1,"isSummary":true},{"name":"Fabrication - Skid principale","start":"2026-10-01","finish":"2026-12-10","pct":25,"level":2,"isSummary":false},{"name":"Assembly - Cablaggio","start":"2026-11-15","finish":"2026-12-20","pct":0,"level":2,"isSummary":false},{"name":"DELIVERY","start":"2027-01-15","finish":"2027-01-20","pct":0,"level":1,"isSummary":false}],"70812":[{"name":"PO ISSUANCE","start":"2026-06-01","finish":"2026-08-31","pct":100,"level":1,"isSummary":true},{"name":"PO 010 - Pompa centrifuga","start":"2026-06-01","finish":"2026-07-20","pct":100,"level":2,"isSummary":false},{"name":"PO 011 - Scambiatore","start":"2026-06-15","finish":"2026-08-30","pct":100,"level":2,"isSummary":false},{"name":"MATERIAL DELIVERABLES","start":"2026-09-01","finish":"2026-12-31","pct":70,"level":1,"isSummary":true},{"name":"MD - Tubazioni","start":"2026-09-01","finish":"2026-10-31","pct":100,"level":2,"isSummary":false},{"name":"MD - Flange","start":"2026-09-15","finish":"2027-01-15","pct":40,"level":2,"isSummary":false},{"name":"MANUFACTURING","start":"2027-01-10","finish":"2027-02-28","pct":0,"level":1,"isSummary":true},{"name":"Fabrication - Skid pompa","start":"2027-01-10","finish":"2027-02-20","pct":0,"level":2,"isSummary":false},{"name":"DELIVERY","start":"2027-03-05","finish":"2027-03-10","pct":0,"level":1,"isSummary":false}]},"metadata":{"70777":{"descrizione":"Cliente A - Skid di compressione gas","dataAperturaVelina":"10/01/2026","dataConsegnaOrdine":"15/12/2026","mrRitardo":"1","ritardoOrdini":"1","ritardoArrivoMat":"2","inizioPrevFab":"01/10/2026","inizioReale":"12/10/2026","giorniRitardo":"11","ritardoComplFasi":"36","manufRitardoInizio":"0","manufRitardoFine":"0","fabbricante":"Officina 1","dataComplPrev":"20/01/2027","archiviata":false,"documentiPdf":[],"ultimoWpCaricato":"WP_2026_11.mpp.xml","dataUltimoWpCaricato":"10/11/2026","avanzamenti":[{"data":"05/11/2026","testo":"Carpenteria consegnata con 3 settimane di ritardo. Recupero previsto in fase di assemblaggio."},{"data":"12/11/2026","testo":"Motori elettrici: confermata spedizione dal fornitore per il 20/11."}]},"70812":{"descrizione":"Cliente B - Skid pompa centrifuga","dataAperturaVelina":"01/06/2026","dataConsegnaOrdine":"30/03/2027","mrRitardo":"0","ritardoOrdini":"0","ritardoArrivoMat":"0","inizioPrevFab":"10/01/2027","inizioReale":"-","giorniRitardo":"0","ritardoComplFasi":"0","manufRitardoInizio":"0","manufRitardoFine":"0","fabbricante":"Officina 2","dataComplPrev":"10/03/2027","archiviata":false,"documentiPdf":[],"ultimoWpCaricato":"WP_2026_11.mpp.xml","dataUltimoWpCaricato":"10/11/2026","avanzamenti":[{"data":"10/11/2026","testo":"Commessa in linea con la velina. Materiali principali ordinati."}]}},"diario":[{"commessa":"70777","tipo":"Allerta","nota":"Fornitore motori elettrici ha comunicato slittamento di 2 settimane. Impatto sul montaggio finale da valutare.","data":"12/11/2026"},{"commessa":"70777","tipo":"Nota","nota":"Visita cliente in officina effettuata, nessuna osservazione critica.","data":"14/11/2026"},{"commessa":"70812","tipo":"Nota","nota":"Ordine flange piazzato.","data":"10/11/2026"}],"scadenziario":[{"idScad":1763312400000,"nome":"Sollecito fornitore motori elettrici","commessa":"70777","dataFine":"20/11/2026","stato":"In corso"},{"idScad":1764176400000,"nome":"Invio disegno costruttivo al cliente","commessa":"70777","dataFine":"05/11/2026","stato":"Da fare"},{"idScad":1765904400000,"nome":"Controllo qualità saldature","commessa":"70777","dataFine":"10/12/2026","stato":"Da fare"},{"idScad":1768496400000,"nome":"Conferma data collaudo","commessa":"70812","dataFine":"15/01/2027","stato":"Da fare"}]};
         const USA_DATI_PRECARICATI = true;
         // Se la pagina e' servita da un sito (GitHub Pages), i dati arrivano dal file
         // JSON della repository: modifichi il JSON, ricarichi, vedi le modifiche.
         const E_IN_RETE = (location.protocol === "http:" || location.protocol === "https:");
         const URL_DATABASE_REMOTO = "demo/database_commesse.json";
         let origineDati = E_IN_RETE ? "in caricamento..." : "precaricato nel file";
+        function normalizzaDatiCompatibilita(dati) {
+            if(!dati || !dati.metadata) return dati;
+            for(const id in dati.metadata) {
+                const m = dati.metadata[id];
+                if(m) {
+                    if(m.dataConsegnaOrdine === undefined && m.dataConsegnaVelina !== undefined) {
+                        m.dataConsegnaOrdine = m.dataConsegnaVelina;
+                    }
+                }
+            }
+            return dati;
+        }
+
         let AppData = { commesse: {}, metadata: {}, diario: [], scadenziario: [] };
         if (USA_DATI_PRECARICATI && DATABASE_PRECARICATO && DATABASE_PRECARICATO.metadata) {
-            AppData = JSON.parse(JSON.stringify(DATABASE_PRECARICATO));
+            AppData = normalizzaDatiCompatibilita(JSON.parse(JSON.stringify(DATABASE_PRECARICATO)));
         }
         let archivioCondivisoHandle = null;
         let salvataggioCondivisoInCorso = Promise.resolve();
@@ -721,7 +738,7 @@
         let tabOrigine = 'report';
 
         if(!E_IN_RETE && localStorage.getItem('AppData_Sinottico_V10_Fasi')) {
-            AppData = JSON.parse(localStorage.getItem('AppData_Sinottico_V10_Fasi'));
+            AppData = normalizzaDatiCompatibilita(JSON.parse(localStorage.getItem('AppData_Sinottico_V10_Fasi')));
             if(!AppData.diario) AppData.diario = [];
             if(!AppData.scadenziario) AppData.scadenziario = [];
         }
@@ -834,7 +851,7 @@
                 if(testo.trim()) {
                     const parsedData = JSON.parse(testo);
                     if(parsedData && parsedData.metadata) {
-                        AppData = parsedData;
+                        AppData = normalizzaDatiCompatibilita(parsedData);
                         if(!AppData.commesse) AppData.commesse = {};
                         if(!AppData.diario) AppData.diario = [];
                         if(!AppData.scadenziario) AppData.scadenziario = [];
@@ -945,12 +962,12 @@
                 if(!risposta.ok) throw new Error("HTTP " + risposta.status);
                 const dati = await risposta.json();
                 if(!dati || !dati.metadata) throw new Error("formato non valido");
-                AppData = {
+                AppData = normalizzaDatiCompatibilita({
                     commesse: dati.commesse || {},
                     metadata: dati.metadata || {},
                     diario: dati.diario || [],
                     scadenziario: dati.scadenziario || []
-                };
+                });
                 databaseModificato = false;
                 origineDati = "JSON del sito (" + URL_DATABASE_REMOTO + ")";
                 aggiornaStatoArchivioCondiviso("Dati dal sito • sola lettura • " + new Date().toLocaleTimeString('it-IT'), "#15803d");
@@ -993,7 +1010,7 @@
                 try {
                     let parsedData = JSON.parse(e.target.result);
                     if(parsedData && parsedData.metadata) {
-                        AppData = parsedData;
+                        AppData = normalizzaDatiCompatibilita(parsedData);
                         if(!AppData.diario) AppData.diario = [];
                         if(!AppData.scadenziario) AppData.scadenziario = [];
                         salvaDatiCondivisi();
@@ -1054,7 +1071,7 @@
         }
 
         function eseguiCalcoloRitardoUltimoWpDettaglio() {
-            let strConsVelina = document.getElementById("d_dataConsegnaVelina").value.trim();
+            let strConsVelina = document.getElementById("d_dataConsegnaOrdine").value.trim();
             let dataConsVelina = analizzaDataItaliana(strConsVelina);
             
             let dataWpFine = null;
@@ -1542,7 +1559,7 @@
             let fabWp = document.getElementById("m_inizioPrevFab").value;
             let fabbricante = document.getElementById("m_fabbricante").value;
             let apVelina = document.getElementById("m_dataAperturaVelina").value;
-            let consVelina = document.getElementById("m_dataConsegnaVelina").value;
+            let consVelina = document.getElementById("m_dataConsegnaOrdine").value;
 
             if(xmlTemporaneoCreazione) {
                 AppData.commesse[id] = xmlTemporaneoCreazione.attivita;
@@ -1558,7 +1575,7 @@
                 AppData.metadata[id] = {
                     descrizione: desc, 
                     dataAperturaVelina: apVelina,
-                    dataConsegnaVelina: consVelina,
+                    dataConsegnaOrdine: consVelina,
                     mrRitardo: xmlTemporaneoCreazione.mrRitardo, 
                     ritardoOrdini: xmlTemporaneoCreazione.ritardoOrdini, 
                     ritardoArrivoMat: xmlTemporaneoCreazione.ritardoArrivoMat,
@@ -1576,7 +1593,7 @@
             } else {
                 AppData.commesse[id] = [];
                 AppData.metadata[id] = {
-                    descrizione: desc, dataAperturaVelina: apVelina, dataConsegnaVelina: consVelina,
+                    descrizione: desc, dataAperturaVelina: apVelina, dataConsegnaOrdine: consVelina,
                     mrRitardo: "0", ritardoOrdini: "0", ritardoArrivoMat: "0",
                     inizioPrevFab: fabWp, inizioReale: "-", giorniRitardo: "0", ritardoComplFasi: "0", 
                     manufRitardoInizio: "0", manufRitardoFine: "0",
@@ -1593,7 +1610,7 @@
             document.getElementById("m_id").value = "";
             document.getElementById("m_descrizione").value = "";
             document.getElementById("m_dataAperturaVelina").value = "-";
-            document.getElementById("m_dataConsegnaVelina").value = "-";
+            document.getElementById("m_dataConsegnaOrdine").value = "-";
             document.getElementById("xmlFileCreazioneInput").value = "";
             xmlTemporaneoCreazione = null;
             alert("Nuova commessa registrata.");
@@ -1700,7 +1717,7 @@
                 manufInizioVal = manufDettagli.inizio.toString();
                 manufFineVal = manufDettagli.fine.toString();
                 
-                let dCons = analizzaDataItaliana(meta.dataConsegnaVelina || "");
+                let dCons = analizzaDataItaliana(meta.dataConsegnaOrdine || "");
                 let dWp = analizzaDataItaliana(meta.dataComplPrev || "");
                 if (dCons && dWp && dWp > dCons) {
                     ritardoWpVal = Math.round((dWp.getTime() - dCons.getTime()) / (1000 * 60 * 60 * 24)).toString();
@@ -1719,7 +1736,7 @@
             document.getElementById("det_titolo_id").innerText = id;
             document.getElementById("d_descrizione").value = meta.descrizione || "";
             document.getElementById("d_dataAperturaVelina").value = meta.dataAperturaVelina || "-";
-            document.getElementById("d_dataConsegnaVelina").value = meta.dataConsegnaVelina || "-";
+            document.getElementById("d_dataConsegnaOrdine").value = meta.dataConsegnaOrdine || "-";
             document.getElementById("d_mrRitardo").value = mrVal;
             document.getElementById("d_ritardoOrdini").value = ordiniVal;
             document.getElementById("d_ritardoArrivoMat").value = materialiVal;
@@ -1927,14 +1944,14 @@
                 let ritardoMaterialiCalcolato = calcolaRitardoArrivoMaterialiDaAttivita(res.listaAttivita);
                 let manufDettagli = calcolaManufacturingDettagliatoInRitardo(res.listaAttivita);
 
-                const dataConsegnaVelinaCorrente = analizzaDataItaliana(document.getElementById("d_dataConsegnaVelina").value.trim());
+                const dataConsegnaOrdineCorrente = analizzaDataItaliana(document.getElementById("d_dataConsegnaOrdine").value.trim());
                 const dataFineNuovoWp = analizzaDataItaliana(res.dataComplFormattata);
                 let ritardoUltimoWpCalcolato = 0;
-                if (dataConsegnaVelinaCorrente && dataFineNuovoWp) {
-                    dataConsegnaVelinaCorrente.setHours(0,0,0,0);
+                if (dataConsegnaOrdineCorrente && dataFineNuovoWp) {
+                    dataConsegnaOrdineCorrente.setHours(0,0,0,0);
                     dataFineNuovoWp.setHours(0,0,0,0);
-                    if (dataFineNuovoWp > dataConsegnaVelinaCorrente) {
-                        ritardoUltimoWpCalcolato = Math.round((dataFineNuovoWp.getTime() - dataConsegnaVelinaCorrente.getTime()) / (1000 * 60 * 60 * 24));
+                    if (dataFineNuovoWp > dataConsegnaOrdineCorrente) {
+                        ritardoUltimoWpCalcolato = Math.round((dataFineNuovoWp.getTime() - dataConsegnaOrdineCorrente.getTime()) / (1000 * 60 * 60 * 24));
                     }
                 }
 
@@ -2174,7 +2191,7 @@
             AppData.metadata[id] = {
                 descrizione: document.getElementById("d_descrizione").value,
                 dataAperturaVelina: document.getElementById("d_dataAperturaVelina").value,
-                dataConsegnaVelina: document.getElementById("d_dataConsegnaVelina").value,
+                dataConsegnaOrdine: document.getElementById("d_dataConsegnaOrdine").value,
                 mrRitardo: document.getElementById("d_mrRitardo").value,
                 ritardoOrdini: document.getElementById("d_ritardoOrdini").value,
                 ritardoArrivoMat: document.getElementById("d_ritardoArrivoMat").value,
@@ -2249,7 +2266,7 @@
                     manufInizioVisualizzato = manufDettagli.inizio.toString();
                     manufFineVisualizzato = manufDettagli.fine.toString();
                     
-                    let dCons = analizzaDataItaliana(meta.dataConsegnaVelina || "");
+                    let dCons = analizzaDataItaliana(meta.dataConsegnaOrdine || "");
                     let dWp = analizzaDataItaliana(meta.dataComplPrev || "");
                     if (dCons && dWp && dWp > dCons) {
                         ritardoWpVisualizzato = Math.round((dWp.getTime() - dCons.getTime()) / (1000 * 60 * 60 * 24)).toString();
@@ -2258,14 +2275,14 @@
                     }
                 }
 
-                const dataConsegna = analizzaDataItaliana(meta.dataConsegnaVelina || "");
+                const dataConsegna = analizzaDataItaliana(meta.dataConsegnaOrdine || "");
                 const dataConsegnaOrdine = dataConsegna ? dataConsegna.getTime() : Number.POSITIVE_INFINITY;
 
                 righe.push({ dataConsegnaOrdine, id, html: `<tr>
                     <td class="id-cell" onclick="apriDettaglioCommessa('${id}', 'report')">${id}</td>
                     <td class="desc-cell"><strong>${meta.descrizione || '-'}</strong></td>
                     <td>${meta.dataAperturaVelina || '-'}</td>
-                    <td>${meta.dataConsegnaVelina || '-'}</td>
+                    <td>${meta.dataConsegnaOrdine || '-'}</td>
                     <td class="${attInRitardo > 0 ? 'text-red' : ''}">${attInRitardo}</td>
                     <td class="${parseInt(mrVisualizzato) > 0 ? 'text-red' : ''}">${mrVisualizzato}</td>
                     <td class="${parseInt(ordiniVisualizzato) > 0 ? 'text-red' : ''}">${ordiniVisualizzato}</td>
@@ -2310,7 +2327,7 @@
                     <td class="id-cell" onclick="apriDettaglioCommessa('${id}', 'archivio')">${id}</td>
                     <td class="desc-cell"><strong>${meta.descrizione || '-'}</strong></td>
                     <td>${meta.dataAperturaVelina || '-'}</td>
-                    <td>${meta.dataConsegnaVelina || '-'}</td>
+                    <td>${meta.dataConsegnaOrdine || '-'}</td>
                     <td>${meta.inizioPrevFab || '-'}</td>
                     <td>${meta.inizioReale || '-'}</td>
                     <td><strong>${meta.dataComplPrev || '-'}</strong></td>
@@ -2530,7 +2547,7 @@
                 <div class="item"><div class="label">Descrizione / Cliente</div><div class="value">${esc(meta.descrizione || "-")}</div></div>
                 <div class="item"><div class="label">Fabbricante</div><div class="value">${esc(meta.fabbricante || "-")}</div></div>
                 <div class="item"><div class="label">Data apertura velina</div><div class="value">${esc(meta.dataAperturaVelina || "-")}</div></div>
-                <div class="item"><div class="label">Consegna da ordine</div><div class="value">${esc(meta.dataConsegnaVelina || "-")}</div></div>
+                <div class="item"><div class="label">Consegna da ordine</div><div class="value">${esc(meta.dataConsegnaOrdine || "-")}</div></div>
                 <div class="item"><div class="label">Ultima revisione WP</div><div class="value">${esc(ultimoWp)}</div></div>
                 <div class="item"><div class="label">Inizio fabbricazione da WP</div><div class="value">${esc(meta.inizioPrevFab || "-")}</div></div>
                 <div class="item"><div class="label">Inizio reale</div><div class="value">${esc(meta.inizioReale || "-")}</div></div>
