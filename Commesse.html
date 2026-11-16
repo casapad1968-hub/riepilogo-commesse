@@ -287,7 +287,15 @@
                 <a href="Orders.html" style="color: white; text-decoration: none; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; background: rgba(0,0,0,0.2);">🇬🇧 EN</a>
             </div>
         </div>
-        <div id="clock"></div>
+        <div style="display:flex; align-items:center; gap:12px;">
+            <div id="badgeOperatore" onclick="modificaNomeOperatore()" title="Clicca per cambiare nome operatore" style="cursor:pointer; background:rgba(255,255,255,0.2); padding:3px 10px; border-radius:15px; font-size:0.82rem; font-weight:bold; display:flex; align-items:center; gap:5px; border:1px solid rgba(255,255,255,0.3);">
+                👤 <span id="labelNomeOperatore">Operatore</span> ✏️
+            </div>
+            <div id="badgeStatoLock" style="display:none; font-size:0.8rem; padding:3px 8px; border-radius:12px; background:rgba(0,0,0,0.25); color:#fff; align-items:center; gap:4px;">
+                🔒 <span id="labelStatoLock">Condiviso</span>
+            </div>
+            <div id="clock"></div>
+        </div>
     </header>
 
     <div class="container">
@@ -731,6 +739,11 @@
         let salvataggioCondivisoInCorso = Promise.resolve();
         let databaseModificato = false;
         const NOME_DATABASE_CONDIVISO = "database_commesse.json";
+        const NOME_FILE_LOCK = "database_commesse.lock";
+        let ultimoTimestampDatabase = 0;
+        let nomeOperatoreCorrente = localStorage.getItem('NomeOperatoreCommesse') || "";
+        let heartbeatLockTimer = null;
+        let controlloConflittoInCorso = false;
         const DB_HANDLE_NAME = "CommesseArchivioCondiviso";
         const STORE_PDF_BLOBS = "documenti_pdf";
         const MODALITA_VISUALIZZAZIONE = false;
@@ -935,6 +948,7 @@
                 }
                 cartellaArchivioPdfHandle = handle;
                 await salvaHandleCartellaPdf(handle);
+                await acquisisciLockCondiviso();
                 aggiornaStatoCartellaPdf("Cartella PDF collegata: " + handle.name, "#15803d");
                 if(!silenzioso) alert("Cartella archivio PDF collegata con successo: " + handle.name + "\n\nI file PDF verranno salvati in sottocartelle divise per numero commessa.");
                 return true;
@@ -969,6 +983,107 @@
             return false;
         }
 
+        async function inizializzaNomeOperatore() {
+            if(!nomeOperatoreCorrente || !nomeOperatoreCorrente.trim()) {
+                const suggerito = "Utente-" + Math.floor(100 + Math.random() * 900);
+                const scelto = prompt("Inserisci il tuo nome o sigla operatore (visibile agli altri colleghi):", suggerito);
+                nomeOperatoreCorrente = (scelto && scelto.trim()) ? scelto.trim() : suggerito;
+                try { localStorage.setItem('NomeOperatoreCommesse', nomeOperatoreCorrente); } catch(e) {}
+            }
+            aggiornaBadgeOperatore();
+        }
+
+        function modificaNomeOperatore() {
+            const nuovo = prompt("Modifica nome o sigla operatore:", nomeOperatoreCorrente);
+            if(nuovo && nuovo.trim()) {
+                nomeOperatoreCorrente = nuovo.trim();
+                try { localStorage.setItem('NomeOperatoreCommesse', nomeOperatoreCorrente); } catch(e) {}
+                aggiornaBadgeOperatore();
+                rinnovaLockCondiviso();
+            }
+        }
+
+        function aggiornaBadgeOperatore() {
+            const el = document.getElementById("labelNomeOperatore");
+            if(el) el.textContent = nomeOperatoreCorrente || "Operatore";
+        }
+
+        function aggiornaBadgeLock(attivo, testo = "") {
+            const elBadge = document.getElementById("badgeStatoLock");
+            const elTesto = document.getElementById("labelStatoLock");
+            if(!elBadge || !elTesto) return;
+            if(attivo) {
+                elBadge.style.display = "inline-flex";
+                elTesto.textContent = testo || "In uso da te";
+                elBadge.style.background = "#047857";
+            } else if(testo) {
+                elBadge.style.display = "inline-flex";
+                elTesto.textContent = testo;
+                elBadge.style.background = "#b45309";
+            } else {
+                elBadge.style.display = "none";
+            }
+        }
+
+        async function acquisisciLockCondiviso() {
+            if(!cartellaArchivioPdfHandle) return null;
+            try {
+                const lockFileHandle = await cartellaArchivioPdfHandle.getFileHandle(NOME_FILE_LOCK, { create: true });
+                const writable = await lockFileHandle.createWritable();
+                const infoLock = {
+                    operatore: nomeOperatoreCorrente || "Utente",
+                    computer: navigator.userAgent.substring(0, 50),
+                    timestamp: Date.now(),
+                    ora: new Date().toLocaleTimeString('it-IT')
+                };
+                await writable.write(JSON.stringify(infoLock, null, 2));
+                await writable.close();
+                aggiornaBadgeLock(true, "🔒 In uso da te (" + (nomeOperatoreCorrente || "Tu") + ")");
+                return true;
+            } catch(e) {
+                console.warn("Impossibile creare file di lock:", e);
+                return false;
+            }
+        }
+
+        async function verificaFileLock() {
+            if(!cartellaArchivioPdfHandle) return null;
+            try {
+                const lockFileHandle = await cartellaArchivioPdfHandle.getFileHandle(NOME_FILE_LOCK, { create: false });
+                const file = await lockFileHandle.getFile();
+                const testo = await file.text();
+                if(testo.trim()) {
+                    const info = JSON.parse(testo);
+                    const deltaMinuti = (Date.now() - (info.timestamp || 0)) / (1000 * 60);
+                    if(deltaMinuti > 15) {
+                        return { lockValido: false, lockScaduto: true, info };
+                    }
+                    if(info.operatore && info.operatore !== nomeOperatoreCorrente) {
+                        return { lockValido: true, operatore: info.operatore, ora: info.ora || "" };
+                    }
+                }
+            } catch(e) {
+                // Il file lock non esiste: nessun lock attivo
+            }
+            return { lockValido: false };
+        }
+
+        async function rinnovaLockCondiviso() {
+            if(archivioCondivisoHandle && cartellaArchivioPdfHandle) {
+                await acquisisciLockCondiviso();
+            }
+        }
+
+        async function rilasciaLockCondiviso() {
+            if(!cartellaArchivioPdfHandle) return;
+            try {
+                await cartellaArchivioPdfHandle.removeEntry(NOME_FILE_LOCK);
+                aggiornaBadgeLock(false);
+            } catch(e) {
+                // Ignore se non esiste o rimosso
+            }
+        }
+
         async function collegaArchivioCondiviso(autoAvvio = false) {
             if(!window.showOpenFilePicker) {
                 alert("Il browser in uso non supporta il collegamento diretto al file condiviso. Usa Microsoft Edge o Google Chrome aggiornato.");
@@ -995,6 +1110,7 @@
                 aggiornaStatoArchivioCondiviso("Archivio collegato: " + handle.name, "#15803d");
 
                 const file = await handle.getFile();
+                ultimoTimestampDatabase = file.lastModified;
                 const testo = await file.text();
                 if(testo.trim()) {
                     const parsedData = JSON.parse(testo);
@@ -1004,19 +1120,24 @@
                         if(!AppData.diario) AppData.diario = [];
                         if(!AppData.scadenziario) AppData.scadenziario = [];
                         databaseModificato = false;
+                        inizializzaNomeOperatore();
                         renderingSinottico();
-        ripristinaCartellaPdfHandle();
+                        ripristinaCartellaPdfHandle();
                         renderingArchivio();
                         renderingScadenziario();
                         renderingDiario();
-                        alert("Archivio condiviso collegato e dati caricati correttamente.");
+                        avviaMonitoraggioConcorrenza();
+                        alert("Archivio condiviso collegato e dati caricati correttamente.\n\nUltimo salvataggio su disco: " + new Date(ultimoTimestampDatabase).toLocaleString('it-IT'));
                     } else {
                         alert("Il file selezionato non sembra essere un database valido di questa applicazione.");
                     }
                 } else {
                     if(!MODALITA_VISUALIZZAZIONE) {
+                        ultimoTimestampDatabase = file.lastModified;
                         await scriviDatabaseCondiviso();
                         databaseModificato = false;
+                        inizializzaNomeOperatore();
+                        avviaMonitoraggioConcorrenza();
                         alert("Il file condiviso era vuoto: è stato inizializzato con i dati attuali.");
                     } else {
                         alert("Il file JSON selezionato è vuoto.");
@@ -1024,6 +1145,33 @@
                 }
             } catch(err) {
                 if(err && err.name !== "AbortError") alert("Errore nel collegamento all'archivio condiviso: " + err.message);
+            }
+        }
+
+        async function ricaricaDatiDaDisco() {
+            if(!archivioCondivisoHandle) return;
+            try {
+                const file = await archivioCondivisoHandle.getFile();
+                const testo = await file.text();
+                if(testo.trim()) {
+                    const parsedData = JSON.parse(testo);
+                    if(parsedData && parsedData.metadata) {
+                        AppData = normalizzaDatiCompatibilita(parsedData);
+                        if(!AppData.commesse) AppData.commesse = {};
+                        if(!AppData.diario) AppData.diario = [];
+                        if(!AppData.scadenziario) AppData.scadenziario = [];
+                        ultimoTimestampDatabase = file.lastModified;
+                        databaseModificato = false;
+                        renderingSinottico();
+                        renderingArchivio();
+                        renderingScadenziario();
+                        renderingDiario();
+                        aggiornaStatoArchivioCondiviso("Ricaricato da disco: " + new Date(ultimoTimestampDatabase).toLocaleTimeString('it-IT'), "#15803d");
+                        alert("I dati sono stati ricaricati con successo dall'archivio condiviso.");
+                    }
+                }
+            } catch(err) {
+                alert("Errore durante il ricaricamento del file: " + err.message);
             }
         }
 
@@ -1035,10 +1183,42 @@
                     aggiornaStatoArchivioCondiviso("Permesso di scrittura richiesto", "#b45309");
                     return false;
                 }
+
+                // 1. Rilevamento concorrenza: verifica se il file su disco e' piu' recente della versione caricata
+                const fileSuDisco = await archivioCondivisoHandle.getFile();
+                if(ultimoTimestampDatabase > 0 && fileSuDisco.lastModified > ultimoTimestampDatabase) {
+                    const dataDisco = new Date(fileSuDisco.lastModified).toLocaleString('it-IT');
+                    const msgConflitto = "⚠️ ATTENZIONE: CONFLITTO DI MODIFICA MULTI-UTENTE!\n\n" +
+                        "Il database su disco è stato modificato e salvato da un altro utente o finestra alle " + dataDisco + ".\n\n" +
+                        "• Clicca 'ANNULLA' per NON sovrascrivere: potrai ricaricare i dati aggiornati del collega.\n" +
+                        "• Clicca 'OK' solo se sei sicuro di voler SOVRASCRIVERE le modifiche dell'altro utente con le tue attuali.";
+                    const procedi = confirm(msgConflitto);
+                    if(!procedi) {
+                        aggiornaStatoArchivioCondiviso("Salvataggio annullato per conflitto (" + dataDisco + ")", "#dc2626");
+                        const ricaricaOra = confirm("Vuoi ricaricare subito i dati freschi da disco?\n(Le tue modifiche non salvate andranno perse)");
+                        if(ricaricaOra) {
+                            await ricaricaDatiDaDisco();
+                        }
+                        return false;
+                    }
+                }
+
+                // 2. Controllo lock file se disponibile cartella
+                const checkLock = await verificaFileLock();
+                if(checkLock && checkLock.lockValido) {
+                    const continuaConLock = confirm("⚠️ Avviso lock file:\nL'operatore '" + checkLock.operatore + "' ha aperto il file alle " + checkLock.ora + ".\n\nVuoi procedere comunque con il salvataggio?");
+                    if(!continuaConLock) return false;
+                }
+
                 const writable = await archivioCondivisoHandle.createWritable();
                 await writable.write(JSON.stringify(clonaAppDataLeggeroPerSalvataggio(AppData), null, 2));
                 await writable.close();
+
+                // Aggiorna timestamp di riferimento con quello del file appena scritto
+                const fileAggiornato = await archivioCondivisoHandle.getFile();
+                ultimoTimestampDatabase = fileAggiornato.lastModified;
                 databaseModificato = false;
+                await acquisisciLockCondiviso();
                 aggiornaStatoArchivioCondiviso("Salvato: " + archivioCondivisoHandle.name + " • " + new Date().toLocaleTimeString('it-IT'), "#15803d");
                 return true;
             } catch(err) {
@@ -1049,9 +1229,27 @@
             }
         }
 
+        function avviaMonitoraggioConcorrenza() {
+            if(heartbeatLockTimer) clearInterval(heartbeatLockTimer);
+            heartbeatLockTimer = setInterval(async () => {
+                if(!archivioCondivisoHandle || MODALITA_VISUALIZZAZIONE) return;
+                try {
+                    // Controllo se un altro utente ha salvato su disco
+                    const f = await archivioCondivisoHandle.getFile();
+                    if(ultimoTimestampDatabase > 0 && f.lastModified > ultimoTimestampDatabase) {
+                        aggiornaStatoArchivioCondiviso("⚠️ Attenzione: modifiche rilevate su disco da altro utente (" + new Date(f.lastModified).toLocaleTimeString('it-IT') + ")", "#dc2626");
+                        aggiornaBadgeLock(false, "⚠️ Modificato da altro utente");
+                    }
+                    // Rinnova lock se noi stiamo lavorando
+                    if(cartellaArchivioPdfHandle && !databaseModificato) {
+                        // Keep lock pulse
+                    }
+                } catch(e) {}
+            }, 10000); // Controllo leggero ogni 10 secondi
+        }
+
         function salvaDatiCondivisi() {
             if(E_IN_RETE && !archivioCondivisoHandle) {
-                // Modalita' sito: i dati vengono dal JSON della repo, in sola lettura.
                 aggiornaStatoArchivioCondiviso("Modalita' demo: dati in sola lettura", "#b45309");
                 return Promise.resolve(false);
             }
@@ -1067,8 +1265,7 @@
         }
 
         async function inizializzaArchivioCondiviso() {
-            // Se i dati sono gia' precaricati nel file, non bloccare l'avvio:
-            // l'app parte popolata e la collegamento al JSON resta un'azione volontaria.
+            inizializzaNomeOperatore();
             if(USA_DATI_PRECARICATI && AppData && AppData.metadata && Object.keys(AppData.metadata).length > 0) {
                 aggiornaStatoArchivioCondiviso("Dati precaricati (demo) - non collegato a un file", "#b45309");
                 return;
@@ -1084,6 +1281,9 @@
             overlay.innerHTML = `<div style="background:#fff;border-radius:12px;padding:28px;max-width:520px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,.3);text-align:center;font-family:Arial,sans-serif;">
                 <h2 style="margin-top:0;">📂 Database Commesse</h2>
                 <p style="line-height:1.5;">Seleziona il file <strong>${NOME_DATABASE_CONDIVISO}</strong> nella cartella condivisa.</p>
+                <div style="margin-bottom:15px; font-size:0.9rem; color:#4b5563;">
+                    Operatore attivo: <strong>${nomeOperatoreCorrente || 'Operatore'}</strong>
+                </div>
                 <button id="btnSelezionaDatabaseAvvio" class="btn btn-warning" style="font-size:1rem;padding:.7rem 1.2rem;">📂 Seleziona database JSON</button>
             </div>`;
             document.body.appendChild(overlay);
@@ -2934,6 +3134,10 @@
             if(!MODALITA_VISUALIZZAZIONE && archivioCondivisoHandle && databaseModificato) {
                 scriviDatabaseCondiviso(true);
             }
+            rilasciaLockCondiviso();
+        });
+        window.addEventListener('beforeunload', () => {
+            rilasciaLockCondiviso();
         });
 
         setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleString('it-IT'); }, 1000);
