@@ -1,0 +1,2617 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riepilogo Commesse</title>
+    
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-light: #3b82f6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #1f2937;
+            --light: #f3f4f6;
+            --gray-header: #bcbcbc;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light);
+            color: var(--dark);
+        }
+
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 0.75rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header-title-container {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        header h2 {
+            margin: 0;
+            font-size: 1.6rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 1.5rem auto;
+            padding: 0 1rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #e5e7eb;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .tab-group {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .db-sync-group {
+            display: flex;
+            gap: 0.5rem;
+            background-color: #e0f2fe;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            border: 1px solid var(--primary-light);
+        }
+
+        .tab-btn {
+            padding: 0.75rem 1.25rem;
+            border: none;
+            background: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            color: #6b7280;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .card h3 {
+            margin-top: 0;
+            border-bottom: 2px solid var(--light);
+            padding-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .btn {
+            background-color: var(--primary-light);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover { background-color: var(--primary); }
+        .btn-success { background-color: var(--success); }
+        .btn-success:hover { background-color: #047857; }
+        .btn-danger { background-color: var(--danger); }
+        .btn-danger:hover { background-color: #b91c1c; }
+        .btn-secondary { background-color: #4b5563; }
+        .btn-secondary:hover { background-color: #374151; }
+        .btn-warning { background-color: var(--warning); color: #000; }
+        .btn-warning:hover { background-color: #d97706; color: #fff; }
+
+        .table-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-box {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table.sinottico, table.fasi-table, table.pdf-table, table.scadenze-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+            margin-top: 0.5rem;
+        }
+
+        table.sinottico th, table.fasi-table th, table.pdf-table th, table.scadenze-table th {
+            background-color: var(--gray-header);
+            color: #000;
+            font-weight: bold;
+            text-align: center;
+            vertical-align: middle;
+            border: 1px solid #000;
+            padding: 0.5rem 0.2rem;
+            font-size: 0.75rem;
+        }
+
+        table.sinottico td, table.fasi-table td, table.pdf-table td, table.scadenze-table td {
+            border: 1px solid #666;
+            padding: 0.5rem 0.3rem;
+            text-align: center;
+            vertical-align: middle;
+            background-color: #fff;
+        }
+
+        table.sinottico tr:nth-child(even) td, table.fasi-table tr:nth-child(even) td, table.pdf-table tr:nth-child(even) td, table.scadenze-table tr:nth-child(even) td {
+            background-color: #f9f9f9;
+        }
+
+        table.sinottico tr:hover td, table.scadenze-table tr:hover td {
+            background-color: #f1f5f9 !important;
+        }
+
+        table.sinottico td.desc-cell, table.fasi-table td.desc-cell, table.pdf-table td.desc-cell, table.scadenze-table td.desc-cell {
+            text-align: left;
+            font-size: 0.78rem;
+        }
+
+        table.sinottico td.id-cell {
+            font-size: 1rem;
+            font-weight: bold;
+            color: var(--primary-light);
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .text-red {
+            color: var(--danger) !important;
+            font-weight: bold !important;
+        }
+
+        .badge {
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: white;
+            display: inline-block;
+        }
+        .badge-success { background-color: var(--success); }
+        .badge-warning { background-color: var(--warning); color: #000; }
+        .badge-info { background-color: #0284c7; color: white; }
+
+        .level-1 { padding-left: 8px !important; font-weight: bold; border-left: 3px solid #1e3a8a !important; }
+        .level-2 { padding-left: 24px !important; font-weight: 600; color: #1f2937; border-left: 2px solid #3b82f6 !important; }
+        .level-3 { padding-left: 40px !important; color: #4b5563; font-style: italic; }
+        .level-4 { padding-left: 56px !important; color: #6b7280; font-size: 0.75rem; }
+        .level-5 { padding-left: 72px !important; color: #9ca3af; font-size: 0.72rem; }
+        
+        .is-summary { font-weight: bold; background-color: #f3f4f6 !important; }
+        .is-summary-manufacturing { background-color: #e0f2fe !important; font-weight: bold; color: #0369a1 !important; }
+
+        @media print {
+            @page { size: landscape; margin: 0.5cm; }
+            body * { visibility: hidden; }
+            .table-wrapper, .table-wrapper * { visibility: visible; }
+            .table-wrapper { position: absolute; left: 0; top: 0; width: 100% !important; margin: 0 !important; padding: 0 !important; }
+            table.sinottico { border: 1px solid #000 !important; }
+            table.sinottico th { background-color: #bcbcbc !important; color: black !important; border: 1px solid #000 !important; }
+            table.sinottico td { border: 1px solid #000 !important; }
+            .no-print, header, .tabs, .btn, h3, p, .table-toolbar { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="no-print">
+        <div class="header-title-container">
+            <h2>Riepilogo commesse</h2>
+        </div>
+        <div id="clock"></div>
+    </header>
+
+    <div class="container">
+        <div class="tabs no-print">
+            <div class="tab-group">
+                <button id="btn-tab-report" class="tab-btn active" onclick="openTab('report')">🏠 Home (Commesse Attive)</button>
+                <button id="btn-tab-scadenziario" class="tab-btn" onclick="openTab('scadenziario')">📅 Scadenziario Attività</button>
+                <button id="btn-tab-archivio" class="tab-btn" onclick="openTab('archivio')">📦 Archivio Commesse</button>
+                <button id="btn-tab-dettaglio" class="tab-btn" style="display:none;" onclick="openTab('dettaglio')">🔍 Dettaglio Commessa Selezionata</button>
+                <button id="btn-tab-maschera" class="tab-btn" onclick="openTab('maschera')">➕ Nuova Commessa (Manuale / XML)</button>
+                <button id="btn-tab-diario" class="tab-btn" onclick="openTab('diario')">📔 Diario & Problematiche</button>
+            </div>
+
+            <!-- PULSANTI SALVA / CARICA DATABASE DI RETE -->
+            <div class="db-sync-group">
+                <button class="btn btn-secondary" onclick="esportaDatabaseJSON()" style="font-size:0.8rem; padding:0.4rem 0.8rem;">💾 Salva Dati Condivisi</button>
+                <button class="btn btn-warning" onclick="collegaArchivioCondiviso()" style="font-size:0.8rem; padding:0.4rem 0.8rem;">🔗 Collega Archivio Condiviso</button>
+                <button class="btn btn-warning" onclick="document.getElementById('importDbFileInput').click()" style="font-size:0.8rem; padding:0.4rem 0.8rem;">📂 Carica JSON Manuale</button>
+                <input type="file" id="importDbFileInput" accept=".json" style="display:none;" onchange="importaDatabaseJSON()">
+                <span id="statoArchivioCondiviso" style="font-size:0.75rem; margin-left:0.5rem; color:#6b7280;">Archivio condiviso non collegato</span>
+            </div>
+        </div>
+
+        <!-- TAB HOME (Commesse Attive) -->
+        <div id="report" class="tab-content active">
+            <div class="card" style="border:none; padding:0; margin:0;">
+                <h3 class="no-print">Home - Quadro Sinottico Commesse Attive</h3>
+                <p class="no-print">Clicca sul <strong>numero blu</strong> di una commessa per aprirne il <strong>Dettaglio Fasi e i documenti PDF</strong>.</p>
+                
+                <div class="table-toolbar no-print">
+                    <div class="filter-box">
+                        <label for="searchCommesse" style="font-weight:600; font-size:0.85rem;">Filtra:</label>
+                        <input type="text" id="searchCommesse" class="form-control" placeholder="Cerca ID, cliente, descrizione o fabbricante..." oninput="renderingSinottico()">
+                    </div>
+                    <div style="display:flex; gap:0.5rem;">
+                        <button class="btn btn-secondary" onclick="esportaInCSV('active')">📊 Esporta Excel (CSV)</button>
+                        <button class="btn btn-info" onclick="stampaReportTutteCommesse()">🖨️ Stampa Report Tutte le Commesse</button>
+                    </div>
+                </div>
+
+                <div class="table-wrapper">
+                    <table class="sinottico" id="tableSinotticoHome">
+                        <thead>
+                            <tr>
+                                <th>NUMERO COMMESSA</th>
+                                <th>DESCRIZIONE / CLIENTE</th>
+                                <th>DATA APERTURA VELINA</th>
+                                <th>DATA CONSEGNA DA VELINA</th>
+                                <th>ATTIVITÀ IN RITARDO</th>
+                                <th>MR IN RITARDO</th>
+                                <th>RITARDO EMISSIONE ORDINI</th>
+                                <th>RITARDO ARRIVO MATERIALI</th>
+                                <th>INIZIO FABBRICAZIONE DA WP</th>
+                                <th>INIZIO REALE</th>
+                                <th>GIORNI RITARDO INIZIO FABBRICAZIONE</th>
+                                <th>RITARDO ULTIMO WP RISPETTO A CONSEGNA VELINA</th>
+                                <th>DATA COMPLETAMENTO PREVISTA DA ULTIMO WP</th>
+                                <th>MANUFACTURING IN RITARDO (INIZIO)</th>
+                                <th>MANUFACTURING IN RITARDO (FINE)</th>
+                                <th>FABBRICANTE</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodySinottico"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB SCADENZIARIO ATTIVITA MANUALE -->
+        <div id="scadenziario" class="tab-content no-print">
+            <div class="grid-2">
+                <div class="card">
+                    <h3>➕ Inserisci Nuova Scadenza Manuale</h3>
+                    <div class="form-group">
+                        <label>Descrizione / Nome Attività *:</label>
+                        <input type="text" id="scadNome" class="form-control" placeholder="es. Sollecito fornitore, Invio disegno, Controllo qualita...">
+                    </div>
+                    <div class="form-group">
+                        <label>Commessa Associata (Opzionale):</label>
+                        <select id="scadCommessaSelect" class="form-control">
+                            <option value="-">Nessuna commessa specifica</option>
+                        </select>
+                    </div>
+                    <div class="grid-2" style="gap:0.5rem;">
+                        <div class="form-group">
+                            <label>Data Scadenza (Fine) *:</label>
+                            <input type="text" id="scadDataFine" class="form-control" placeholder="GG/MM/AAAA">
+                        </div>
+                        <div class="form-group">
+                            <label>Stato Attività:</label>
+                            <select id="scadStato" class="form-control">
+                                <option value="Da fare">Da fare</option>
+                                <option value="In corso">In corso</option>
+                                <option value="Completata">Completata</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-success" onclick="salvaNuovaScadenza()" style="width:100%; padding:0.8rem; margin-top:0.5rem;">📌 REGISTRA IN SCADENZIARIO</button>
+                </div>
+
+                <div class="card">
+                    <h3>🔍 Filtra Scadenziario</h3>
+                    <div class="form-group">
+                        <label>Cerca Attività o Commessa:</label>
+                        <input type="text" id="searchScadenziario" class="form-control" placeholder="Filtra testo o ID..." oninput="renderingScadenziario()">
+                    </div>
+                    <div class="form-group">
+                        <label>Mostra Solo:</label>
+                        <select id="filterStatoScad" class="form-control" onchange="renderingScadenziario()">
+                            <option value="tutti">Tutte le attività</option>
+                            <option value="aperte" selected>Solo Incomplete (Da fare / In corso)</option>
+                            <option value="ritardo">Solo in Ritardo</option>
+                            <option value="completate">Solo Completate</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 1.5rem;">
+                <h3>📋 Monitoraggio Scadenze Attività</h3>
+                <div class="table-wrapper">
+                    <table class="scadenze-table">
+                        <thead>
+                            <tr>
+                                <th>NOME ATTIVITÀ / NOTE</th>
+                                <th>COMMESSA</th>
+                                <th>DATA FINE PREVISTA</th>
+                                <th>STATO</th>
+                                <th>RITARDO AD OGGI (GG)</th>
+                                <th>AZIONI</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyScadenziario"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB ARCHIVIO COMMESSE FINITE -->
+        <div id="archivio" class="tab-content no-print">
+            <div class="card" style="border:none; padding:0; margin:0;">
+                <h3>📦 Archivio Commesse Concluse / Archiviate</h3>
+                <p>Elenco delle commesse completate. Puoi riaprirne i dettagli o ripristinarle in Home in qualsiasi momento.</p>
+                
+                <div class="table-toolbar">
+                    <div class="filter-box">
+                        <label for="searchArchivio" style="font-weight:600; font-size:0.85rem;">Filtra Archivio:</label>
+                        <input type="text" id="searchArchivio" class="form-control" placeholder="Cerca nell'archivio..." oninput="renderingArchivio()">
+                    </div>
+                    <div>
+                        <button class="btn btn-secondary" onclick="esportaInCSV('archived')">📊 Esporta Archivio (CSV)</button>
+                    </div>
+                </div>
+
+                <div class="table-wrapper">
+                    <table class="sinottico" id="tableSinotticoArchivio">
+                        <thead>
+                            <tr>
+                                <th>NUMERO COMMESSA</th>
+                                <th>DESCRIZIONE / CLIENTE</th>
+                                <th>DATA APERTURA VELINA</th>
+                                <th>DATA CONSEGNA DA VELINA</th>
+                                <th>INIZIO FABBRICAZIONE DA WP</th>
+                                <th>INIZIO REALE</th>
+                                <th>DATA COMPLETAMENTO PREVISTA DA ULTIMO WP</th>
+                                <th>FABBRICANTE</th>
+                                <th>AZIONI</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyArchivio"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB DETTAGLIO COMMESSA -->
+        <div id="dettaglio" class="tab-content no-print">
+            <div style="margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+                    <button class="btn btn-secondary" onclick="tornaIndietroDaDettaglio()">⬅️ Torna Indietro</button>
+                    <button class="btn btn-info" onclick="stampaReportCommessa(idCommessaSelezionata)">🖨️ Stampa Report Commessa</button>
+                </div>
+                <div id="dettaglioAzioneArchivio"></div>
+            </div>
+            
+            <div class="grid-2">
+                <div class="card">
+                    <h3 style="color:var(--primary-light);">⚙️ Gestione e Parametri Commessa: <span id="det_titolo_id"></span></h3>
+                    
+                    <div class="form-group" style="background-color: #eff6ff; padding: 0.75rem; border-radius: 4px; border: 1px dashed var(--primary-light);">
+                        <label><strong>📂 AGGIORNA FILE PROJECT XML DEL MESE:</strong></label>
+                        <input type="file" id="xmlFileDettaglioInput" accept=".xml" class="form-control" onchange="leggiFileXMLInDettaglio()">
+                        <small style="color: #4b5563;">Carica il file XML per aggiornare l'albero delle attività e i macro-livelli.</small>
+                        <div id="infoUltimoWpCaricato" style="margin-top:0.6rem; padding:0.55rem 0.7rem; background:#f8fafc; border-radius:5px; color:#374151; font-size:0.9rem;"><strong>Ultimo WP caricato:</strong> <span id="d_ultimoWpCaricato">-</span></div>
+                    </div>
+                    <br>
+
+                    <div class="form-group">
+                        <label>Descrizione / Cliente:</label>
+                        <input type="text" id="d_descrizione" class="form-control">
+                    </div>
+                    
+                    <div class="grid-2" style="gap:0.5rem;">
+                        <div class="form-group">
+                            <label>Data Apertura Velina:</label>
+                            <input type="text" id="d_dataAperturaVelina" class="form-control" placeholder="GG/MM/AAAA" oninput="eseguiCalcoloRitardoUltimoWpDettaglio()">
+                        </div>
+                        <div class="form-group">
+                            <label>Data Consegna da Velina:</label>
+                            <input type="text" id="d_dataConsegnaVelina" class="form-control" placeholder="GG/MM/AAAA" oninput="eseguiCalcoloRitardoUltimoWpDettaglio()">
+                        </div>
+                    </div>
+
+                    <div class="grid-2" style="gap:0.5rem;">
+                        <div class="form-group">
+                            <label>MR in Ritardo (Sotto-fasi PO Issuance):</label>
+                            <input type="number" id="d_mrRitardo" class="form-control" readonly style="background-color: #f3f4f6; font-weight: bold;">
+                        </div>
+                        <div class="form-group">
+                            <label>Ritardo Emissione Ordini (N° attività PO Scadute):</label>
+                            <input type="number" id="d_ritardoOrdini" class="form-control" readonly style="background-color: #f3f4f6; font-weight: bold;">
+                        </div>
+                    </div>
+                    <div class="grid-2" style="gap:0.5rem;">
+                        <div class="form-group">
+                            <label>Ritardo Arrivo Mat. (N° Material Deliverables Scaduti):</label>
+                            <input type="number" id="d_ritardoArrivoMat" class="form-control" readonly style="background-color: #f3f4f6; font-weight: bold;">
+                        </div>
+                        <div class="form-group"><label>Fabbricante:</label><input type="text" id="d_fabbricante" class="form-control"></div>
+                    </div>
+                </div>
+
+                <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <h3>Tempi & Scadenze</h3>
+                        <div class="form-group">
+                            <label>Inizio Fabbricazione da WP (MANUFACTURING / Fabrication):</label>
+                            <input type="text" id="d_inizioPrevFab" class="form-control" placeholder="GG/MM/AAAA" oninput="eseguiCalcoloRitardoFabbricazioneDettaglio()">
+                        </div>
+                        <div class="form-group">
+                            <label>Inizio Reale:</label>
+                            <input type="text" id="d_inizioReale" class="form-control" placeholder="GG/MM/AAAA" oninput="eseguiCalcoloRitardoFabbricazioneDettaglio()">
+                        </div>
+                        <div class="form-group" style="background-color: #fef3c7; padding: 0.5rem; border-radius: 4px;">
+                            <label>Giorni Ritardo Inizio Fabbricazione:</label>
+                            <input type="text" id="d_giorniRitardo" class="form-control" readonly style="font-weight: bold; background: #fff;">
+                        </div>
+                        <div class="form-group">
+                            <label>Ritardo Ultimo WP vs Consegna Velina (gg):</label>
+                            <input type="number" id="d_ritardoComplFasi" class="form-control" readonly style="background-color: #f3f4f6; font-weight: bold;">
+                        </div>
+                        <div class="grid-2" style="gap:0.5rem;">
+                            <div class="form-group">
+                                <label>MANUFACTURING in Ritardo (Inizio):</label>
+                                <input type="number" id="d_manufRitardoInizio" class="form-control" readonly style="background-color: #f3f4f6; font-weight: bold;">
+                            </div>
+                            <div class="form-group">
+                                <label>MANUFACTURING in Ritardo (Fine):</label>
+                                <input type="number" id="d_manufRitardoFine" class="form-control" readonly style="background-color: #f3f4f6; font-weight: bold;">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 1rem; margin-top: 1.5rem; border-top: 1px solid #e5e7eb; padding-top: 1rem;">
+                        <button class="btn btn-success" onclick="salvaModificheDettaglio()" style="flex: 2; font-size: 1.1rem; padding: 0.8rem;">💾 SALVA E AGGIORNA COMMESSA</button>
+                        <button class="btn btn-danger" onclick="eliminaCommessaDaDettaglio()" style="flex: 1;">❌ Elimina</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SEZIONE AVANZAMENTO COMMESSA CON MODIFICA -->
+            <div class="card" style="margin-top: 1.5rem; border-left: 4px solid var(--success);">
+                <h3>📝 Avanzamento Commessa</h3>
+                <input type="hidden" id="d_editAvanzamentoIndex" value="-1">
+                <div class="form-group">
+                    <label id="lblNuovoAvanzamento"><strong>Nuovo aggiornamento:</strong></label>
+                    <textarea id="d_nuovoAvanzamento" class="form-control" rows="4" placeholder="Descrivi l'avanzamento della commessa..."></textarea>
+                </div>
+                <div style="display:flex; gap:0.5rem;">
+                    <button id="btnAggiungiAvanzamento" class="btn btn-success" onclick="aggiungiAggiornamentoCommessa()">➕ Aggiungi aggiornamento</button>
+                    <button id="btnAnnullaModificaAvanzamento" class="btn btn-secondary" onclick="annullaModificaAvanzamento()" style="display:none;">❌ Annulla modifica</button>
+                </div>
+                <div style="margin-top:1.2rem;"><h4 style="margin-bottom:0.7rem;">Storico avanzamenti</h4><div id="storicoAvanzamentoCommessa"></div></div>
+            </div>
+
+            <!-- SEZIONE CARICAMENTO DOCUMENTI PDF COMMESSA -->
+            <div class="card" style="margin-top: 1.5rem; border-left: 4px solid var(--primary-light);">
+                <h3>📎 Documenti & Certificati PDF Commessa</h3>
+                <div class="grid-2" style="align-items: flex-end;">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>Descrizione / Nome Documento:</label>
+                        <input type="text" id="pdfNomeInput" class="form-control" placeholder="es. Certificato Materiali, Collaudo Finale, Disegno...">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>Seleziona File PDF:</label>
+                        <input type="file" id="pdfFileInput" accept=".pdf" class="form-control">
+                    </div>
+                </div>
+                <button class="btn btn-success" onclick="caricaDocumentoPDF()" style="margin-top: 1rem;">➕ Aggiungi Documento PDF alla Commessa</button>
+
+                <div class="table-wrapper" style="margin-top: 1rem;">
+                    <table class="pdf-table">
+                        <thead>
+                            <tr>
+                                <th>NOME / DESCRIZIONE DOCUMENTO</th>
+                                <th>NOME FILE ORIGINALE</th>
+                                <th>DATA CARICAMENTO</th>
+                                <th>AZIONI</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyPdfDettaglio"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SEZIONE ATTIVITA' SCADENZIARIO PER QUESTA COMMESSA -->
+            <div class="card" style="margin-top: 1.5rem; border-left: 4px solid var(--warning);">
+                <h3>📌 Attività & Scadenze Manuali per Questa Commessa</h3>
+                <div class="table-wrapper">
+                    <table class="scadenze-table">
+                        <thead>
+                            <tr>
+                                <th>NOME ATTIVITÀ / NOTE</th>
+                                <th>DATA FINE PREVISTA</th>
+                                <th>STATO</th>
+                                <th>RITARDO AD OGGI (GG)</th>
+                                <th>AZIONI</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyScadenzeDettaglioCommessa"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SEZIONE GANTT PROJECT -->
+            <div class="card" style="margin-top: 1.5rem; border-left: 4px solid #8b5cf6;">
+                <h3>📈 Diagramma di Gantt (Fasi WP)</h3>
+                <p style="font-size: 0.85rem; color: #4b5563;">Visualizzazione temporale delle fasi caricate dal file MS Project XML.</p>
+                <div id="ganttContainer" style="overflow-x: auto; background: #fafafa; border: 1px solid #e5e7eb; border-radius: 6px; padding: 1rem; margin-top: 0.5rem;">
+                    <!-- Il grafico Gantt viene generato dinamicamente via JS -->
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 1.5rem;">
+                <h3>📊 Stato delle Fasi Rispettando i Livelli di MS Project</h3>
+                <div class="table-wrapper">
+                    <table class="fasi-table">
+                        <thead>
+                            <tr>
+                                <th>NOME ATTIVITÀ / FASE (STRUTTURA AD ALBERO)</th>
+                                <th>DATA INIZIO PREVISTA</th>
+                                <th>DATA FINE PREVISTA</th>
+                                <th>% AVANZAMENTO</th>
+                                <th>STATO FASE</th>
+                                <th>RITARDO FINE AD OGGI (GG)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyFasiDettaglio"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB CREAZIONE COMMESSA -->
+        <div id="maschera" class="tab-content no-print">
+            <div class="card" style="max-width: 700px; margin: 0 auto;">
+                <h3>➕ Aggiungi Nuova Commessa</h3>
+                <div class="form-group" style="background-color: #f0fdf4; padding: 1rem; border-radius: 6px; border: 1px dashed var(--success); margin-bottom: 1.5rem;">
+                    <label style="color: #166534;"><strong>OPZIONE A: CARICA SUBITO FILE MS PROJECT XML</strong></label>
+                    <input type="file" id="xmlFileCreazioneInput" accept=".xml" class="form-control" onchange="leggiFileXMLInCreazione()">
+                </div>
+                <div style="text-align: center; font-weight: bold; color: #9ca3af; margin: 1rem 0;">— OPPURE COMPILA MANUALMENTE —</div>
+                <div class="form-group"><label>Numero Commessa *:</label><input type="text" id="m_id" class="form-control" placeholder="es. 70777"></div>
+                <div class="form-group"><label>Descrizione / Cliente:</label><input type="text" id="m_descrizione" class="form-control" placeholder="Descrizione"></div>
+                <div class="grid-2" style="gap:0.5rem;">
+                    <div class="form-group"><label>Data Apertura Velina:</label><input type="text" id="m_dataAperturaVelina" class="form-control" placeholder="GG/MM/AAAA" value="-"></div>
+                    <div class="form-group"><label>Data Consegna da Velina:</label><input type="text" id="m_dataConsegnaVelina" class="form-control" placeholder="GG/MM/AAAA" value="-"></div>
+                </div>
+                <div class="form-group"><label>Inizio Fabbricazione da WP:</label><input type="text" id="m_inizioPrevFab" class="form-control" placeholder="GG/MM/AAAA" value="-"></div>
+                <div class="form-group"><label>Fabbricante:</label><input type="text" id="m_fabbricante" class="form-control" placeholder="es. AB" value="-"></div>
+                <button class="btn btn-success" onclick="salvaNuovaCommessaSchermataCreazione()" style="width:100%; padding:0.8rem;">💾 REGISTRA COMMESSA IN HOME</button>
+            </div>
+        </div>
+
+        <!-- TAB DIARIO -->
+        <div id="diario" class="tab-content no-print">
+            <div class="grid-2">
+                <div class="card">
+                    <h3 id="diarioFormTitle">✍️ Registra Nota o Allerta Critica</h3>
+                    <input type="hidden" id="diarioEditIndex" value="-1">
+                    <div class="form-group">
+                        <label>Seleziona Commessa:</label>
+                        <select id="diarioCommessaSelect" class="form-control" onchange="renderingDiario()"></select>
+                    </div>
+                    <div class="form-group"><label>Tipo:</label><select id="diarioTipo" class="form-control"><option value="Nota">Nota Informativa</option><option value="Allerta">Allerta Critica</option></select></div>
+                    <div class="form-group"><label>Descrizione Evento:</label><textarea id="diarioNota" class="form-control" rows="4"></textarea></div>
+                    <div style="display:flex; gap:0.5rem;">
+                        <button id="btnSalvaDiario" class="btn" onclick="salvaDiario()">Salva Annotazione</button>
+                        <button id="btnAnnullaDiario" class="btn btn-secondary" onclick="annullaModificaDiario()" style="display:none;">❌ Annulla</button>
+                    </div>
+                </div>
+                <div class="card"><h3>📜 Storico Diario</h3><div id="timelineDiario"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let AppData = { commesse: {}, metadata: {}, diario: [], scadenziario: [] };
+        let archivioCondivisoHandle = null;
+        let salvataggioCondivisoInCorso = Promise.resolve();
+        let databaseModificato = false;
+        const NOME_DATABASE_CONDIVISO = "database_commesse.json";
+        const DB_HANDLE_NAME = "CommesseArchivioCondiviso";
+        const MODALITA_VISUALIZZAZIONE = false;
+
+        let xmlTemporaneoDettaglio = null;
+        let xmlTemporaneoDettaglioNomeFile = null;
+        let xmlTemporaneoDettaglioDataCaricamento = null;
+        let xmlTemporaneoCreazione = null; 
+        let idCommessaSelezionata = null;
+        let tabOrigine = 'report';
+
+        if(localStorage.getItem('AppData_Sinottico_V10_Fasi')) {
+            AppData = JSON.parse(localStorage.getItem('AppData_Sinottico_V10_Fasi'));
+            if(!AppData.diario) AppData.diario = [];
+            if(!AppData.scadenziario) AppData.scadenziario = [];
+        }
+
+        function openTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            const targetBtn = document.getElementById('btn-tab-' + tabId);
+            if(targetBtn) targetBtn.classList.add('active');
+            
+            if(tabId === 'report') renderingSinottico();
+            if(tabId === 'archivio') renderingArchivio();
+            if(tabId === 'scadenziario') {
+                aggiornaSelectCommesseScadenziario();
+                renderingScadenziario();
+            }
+            renderingDiario();
+        }
+
+        function tornaIndietroDaDettaglio() {
+            openTab(tabOrigine || 'report');
+        }
+
+        function aggiornaStatoArchivioCondiviso(testo, colore = "#6b7280") {
+            const el = document.getElementById("statoArchivioCondiviso");
+            if(el) { el.textContent = testo; el.style.color = colore; }
+        }
+
+        function apriDBHandleStore() {
+            return new Promise((resolve, reject) => {
+                const req = indexedDB.open(DB_HANDLE_NAME, 1);
+                req.onupgradeneeded = () => req.result.createObjectStore("handles");
+                req.onsuccess = () => resolve(req.result);
+                req.onerror = () => reject(req.error);
+            });
+        }
+
+        async function salvaHandleArchivio(handle) {
+            try {
+                const db = await apriDBHandleStore();
+                await new Promise((resolve, reject) => {
+                    const tx = db.transaction("handles", "readwrite");
+                    tx.objectStore("handles").put(handle, "database");
+                    tx.oncomplete = resolve;
+                    tx.onerror = () => reject(tx.error);
+                });
+                db.close();
+            } catch(err) {
+                console.warn("Impossibile memorizzare il collegamento all'archivio:", err);
+            }
+        }
+
+        async function caricaHandleArchivio() {
+            try {
+                const db = await apriDBHandleStore();
+                const handle = await new Promise((resolve, reject) => {
+                    const tx = db.transaction("handles", "readonly");
+                    const req = tx.objectStore("handles").get("database");
+                    req.onsuccess = () => resolve(req.result || null);
+                    req.onerror = () => reject(req.error);
+                });
+                db.close();
+                return handle;
+            } catch(err) {
+                return null;
+            }
+        }
+
+        async function verificaPermessoScrittura(handle) {
+            if(!handle) return false;
+            if(handle.queryPermission) {
+                const stato = await handle.queryPermission({ mode: "readwrite" });
+                if(stato === "granted") return true;
+            }
+            if(handle.requestPermission) {
+                const stato = await handle.requestPermission({ mode: "readwrite" });
+                return stato === "granted";
+            }
+            return false;
+        }
+
+        async function collegaArchivioCondiviso(autoAvvio = false) {
+            if(!window.showOpenFilePicker) {
+                alert("Il browser in uso non supporta il collegamento diretto al file condiviso. Usa Microsoft Edge o Google Chrome aggiornato.");
+                return;
+            }
+            try {
+                const [handle] = await window.showOpenFilePicker({
+                    multiple: false,
+                    types: [{ description: "Database Commesse", accept: { "application/json": [".json"] } }],
+                    excludeAcceptAllOption: false
+                });
+                if(handle.name !== NOME_DATABASE_CONDIVISO) {
+                    if(!confirm("Hai selezionato '" + handle.name + "'.\n\nPer il database condiviso è consigliato usare '" + NOME_DATABASE_CONDIVISO + "'. Vuoi comunque collegare questo file?")) return;
+                }
+                const ok = await verificaPermessoScrittura(handle);
+                if(!ok) {
+                    alert("Non è stato concesso il permesso di lettura/scrittura sul file condiviso.");
+                    return;
+                }
+                archivioCondivisoHandle = handle;
+                const overlay = document.getElementById("overlaySelezioneDatabase");
+                if(overlay) overlay.remove();
+                await salvaHandleArchivio(handle);
+                aggiornaStatoArchivioCondiviso("Archivio collegato: " + handle.name, "#15803d");
+
+                const file = await handle.getFile();
+                const testo = await file.text();
+                if(testo.trim()) {
+                    const parsedData = JSON.parse(testo);
+                    if(parsedData && parsedData.metadata) {
+                        AppData = parsedData;
+                        if(!AppData.commesse) AppData.commesse = {};
+                        if(!AppData.diario) AppData.diario = [];
+                        if(!AppData.scadenziario) AppData.scadenziario = [];
+                        databaseModificato = false;
+                        renderingSinottico();
+                        renderingArchivio();
+                        renderingScadenziario();
+                        renderingDiario();
+                        alert("Archivio condiviso collegato e dati caricati correttamente.");
+                    } else {
+                        alert("Il file selezionato non sembra essere un database valido di questa applicazione.");
+                    }
+                } else {
+                    if(!MODALITA_VISUALIZZAZIONE) {
+                        await scriviDatabaseCondiviso();
+                        databaseModificato = false;
+                        alert("Il file condiviso era vuoto: è stato inizializzato con i dati attuali.");
+                    } else {
+                        alert("Il file JSON selezionato è vuoto.");
+                    }
+                }
+            } catch(err) {
+                if(err && err.name !== "AbortError") alert("Errore nel collegamento all'archivio condiviso: " + err.message);
+            }
+        }
+
+        async function scriviDatabaseCondiviso(silenzioso = false) {
+            if(MODALITA_VISUALIZZAZIONE || !archivioCondivisoHandle) return false;
+            try {
+                const ok = await verificaPermessoScrittura(archivioCondivisoHandle);
+                if(!ok) {
+                    aggiornaStatoArchivioCondiviso("Permesso di scrittura richiesto", "#b45309");
+                    return false;
+                }
+                const writable = await archivioCondivisoHandle.createWritable();
+                await writable.write(JSON.stringify(AppData, null, 2));
+                await writable.close();
+                databaseModificato = false;
+                aggiornaStatoArchivioCondiviso("Salvato: " + archivioCondivisoHandle.name + " • " + new Date().toLocaleTimeString('it-IT'), "#15803d");
+                return true;
+            } catch(err) {
+                console.error(err);
+                aggiornaStatoArchivioCondiviso("Errore salvataggio condiviso", "#b91c1c");
+                if(!silenzioso) alert("Non è stato possibile salvare nel file condiviso: " + err.message);
+                return false;
+            }
+        }
+
+        function salvaDatiCondivisi() {
+            try {
+                localStorage.setItem('AppData_Sinottico_V10_Fasi', JSON.stringify(AppData));
+            } catch(err) {
+                console.warn("Cache localStorage non aggiornata (limite dimensione):", err);
+            }
+            if(MODALITA_VISUALIZZAZIONE) return Promise.resolve(false);
+            databaseModificato = true;
+            salvataggioCondivisoInCorso = salvataggioCondivisoInCorso.then(() => scriviDatabaseCondiviso());
+            return salvataggioCondivisoInCorso;
+        }
+
+        async function inizializzaArchivioCondiviso() {
+            if(!window.showOpenFilePicker) {
+                aggiornaStatoArchivioCondiviso("Browser non compatibile: usa Edge/Chrome", "#b45309");
+                alert("Per usare il database condiviso direttamente dal file HTML, apri Commesse con Microsoft Edge o Google Chrome aggiornato.");
+                return;
+            }
+            const overlay = document.createElement("div");
+            overlay.id = "overlaySelezioneDatabase";
+            overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;";
+            overlay.innerHTML = `<div style="background:#fff;border-radius:12px;padding:28px;max-width:520px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,.3);text-align:center;font-family:Arial,sans-serif;">
+                <h2 style="margin-top:0;">📂 Database Commesse</h2>
+                <p style="line-height:1.5;">Seleziona il file <strong>${NOME_DATABASE_CONDIVISO}</strong> nella cartella condivisa.</p>
+                <button id="btnSelezionaDatabaseAvvio" class="btn btn-warning" style="font-size:1rem;padding:.7rem 1.2rem;">📂 Seleziona database JSON</button>
+            </div>`;
+            document.body.appendChild(overlay);
+            document.getElementById("btnSelezionaDatabaseAvvio").addEventListener("click", () => collegaArchivioCondiviso(true));
+            aggiornaStatoArchivioCondiviso("In attesa della selezione del database...", "#b45309");
+        }
+
+        async function esportaDatabaseJSON() {
+            if(archivioCondivisoHandle) {
+                const ok = await scriviDatabaseCondiviso();
+                if(ok) { alert("Dati salvati nel database condiviso."); return; }
+            }
+
+            let dataStr = "data:application/json;charset=utf-8," + encodeURIComponent(JSON.stringify(AppData, null, 2));
+            let downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", NOME_DATABASE_CONDIVISO);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+            alert("JSON esportato. Se non hai collegato l'archivio condiviso, salva il file nella cartella condivisa che usi abitualmente.");
+        }
+
+        function importaDatabaseJSON() {
+            const fileInput = document.getElementById('importDbFileInput');
+            if(fileInput.files.length === 0) return;
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                try {
+                    let parsedData = JSON.parse(e.target.result);
+                    if(parsedData && parsedData.metadata) {
+                        AppData = parsedData;
+                        if(!AppData.diario) AppData.diario = [];
+                        if(!AppData.scadenziario) AppData.scadenziario = [];
+                        salvaDatiCondivisi();
+                        alert("Database caricato con successo! Tutti i dati sono stati aggiornati.");
+                        renderingSinottico();
+                        renderingArchivio();
+                        renderingScadenziario();
+                        renderingDiario();
+                    } else {
+                        alert("Il file caricato non sembra essere un database valido di questa applicazione.");
+                    }
+                } catch(err) {
+                    alert("Errore nella lettura del file JSON: " + err.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function analizzaDataItaliana(str) {
+            if(!str || str === "-" || str.trim() === "") return null;
+            str = String(str).trim();
+            if(str.includes("-")) {
+                let parti = str.split("-");
+                if(parti.length === 3) {
+                    let anno = parseInt(parti[0], 10);
+                    let mese = parseInt(parti[1], 10);
+                    let giorno = parseInt(parti[2], 10);
+                    if(!isNaN(anno) && !isNaN(mese) && !isNaN(giorno)) return new Date(anno, mese - 1, giorno);
+                }
+            }
+            if(str.includes("/")) {
+                let parti = str.split("/");
+                if(parti.length === 3) {
+                    let giorno = parseInt(parti[0], 10);
+                    let mese = parseInt(parti[1], 10);
+                    let anno = parseInt(parti[2], 10);
+                    if(!isNaN(anno) && anno >= 0 && anno < 100) anno += 2000;
+                    if(!isNaN(anno) && !isNaN(mese) && !isNaN(giorno)) return new Date(anno, mese - 1, giorno);
+                }
+            }
+            return null;
+        }
+
+        function eseguiCalcoloRitardoFabbricazioneDettaglio() {
+            let strWp = document.getElementById("d_inizioPrevFab").value.trim();
+            let strReale = document.getElementById("d_inizioReale").value.trim();
+            let dataWp = analizzaDataItaliana(strWp);
+            let dataReale = analizzaDataItaliana(strReale);
+
+            if(dataWp && dataReale) {
+                dataWp.setHours(0,0,0,0);
+                dataReale.setHours(0,0,0,0);
+                let diffTempo = dataReale.getTime() - dataWp.getTime();
+                document.getElementById("d_giorniRitardo").value = Math.round(diffTempo / (1000 * 60 * 60 * 24));
+            } else {
+                document.getElementById("d_giorniRitardo").value = "0";
+            }
+        }
+
+        function eseguiCalcoloRitardoUltimoWpDettaglio() {
+            let strConsVelina = document.getElementById("d_dataConsegnaVelina").value.trim();
+            let dataConsVelina = analizzaDataItaliana(strConsVelina);
+            
+            let dataWpFine = null;
+            if (xmlTemporaneoDettaglio) {
+                dataWpFine = analizzaDataItaliana(xmlTemporaneoDettaglio.dataComplPrev);
+            } else if (idCommessaSelezionata && AppData.metadata[idCommessaSelezionata]) {
+                dataWpFine = analizzaDataItaliana(AppData.metadata[idCommessaSelezionata].dataComplPrev);
+            }
+
+            if (dataConsVelina && dataWpFine) {
+                dataConsVelina.setHours(0,0,0,0);
+                dataWpFine.setHours(0,0,0,0);
+                if (dataWpFine > dataConsVelina) {
+                    let diff = dataWpFine.getTime() - dataConsVelina.getTime();
+                    document.getElementById("d_ritardoComplFasi").value = Math.round(diff / (1000 * 60 * 60 * 24));
+                } else {
+                    document.getElementById("d_ritardoComplFasi").value = "0";
+                }
+            } else {
+                document.getElementById("d_ritardoComplFasi").value = "0";
+            }
+        }
+
+        function normalizzaDataProjectXML(valore) {
+            if (valore == null) return "";
+            const str = String(valore).trim();
+            if (!str) return "";
+
+            let m = str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+            if (m) {
+                const anno = Number(m[1]), mese = Number(m[2]), giorno = Number(m[3]);
+                if (anno >= 1900 && mese >= 1 && mese <= 12 && giorno >= 1 && giorno <= 31) {
+                    return `${String(anno).padStart(4, "0")}-${String(mese).padStart(2, "0")}-${String(giorno).padStart(2, "0")}`;
+                }
+            }
+
+            m = str.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2}|\d{4})/);
+            if (m) {
+                let giorno = Number(m[1]), mese = Number(m[2]), anno = Number(m[3]);
+                if (anno < 100) anno += 2000;
+                if (anno >= 1900 && mese >= 1 && mese <= 12 && giorno >= 1 && giorno <= 31) {
+                    return `${String(anno).padStart(4, "0")}-${String(mese).padStart(2, "0")}-${String(giorno).padStart(2, "0")}`;
+                }
+            }
+            return "";
+        }
+
+        function estraiDatiDaXMLDoc(xmlString, filename) {
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xmlString, "text/xml");
+            const tasks = xmlDoc.querySelectorAll("Task, p\:Task");
+            
+            let nomeCommessa = "";
+            let descrizioneCliente = "";
+            let titleNode = xmlDoc.querySelector("Title") || xmlDoc.querySelector("p\:Title");
+            let nameNodeProj = xmlDoc.querySelector("Name") || xmlDoc.querySelector("p\:Name");
+            
+            if (titleNode && titleNode.textContent.trim() !== "") nomeCommessa = titleNode.textContent.trim();
+            else if (nameNodeProj && nameNodeProj.textContent.trim() !== "" && nameNodeProj.parentNode.nodeName === "Project") nomeCommessa = nameNodeProj.textContent.replace(".xml", "").trim();
+            else nomeCommessa = filename.replace(".xml", "").trim();
+
+            const subjectNodes = Array.from(xmlDoc.getElementsByTagNameNS("*", "Subject"));
+            const subjectNode = subjectNodes.find(node => {
+                let parent = node.parentNode;
+                while (parent && parent.nodeType === 1) {
+                    if ((parent.localName || parent.nodeName).split(":").pop() === "Project") return true;
+                    parent = parent.parentNode;
+                }
+                return false;
+            }) || Array.from(xmlDoc.getElementsByTagName("Subject")).find(node => {
+                let parent = node.parentNode;
+                while (parent && parent.nodeType === 1) {
+                    if ((parent.localName || parent.nodeName).split(":").pop() === "Project") return true;
+                    parent = parent.parentNode;
+                }
+                return false;
+            });
+            if (subjectNode && subjectNode.textContent.trim() !== "") {
+                descrizioneCliente = subjectNode.textContent.trim();
+            }
+
+            let listaAttivita = [];
+            let dataFineProgetto = "";
+            let dataInizioFabbricazioneRilevata = "";
+            let dataConsegnaWpDaAttivita = "";
+
+            tasks.forEach(task => {
+                let nameNode = task.querySelector("Name") || task.querySelector("p\:Name");
+                let startNode = task.querySelector("Start") || task.querySelector("p\:Start");
+                let finishNode = task.querySelector("Finish") || task.querySelector("p\:Finish");
+                let pctNode = task.querySelector("PercentComplete") || task.querySelector("p\:PercentComplete");
+                let outlineLevelNode = task.querySelector("OutlineLevel") || task.querySelector("p\:OutlineLevel");
+                let summaryNode = task.querySelector("Summary") || task.querySelector("p\:Summary");
+
+                if(nameNode && finishNode) {
+                    let name = nameNode.textContent.trim();
+                    let nameUpper = name.toUpperCase();
+                    let start = startNode ? normalizzaDataProjectXML(startNode.textContent) : "";
+                    let finish = normalizzaDataProjectXML(finishNode.textContent);
+                    let pct = pctNode ? parseInt(pctNode.textContent.trim()) : 0;
+                    
+                    let level = outlineLevelNode ? parseInt(outlineLevelNode.textContent.trim()) : 1;
+                    let isSummary = false;
+                    if(summaryNode) {
+                        isSummary = (summaryNode.textContent.trim() === "1" || summaryNode.textContent.trim() === "true");
+                    }
+
+                    if(nameUpper.includes("DELIVERY") && finish) {
+                        dataConsegnaWpDaAttivita = finish;
+                    }
+
+                    if(!dataConsegnaWpDaAttivita && (level === 0 || level === 1) && finish > dataFineProgetto) {
+                        dataFineProgetto = finish;
+                    }
+                    
+                    if(!dataInizioFabbricazioneRilevata && (nameUpper.includes("MANUFACTUR") || nameUpper.includes("FABRICAT") || nameUpper.includes("FABBRICAT"))) {
+                        dataInizioFabbricazioneRilevata = start;
+                    }
+
+                    if(name !== "") {
+                        listaAttivita.push({ name, start, finish, pct, level, isSummary });
+                    }
+                }
+            });
+
+            if(dataConsegnaWpDaAttivita) dataFineProgetto = dataConsegnaWpDaAttivita;
+
+            let dataComplFormattata = "-";
+            if(dataFineProgetto) {
+                let parti = dataFineProgetto.split("-");
+                dataComplFormattata = `${parti[2]}/${parti[1]}/${parti[0]}`;
+            }
+
+            let dataManufFormattata = "-";
+            if(dataInizioFabbricazioneRilevata) {
+                let partiM = dataInizioFabbricazioneRilevata.split("-");
+                dataManufFormattata = `${partiM[2]}/${partiM[1]}/${partiM[0]}`;
+            }
+
+            return { nomeCommessa, descrizioneCliente, listaAttivita, dataComplFormattata, dataManufFormattata };
+        }
+
+        function calcolaMRRitardoDaAttivita(attivita) {
+            const oggi = new Date();
+            oggi.setHours(0,0,0,0);
+            let contatoreRitardi = 0;
+            let dentroPoIssuance = false;
+            let livelloPadrePo = -1;
+
+            for(let i = 0; i < attivita.length; i++) {
+                let t = attivita[i];
+                if (dentroPoIssuance) {
+                    if (t.level <= livelloPadrePo) {
+                        dentroPoIssuance = false;
+                        livelloPadrePo = -1;
+                    } else {
+                        if (!t.isSummary && t.finish) {
+                            let dFine = new Date(t.finish);
+                            dFine.setHours(0,0,0,0);
+                            if (dFine < oggi && t.pct < 100) contatoreRitardi++;
+                        }
+                    }
+                }
+                if (!dentroPoIssuance && t.isSummary && t.name.toUpperCase().includes("PO ISSUANCE")) {
+                    dentroPoIssuance = true;
+                    livelloPadrePo = t.level;
+                }
+            }
+            return contatoreRitardi;
+        }
+
+        function calcolaRitardoOrdiniDaAttivita(attivita) {
+            const oggi = new Date();
+            oggi.setHours(0,0,0,0);
+            let contatoreAttivitaInRitardo = 0;
+            let dentroPoIssuance = false;
+            let livelloPadrePo = -1;
+
+            for(let i = 0; i < attivita.length; i++) {
+                let t = attivita[i];
+                if (dentroPoIssuance) {
+                    if (t.level <= livelloPadrePo) {
+                        dentroPoIssuance = false;
+                        livelloPadrePo = -1;
+                    } else {
+                        if (!t.isSummary && t.name.toUpperCase().trim().startsWith("PO") && t.finish) {
+                            let dFine = new Date(t.finish);
+                            dFine.setHours(0,0,0,0);
+                            if (dFine < oggi && t.pct < 100) contatoreAttivitaInRitardo++;
+                        }
+                    }
+                }
+                if (!dentroPoIssuance && t.isSummary && t.name.toUpperCase().includes("PO ISSUANCE")) {
+                    dentroPoIssuance = true;
+                    livelloPadrePo = t.level;
+                }
+            }
+            return contatoreAttivitaInRitardo;
+        }
+
+        function calcolaRitardoArrivoMaterialiDaAttivita(attivita) {
+            const oggi = new Date();
+            oggi.setHours(0,0,0,0);
+            let contatoreMaterialiInRitardo = 0;
+            let dentroMaterialDeliverables = false;
+            let livelloPadreMaterial = -1;
+
+            for(let i = 0; i < attivita.length; i++) {
+                let t = attivita[i];
+                if (dentroMaterialDeliverables) {
+                    if (t.level <= livelloPadreMaterial) {
+                        dentroMaterialDeliverables = false;
+                        livelloPadreMaterial = -1;
+                    } else {
+                        if (!t.isSummary && t.finish) {
+                            let dFine = new Date(t.finish);
+                            dFine.setHours(0,0,0,0);
+                            if (dFine < oggi && t.pct < 100) contatoreMaterialiInRitardo++;
+                        }
+                    }
+                }
+                if (!dentroMaterialDeliverables && t.isSummary && t.name.toUpperCase().includes("MATERIAL DELIVERABLES")) {
+                    dentroMaterialDeliverables = true;
+                    livelloPadreMaterial = t.level;
+                }
+            }
+            return contatoreMaterialiInRitardo;
+        }
+
+        function calcolaManufacturingDettagliatoInRitardo(attivita) {
+            const oggi = new Date();
+            oggi.setHours(0,0,0,0);
+            let ritardoInizio = 0;
+            let ritardoFine = 0;
+
+            let dentroManufacturing = false;
+            let livelloPadreManuf = -1;
+
+            for(let i = 0; i < attivita.length; i++) {
+                let t = attivita[i];
+                let tNameUpper = t.name.toUpperCase();
+
+                if (dentroManufacturing) {
+                    if (t.level <= livelloPadreManuf) {
+                        dentroManufacturing = false;
+                        livelloPadreManuf = -1;
+                    } else {
+                        if (!t.isSummary) {
+                            if (t.start) {
+                                let dIniz = new Date(t.start);
+                                dIniz.setHours(0,0,0,0);
+                                if (dIniz < oggi && t.pct === 0) ritardoInizio++;
+                            }
+                            if (t.finish) {
+                                let dFine = new Date(t.finish);
+                                dFine.setHours(0,0,0,0);
+                                if (dFine < oggi && t.pct < 100) ritardoFine++;
+                            }
+                        }
+                    }
+                }
+
+                if (!dentroManufacturing && t.isSummary && (tNameUpper === "MANUFACTURING" || tNameUpper.includes("FABRICAT") || tNameUpper.includes("FABBRICAT"))) {
+                    dentroManufacturing = true;
+                    livelloPadreManuf = t.level;
+                }
+            }
+            return { inizio: ritardoInizio, fine: ritardoFine };
+        }
+
+        function aggiornaSelectCommesseScadenziario() {
+            let select = document.getElementById("scadCommessaSelect");
+            if(!select) return;
+            let valCorrente = select.value;
+            select.innerHTML = `<option value="-">Nessuna commessa specifica</option>`;
+            
+            for(let id in AppData.metadata) {
+                select.innerHTML += `<option value="${id}">${id} - ${AppData.metadata[id].descrizione || ''}</option>`;
+            }
+            if(valCorrente) select.value = valCorrente;
+        }
+
+        function salvaNuovaScadenza() {
+            let nome = document.getElementById("scadNome").value.trim();
+            let commessa = document.getElementById("scadCommessaSelect").value;
+            let dataFineStr = document.getElementById("scadDataFine").value.trim();
+            let stato = document.getElementById("scadStato").value;
+
+            if(!nome) { alert("Inserisci una descrizione dell'attività!"); return; }
+            if(!dataFineStr) { alert("Inserisci la data di scadenza (Fine)!"); return; }
+
+            if(!AppData.scadenziario) AppData.scadenziario = [];
+
+            AppData.scadenziario.push({
+                idScad: Date.now(),
+                nome: nome,
+                commessa: commessa,
+                dataFine: dataFineStr,
+                stato: stato
+            });
+
+            salvaDatiCondivisi();
+            document.getElementById("scadNome").value = "";
+            document.getElementById("scadDataFine").value = "";
+            document.getElementById("scadStato").value = "Da fare";
+            renderingScadenziario();
+            if(idCommessaSelezionata) renderingScadenzeDettaglioCommessa(idCommessaSelezionata);
+            alert("Scadenza aggiunta allo scadenziario!");
+        }
+
+        function cambiaStatoScadenza(idScad, nuovoStato) {
+            if(!AppData.scadenziario) return;
+            let item = AppData.scadenziario.find(s => s.idScad === idScad);
+            if(item) {
+                item.stato = nuovoStato;
+                salvaDatiCondivisi();
+                renderingScadenziario();
+                if(idCommessaSelezionata) renderingScadenzeDettaglioCommessa(idCommessaSelezionata);
+            }
+        }
+
+        function eliminaScadenza(idScad) {
+            if(!AppData.scadenziario) return;
+            if(confirm("Eliminare questa scadenza?")) {
+                AppData.scadenziario = AppData.scadenziario.filter(s => s.idScad !== idScad);
+                salvaDatiCondivisi();
+                renderingScadenziario();
+                if(idCommessaSelezionata) renderingScadenzeDettaglioCommessa(idCommessaSelezionata);
+            }
+        }
+
+        function renderingScadenziario() {
+            const tbody = document.getElementById("tbodyScadenziario");
+            if(!tbody) return;
+            tbody.innerHTML = "";
+
+            const oggi = new Date();
+            oggi.setHours(0,0,0,0);
+
+            const queryFiltro = document.getElementById("searchScadenziario") ? document.getElementById("searchScadenziario").value.toLowerCase().trim() : "";
+            const filtroStato = document.getElementById("filterStatoScad") ? document.getElementById("filterStatoScad").value : "aperte";
+
+            let lista = AppData.scadenziario || [];
+
+            lista.forEach(item => {
+                let dFine = analizzaDataItaliana(item.dataFine);
+                let giorniRitardo = 0;
+
+                if (dFine) {
+                    dFine.setHours(0,0,0,0);
+                    if (dFine < oggi && item.stato !== "Completata") {
+                        let diff = oggi.getTime() - dFine.getTime();
+                        giorniRitardo = Math.round(diff / (1000 * 60 * 60 * 24));
+                    }
+                }
+
+                if(queryFiltro !== "") {
+                    let matchNome = item.nome.toLowerCase().includes(queryFiltro);
+                    let matchComm = (item.commessa || "").toLowerCase().includes(queryFiltro);
+                    if(!matchNome && !matchComm) return;
+                }
+
+                if(filtroStato === "aperte" && item.stato === "Completata") return;
+                if(filtroStato === "ritardo" && (giorniRitardo <= 0 || item.stato === "Completata")) return;
+                if(filtroStato === "completate" && item.stato !== "Completata") return;
+
+                let statoBadge = "";
+                if(item.stato === "Completata") {
+                    statoBadge = `<span class="badge badge-success">COMPLETATA</span>`;
+                } else if(item.stato === "In corso") {
+                    statoBadge = `<span class="badge badge-info">IN CORSO</span>`;
+                } else {
+                    statoBadge = `<span class="badge badge-warning">DA FARE</span>`;
+                }
+
+                let commessaTesto = item.commessa !== "-" ? `<strong>${item.commessa}</strong>` : `<span style="color:#9ca3af;">-</span>`;
+
+                let riga = `<tr>
+                    <td class="desc-cell">📌 <strong>${item.nome}</strong></td>
+                    <td>${commessaTesto}</td>
+                    <td><strong>${item.dataFine}</strong></td>
+                    <td>${statoBadge}</td>
+                    <td class="${giorniRitardo > 0 ? 'text-red' : ''}">${giorniRitardo > 0 ? giorniRitardo + ' gg' : '-'}</td>
+                    <td>
+                        ${item.stato !== 'Completata' ? `<button class="btn btn-success" onclick="cambiaStatoScadenza(${item.idScad}, 'Completata')" style="padding:0.25rem 0.5rem; font-size:0.75rem;">✔️ Completa</button>` : `<button class="btn btn-secondary" onclick="cambiaStatoScadenza(${item.idScad}, 'Da fare')" style="padding:0.25rem 0.5rem; font-size:0.75rem;">🔄 Riapri</button>`}
+                        <button class="btn btn-danger" onclick="eliminaScadenza(${item.idScad})" style="padding:0.25rem 0.5rem; font-size:0.75rem;">🗑️</button>
+                    </td>
+                </tr>`;
+                tbody.innerHTML += riga;
+            });
+
+            if(tbody.innerHTML === "") {
+                tbody.innerHTML = "<tr><td colspan='6' style='text-align:center; padding:1rem; color:#6b7280;'>Nessuna scadenza trovata.</td></tr>";
+            }
+        }
+
+        function renderingScadenzeDettaglioCommessa(idCommessa) {
+            const tbody = document.getElementById("tbodyScadenzeDettaglioCommessa");
+            if(!tbody) return;
+            tbody.innerHTML = "";
+
+            const oggi = new Date();
+            oggi.setHours(0,0,0,0);
+
+            let lista = AppData.scadenziario || [];
+            let filtrate = lista.filter(s => s.commessa === idCommessa);
+
+            if(filtrate.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:1rem; color:#6b7280;'>Nessuna attività manuale/scadenza inserita per questa specifica commessa.</td></tr>";
+                return;
+            }
+
+            filtrate.forEach(item => {
+                let dFine = analizzaDataItaliana(item.dataFine);
+                let giorniRitardo = 0;
+
+                if (dFine) {
+                    dFine.setHours(0,0,0,0);
+                    if (dFine < oggi && item.stato !== "Completata") {
+                        let diff = oggi.getTime() - dFine.getTime();
+                        giorniRitardo = Math.round(diff / (1000 * 60 * 60 * 24));
+                    }
+                }
+
+                let statoBadge = "";
+                if(item.stato === "Completata") {
+                    statoBadge = `<span class="badge badge-success">COMPLETATA</span>`;
+                } else if(item.stato === "In corso") {
+                    statoBadge = `<span class="badge badge-info">IN CORSO</span>`;
+                } else {
+                    statoBadge = `<span class="badge badge-warning">DA FARE</span>`;
+                }
+
+                let riga = `<tr>
+                    <td class="desc-cell">📌 <strong>${item.nome}</strong></td>
+                    <td><strong>${item.dataFine}</strong></td>
+                    <td>${statoBadge}</td>
+                    <td class="${giorniRitardo > 0 ? 'text-red' : ''}">${giorniRitardo > 0 ? giorniRitardo + ' gg' : '-'}</td>
+                    <td>
+                        ${item.stato !== 'Completata' ? `<button class="btn btn-success" onclick="cambiaStatoScadenza(${item.idScad}, 'Completata')" style="padding:0.25rem 0.5rem; font-size:0.75rem;">✔️ Completa</button>` : `<button class="btn btn-secondary" onclick="cambiaStatoScadenza(${item.idScad}, 'Da fare')" style="padding:0.25rem 0.5rem; font-size:0.75rem;">🔄 Riapri</button>`}
+                        <button class="btn btn-danger" onclick="eliminaScadenza(${item.idScad})" style="padding:0.25rem 0.5rem; font-size:0.75rem;">🗑️</button>
+                    </td>
+                </tr>`;
+                tbody.innerHTML += riga;
+            });
+        }
+
+        function leggiFileXMLInCreazione() {
+            const fileInput = document.getElementById('xmlFileCreazioneInput');
+            if(fileInput.files.length === 0) return;
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                let res = estraiDatiDaXMLDoc(e.target.result, file.name);
+                let mrCalcolato = calcolaMRRitardoDaAttivita(res.listaAttivita);
+                let ritardoOrdiniCalcolato = calcolaRitardoOrdiniDaAttivita(res.listaAttivita);
+                let ritardoMaterialiCalcolato = calcolaRitardoArrivoMaterialiDaAttivita(res.listaAttivita);
+                let manufDettagli = calcolaManufacturingDettagliatoInRitardo(res.listaAttivita);
+                
+                xmlTemporaneoCreazione = { 
+                    nomeFile: file.name,
+                    dataCaricamento: new Date().toLocaleDateString('it-IT'),
+                    attivita: res.listaAttivita, 
+                    dataComplPrev: res.dataComplFormattata, 
+                    dataPrevFab: res.dataManufFormattata,
+                    mrRitardo: mrCalcolato.toString(),
+                    ritardoOrdini: ritardoOrdiniCalcolato.toString(),
+                    ritardoArrivoMat: ritardoMaterialiCalcolato.toString(),
+                    manufRitardoInizio: manufDettagli.inizio.toString(),
+                    manufRitardoFine: manufDettagli.fine.toString()
+                };
+                document.getElementById("m_id").value = res.nomeCommessa;
+                document.getElementById("m_descrizione").value = res.descrizioneCliente || res.nomeCommessa;
+                document.getElementById("m_inizioPrevFab").value = res.dataManufFormattata;
+            };
+            reader.readAsText(file);
+        }
+
+        function salvaNuovaCommessaSchermataCreazione() {
+            let id = document.getElementById("m_id").value.trim();
+            if(!id) { alert("Il Numero Commessa è obbligatorio!"); return; }
+            if(AppData.metadata[id]) { alert("Errore: Questa commessa esiste già!"); return; }
+
+            let desc = document.getElementById("m_descrizione").value;
+            let fabWp = document.getElementById("m_inizioPrevFab").value;
+            let fabbricante = document.getElementById("m_fabbricante").value;
+            let apVelina = document.getElementById("m_dataAperturaVelina").value;
+            let consVelina = document.getElementById("m_dataConsegnaVelina").value;
+
+            if(xmlTemporaneoCreazione) {
+                AppData.commesse[id] = xmlTemporaneoCreazione.attivita;
+                
+                let dataWpFine = xmlTemporaneoCreazione.dataComplPrev;
+                let dCons = analizzaDataItaliana(consVelina);
+                let dWp = analizzaDataItaliana(dataWpFine);
+                let ritardoWpCalculated = 0;
+                if(dCons && dWp && dWp > dCons) {
+                    ritardoWpCalculated = Math.round((dWp.getTime() - dCons.getTime()) / (1000 * 60 * 60 * 24));
+                }
+
+                AppData.metadata[id] = {
+                    descrizione: desc, 
+                    dataAperturaVelina: apVelina,
+                    dataConsegnaVelina: consVelina,
+                    mrRitardo: xmlTemporaneoCreazione.mrRitardo, 
+                    ritardoOrdini: xmlTemporaneoCreazione.ritardoOrdini, 
+                    ritardoArrivoMat: xmlTemporaneoCreazione.ritardoArrivoMat,
+                    inizioPrevFab: fabWp, inizioReale: "-", giorniRitardo: "0", 
+                    ritardoComplFasi: ritardoWpCalculated.toString(), 
+                    manufRitardoInizio: xmlTemporaneoCreazione.manufRitardoInizio,
+                    manufRitardoFine: xmlTemporaneoCreazione.manufRitardoFine,
+                    fabbricante: fabbricante, dataComplPrev: dataWpFine,
+                    archiviata: false,
+                    documentiPdf: [],
+                    ultimoWpCaricato: xmlTemporaneoCreazione ? (xmlTemporaneoCreazione.nomeFile || "-") : "-",
+                    dataUltimoWpCaricato: xmlTemporaneoCreazione ? (xmlTemporaneoCreazione.dataCaricamento || "-") : "-",
+                    avanzamenti: []
+                };
+            } else {
+                AppData.commesse[id] = [];
+                AppData.metadata[id] = {
+                    descrizione: desc, dataAperturaVelina: apVelina, dataConsegnaVelina: consVelina,
+                    mrRitardo: "0", ritardoOrdini: "0", ritardoArrivoMat: "0",
+                    inizioPrevFab: fabWp, inizioReale: "-", giorniRitardo: "0", ritardoComplFasi: "0", 
+                    manufRitardoInizio: "0", manufRitardoFine: "0",
+                    fabbricante: fabbricante, dataComplPrev: "-",
+                    archiviata: false,
+                    documentiPdf: [],
+                    ultimoWpCaricato: "-",
+                    dataUltimoWpCaricato: "-",
+                    avanzamenti: []
+                };
+            }
+
+            salvaDatiCondivisi();
+            document.getElementById("m_id").value = "";
+            document.getElementById("m_descrizione").value = "";
+            document.getElementById("m_dataAperturaVelina").value = "-";
+            document.getElementById("m_dataConsegnaVelina").value = "-";
+            document.getElementById("xmlFileCreazioneInput").value = "";
+            xmlTemporaneoCreazione = null;
+            alert("Nuova commessa registrata.");
+            openTab('report');
+        }
+
+        function escapeHtmlAvanzamento(text) {
+            return String(text || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+        }
+
+        function renderingAvanzamentoCommessa(id) {
+            const container = document.getElementById('storicoAvanzamentoCommessa');
+            if(!container) return;
+            const storico = (AppData.metadata[id] && Array.isArray(AppData.metadata[id].avanzamenti)) ? AppData.metadata[id].avanzamenti : [];
+            if(storico.length === 0) {
+                container.innerHTML = '<div style="padding:0.8rem; color:#6b7280; background:#f9fafb; border-radius:5px;">Nessun aggiornamento registrato.</div>';
+                return;
+            }
+            container.innerHTML = storico.map((a, idx) => ({ ...a, originalIndex: idx })).reverse().map(a => `
+                <div style="padding:0.8rem; margin-bottom:0.6rem; background:#f9fafb; border-left:3px solid var(--success); border-radius:4px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:0.5rem;">
+                        <div>
+                            <strong>${escapeHtmlAvanzamento(a.data || '-')}</strong>
+                            ${a.dataModifica ? `<small style="color:#6b7280; margin-left:6px;">(modificato il ${escapeHtmlAvanzamento(a.dataModifica)})</small>` : ''}
+                        </div>
+                        <button type="button" class="btn btn-secondary" onclick="preparaModificaAvanzamento(${a.originalIndex})" style="padding:0.25rem 0.55rem; font-size:0.75rem;">✏️ Modifica</button>
+                    </div>
+                    <div style="margin-top:0.35rem; white-space:pre-wrap;">${escapeHtmlAvanzamento(a.testo)}</div>
+                </div>`).join('');
+        }
+
+        function preparaModificaAvanzamento(index) {
+            const id = idCommessaSelezionata;
+            if(!id || !AppData.metadata[id] || !Array.isArray(AppData.metadata[id].avanzamenti)) return;
+            const item = AppData.metadata[id].avanzamenti[index];
+            if(!item) return;
+
+            document.getElementById('d_editAvanzamentoIndex').value = index;
+            const campo = document.getElementById('d_nuovoAvanzamento');
+            campo.value = item.testo || '';
+            document.getElementById('lblNuovoAvanzamento').innerHTML = `<strong>✏️ Modifica aggiornamento del ${escapeHtmlAvanzamento(item.data || '-')}:</strong>`;
+            document.getElementById('btnAggiungiAvanzamento').innerHTML = '💾 Salva modifica aggiornamento';
+            document.getElementById('btnAnnullaModificaAvanzamento').style.display = 'inline-flex';
+            campo.focus();
+        }
+
+        function annullaModificaAvanzamento() {
+            const editIdx = document.getElementById('d_editAvanzamentoIndex');
+            if(editIdx) editIdx.value = '-1';
+            const campo = document.getElementById('d_nuovoAvanzamento');
+            if(campo) campo.value = '';
+            const lbl = document.getElementById('lblNuovoAvanzamento');
+            if(lbl) lbl.innerHTML = '<strong>Nuovo aggiornamento:</strong>';
+            const btnAdd = document.getElementById('btnAggiungiAvanzamento');
+            if(btnAdd) btnAdd.innerHTML = '➕ Aggiungi aggiornamento';
+            const btnCancel = document.getElementById('btnAnnullaModificaAvanzamento');
+            if(btnCancel) btnCancel.style.display = 'none';
+        }
+
+        function aggiungiAggiornamentoCommessa() {
+            const id = idCommessaSelezionata;
+            const campo = document.getElementById('d_nuovoAvanzamento');
+            const editIndexEl = document.getElementById('d_editAvanzamentoIndex');
+            if(!id || !campo) return;
+            const testo = campo.value.trim();
+            if(!testo) { alert("Inserisci il testo dell'aggiornamento."); return; }
+            if(!Array.isArray(AppData.metadata[id].avanzamenti)) AppData.metadata[id].avanzamenti = [];
+
+            const editIndex = editIndexEl ? parseInt(editIndexEl.value, 10) : -1;
+            if(editIndex >= 0 && editIndex < AppData.metadata[id].avanzamenti.length) {
+                AppData.metadata[id].avanzamenti[editIndex].testo = testo;
+                AppData.metadata[id].avanzamenti[editIndex].dataModifica = new Date().toLocaleDateString('it-IT');
+            } else {
+                AppData.metadata[id].avanzamenti.push({ data: new Date().toLocaleDateString('it-IT'), testo: testo });
+            }
+
+            annullaModificaAvanzamento();
+            renderingAvanzamentoCommessa(id);
+            salvaDatiCondivisi();
+        }
+
+        function apriDettaglioCommessa(id, daTab = 'report') {
+            idCommessaSelezionata = id;
+            tabOrigine = daTab;
+            xmlTemporaneoDettaglio = null;
+            document.getElementById('xmlFileDettaglioInput').value = "";
+
+            let meta = AppData.metadata[id];
+            if(!meta.documentiPdf) meta.documentiPdf = [];
+            
+            let mrVal = meta.mrRitardo || "0";
+            let ordiniVal = meta.ritardoOrdini || "0";
+            let materialiVal = meta.ritardoArrivoMat || "0";
+            let manufInizioVal = meta.manufRitardoInizio || "0";
+            let manufFineVal = meta.manufRitardoFine || "0";
+            let ritardoWpVal = meta.ritardoComplFasi || "0";
+            
+            if(AppData.commesse[id] && AppData.commesse[id].length > 0) {
+                mrVal = calcolaMRRitardoDaAttivita(AppData.commesse[id]).toString();
+                ordiniVal = calcolaRitardoOrdiniDaAttivita(AppData.commesse[id]).toString();
+                materialiVal = calcolaRitardoArrivoMaterialiDaAttivita(AppData.commesse[id]).toString();
+                
+                let manufDettagli = calcolaManufacturingDettagliatoInRitardo(AppData.commesse[id]);
+                manufInizioVal = manufDettagli.inizio.toString();
+                manufFineVal = manufDettagli.fine.toString();
+                
+                let dCons = analizzaDataItaliana(meta.dataConsegnaVelina || "");
+                let dWp = analizzaDataItaliana(meta.dataComplPrev || "");
+                if (dCons && dWp && dWp > dCons) {
+                    ritardoWpVal = Math.round((dWp.getTime() - dCons.getTime()) / (1000 * 60 * 60 * 24)).toString();
+                } else {
+                    ritardoWpVal = "0";
+                }
+                
+                meta.mrRitardo = mrVal;
+                meta.ritardoOrdini = ordiniVal;
+                meta.ritardoArrivoMat = materialiVal;
+                meta.manufRitardoInizio = manufInizioVal;
+                meta.manufRitardoFine = manufFineVal;
+                meta.ritardoComplFasi = ritardoWpVal;
+            }
+
+            document.getElementById("det_titolo_id").innerText = id;
+            document.getElementById("d_descrizione").value = meta.descrizione || "";
+            document.getElementById("d_dataAperturaVelina").value = meta.dataAperturaVelina || "-";
+            document.getElementById("d_dataConsegnaVelina").value = meta.dataConsegnaVelina || "-";
+            document.getElementById("d_mrRitardo").value = mrVal;
+            document.getElementById("d_ritardoOrdini").value = ordiniVal;
+            document.getElementById("d_ritardoArrivoMat").value = materialiVal;
+            document.getElementById("d_inizioPrevFab").value = meta.inizioPrevFab || "-";
+            document.getElementById("d_inizioReale").value = meta.inizioReale || "-";
+            document.getElementById("d_giorniRitardo").value = meta.giorniRitardo || "0";
+            document.getElementById("d_ritardoComplFasi").value = ritardoWpVal;
+            document.getElementById("d_manufRitardoInizio").value = manufInizioVal;
+            document.getElementById("d_manufRitardoFine").value = manufFineVal;
+            document.getElementById("d_fabbricante").value = meta.fabbricante || "-";
+            const wpEl = document.getElementById("d_ultimoWpCaricato");
+            if(wpEl) wpEl.textContent = meta.ultimoWpCaricato ? (meta.ultimoWpCaricato + (meta.dataUltimoWpCaricato && meta.dataUltimoWpCaricato !== "-" ? " • " + meta.dataUltimoWpCaricato : "")) : "-";
+            annullaModificaAvanzamento();
+            renderingAvanzamentoCommessa(id);
+            
+            const divAzione = document.getElementById("dettaglioAzioneArchivio");
+            if(meta.archiviata) {
+                divAzione.innerHTML = `<button class="btn btn-warning" onclick="cambiaStatoArchivioCommessa('${id}', false)">🔄 Ripristina Commessa in Home</button>`;
+            } else {
+                divAzione.innerHTML = `<button class="btn btn-warning" onclick="cambiaStatoArchivioCommessa('${id}', true)">📦 Archivia Commessa</button>`;
+            }
+
+            document.getElementById("btn-tab-dettaglio").style.display = "inline-block";
+            openTab('dettaglio');
+            renderingTabellaFasiDettaglio(id);
+            renderingTabellaPdfDettaglio(id);
+            renderingScadenzeDettaglioCommessa(id);
+            renderingGantt(id);
+        }
+
+        function cambiaStatoArchivioCommessa(id, archivia) {
+            if(AppData.metadata[id]) {
+                AppData.metadata[id].archiviata = archivia;
+                salvaDatiCondivisi();
+                alert(archivia ? "Commessa spostata nell'Archivio." : "Commessa ripristinata in Home!");
+                openTab(archivia ? 'archivio' : 'report');
+            }
+        }
+
+        function renderingGantt(id) {
+            const container = document.getElementById("ganttContainer");
+            if(!container) return;
+            container.innerHTML = "";
+
+            const attivita = AppData.commesse[id] || [];
+            if(attivita.length === 0) {
+                container.innerHTML = "<p style='color:#6b7280; text-align:center; padding:1.5rem;'>Nessuna attività disponibile per generare il diagramma di Gantt.</p>";
+                return;
+            }
+
+            const attivitaValide = attivita.filter(t => t.start && t.finish && t.start !== "-" && t.finish !== "-");
+            if(attivitaValide.length === 0) {
+                container.innerHTML = "<p style='color:#6b7280; text-align:center; padding:1.5rem;'>Nessuna data di inizio/fine valida trovata nelle attività.</p>";
+                return;
+            }
+
+            let minTime = Number.POSITIVE_INFINITY;
+            let maxTime = Number.NEGATIVE_INFINITY;
+
+            attivitaValide.forEach(t => {
+                let dStart = new Date(t.start).getTime();
+                let dFinish = new Date(t.finish).getTime();
+                if(dStart < minTime) minTime = dStart;
+                if(dFinish > maxTime) maxTime = dFinish;
+            });
+
+            if(minTime === maxTime) maxTime = minTime + (86400000 * 30);
+            
+            let startDate = new Date(minTime);
+            let dayOfWeek = startDate.getDay() || 7;
+            if(dayOfWeek > 1) startDate.setDate(startDate.getDate() - (dayOfWeek - 1));
+            minTime = startDate.getTime();
+
+            let endDate = new Date(maxTime);
+            let endDayOfWeek = endDate.getDay() || 7;
+            if(endDayOfWeek < 7) endDate.setDate(endDate.getDate() + (7 - endDayOfWeek));
+            maxTime = endDate.getTime();
+
+            const spanTempo = maxTime - minTime;
+            const msPerWeek = 7 * 86400000;
+            const totalWeeks = Math.round(spanTempo / msPerWeek);
+
+            let settimaneHeaderHtml = '';
+            let mesiHeaderHtml = '';
+            let currentMonth = -1;
+            let monthSpan = 0;
+            let monthName = '';
+            let gridLinesHtml = '';
+            const mesiNomi = ["Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic"];
+
+            function getWeekNumber(d) {
+                let target = new Date(d.valueOf());
+                let dayNr = (d.getDay() + 6) % 7;
+                target.setDate(target.getDate() - dayNr + 3);
+                let firstThursday = new Date(target.getFullYear(), 0, 4);
+                let firstDayNr = (firstThursday.getDay() + 6) % 7;
+                firstThursday.setDate(firstThursday.getDate() - firstDayNr + 3);
+                return Math.round(((target - firstThursday) / 86400000 - 3) / 7) + 1;
+            }
+
+            let currentWStart = new Date(minTime);
+            for(let w = 0; w < totalWeeks; w++) {
+                let wStartTime = currentWStart.getTime();
+                let leftP = ((wStartTime - minTime) / spanTempo) * 100;
+                let widthP = (msPerWeek / spanTempo) * 100;
+
+                let m = currentWStart.getMonth();
+                let mStr = mesiNomi[m] + " " + String(currentWStart.getFullYear()).slice(-2);
+                let wkNum = getWeekNumber(currentWStart);
+
+                if(currentMonth === -1) {
+                    currentMonth = m;
+                    monthName = mStr;
+                    monthSpan = widthP;
+                } else if(currentMonth === m) {
+                    monthSpan += widthP;
+                } else {
+                    mesiHeaderHtml += `<div style="position: absolute; left: ${leftP - monthSpan}%; width: ${monthSpan}%; border-right: 1px solid #9ca3af; text-align: center; font-size: 0.7rem; font-weight: bold; background: #e5e7eb; overflow: hidden; white-space: nowrap;">${monthName}</div>`;
+                    currentMonth = m;
+                    monthName = mStr;
+                    monthSpan = widthP;
+                }
+
+                settimaneHeaderHtml += `<div style="position: absolute; left: ${leftP}%; width: ${widthP}%; border-right: 1px solid #d1d5db; text-align: center; font-size: 0.65rem; color: #4b5563;">${wkNum}</div>`;
+                gridLinesHtml += `<div style="position: absolute; left: ${leftP}%; top: 0; bottom: 0; border-right: 1px dashed #e5e7eb; pointer-events: none;"></div>`;
+
+                currentWStart.setDate(currentWStart.getDate() + 7);
+            }
+            let lastLeft = 100 - monthSpan;
+            mesiHeaderHtml += `<div style="position: absolute; left: ${lastLeft}%; width: ${monthSpan}%; border-right: 1px solid #9ca3af; text-align: center; font-size: 0.7rem; font-weight: bold; background: #e5e7eb; overflow: hidden; white-space: nowrap;">${monthName}</div>`;
+
+            let html = `<div style="font-family: Arial, sans-serif; font-size: 0.8rem; width: 100%;">`;
+            html += `<div style="display: grid; grid-template-columns: 40px 220px 65px 55px 65px 65px 1fr; background: #e5e7eb; border: 1px solid #9ca3af; font-weight: bold; align-items: center;">
+                <div style="padding: 6px; text-align: center; border-right: 1px solid #9ca3af;">ID</div>
+                <div style="padding: 6px; text-align: left; border-right: 1px solid #9ca3af;">Activity name</div>
+                <div style="padding: 6px; text-align: center; border-right: 1px solid #9ca3af;">Duration</div>
+                <div style="padding: 6px; text-align: center; border-right: 1px solid #9ca3af;">%</div>
+                <div style="padding: 6px; text-align: center; border-right: 1px solid #9ca3af;">Start</div>
+                <div style="padding: 6px; text-align: center; border-right: 1px solid #9ca3af;">End</div>
+                <div style="position: relative; height: 42px;">
+                    <div style="position: absolute; top: 0; left: 0; right: 0; height: 21px; border-bottom: 1px solid #9ca3af;">${mesiHeaderHtml}</div>
+                    <div style="position: absolute; bottom: 0; left: 0; right: 0; height: 21px;">${settimaneHeaderHtml}</div>
+                </div>
+            </div>`;
+
+            let idx = 1;
+            attivitaValide.forEach(t => {
+                let dStart = new Date(t.start).getTime();
+                let dFinish = new Date(t.finish).getTime();
+                let leftPercent = Math.max(0, Math.min(100, ((dStart - minTime) / spanTempo) * 100));
+                let widthPercent = Math.max(1, Math.min(100 - leftPercent, ((dFinish - dStart) / spanTempo) * 100));
+
+                let pct = Number(t.pct || 0);
+                let indent = (Math.max(1, t.level) - 1) * 12;
+                let bgRow = t.isSummary ? "#f3f4f6" : "#ffffff";
+                let fontWeight = t.isSummary ? "bold" : "normal";
+                let diffGiorni = Math.max(1, Math.round((dFinish - dStart) / (1000 * 60 * 60 * 24)));
+
+                let barraMarkup = "";
+                if(t.isSummary) {
+                    // Stile barra riepilogo MS Project (barra blu scuro con parentesi/frecce rivolte verso il basso alle estremità)
+                    barraMarkup = `<div style="position: absolute; top: 8px; left: ${leftPercent}%; width: ${widthPercent}%; height: 8px;">
+                        <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background-color: #000080;"></div>
+                        <div style="position: absolute; top: 0; left: 0; width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 8px solid #000080;"></div>
+                        <div style="position: absolute; top: 0; right: 0; width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 8px solid #000080;"></div>
+                    </div>`;
+                } else {
+                    let bgBarra = "#38bdf8";
+                    if(pct >= 100) bgBarra = "#10b981";
+                    let progressoHtml = (pct > 0 && pct < 100) ? `<div style="position: absolute; top: 0; left: 0; width: ${pct}%; height: 100%; background-color: #f97316; border-radius: 3px 0 0 3px;"></div>` : "";
+                    barraMarkup = `<div style="position: absolute; top: 5px; left: ${leftPercent}%; width: ${widthPercent}%; height: 14px; background-color: ${bgBarra}; border-radius: 3px; overflow: hidden;" title="Dal ${t.start} al ${t.finish}">
+                        ${progressoHtml}
+                    </div>`;
+                }
+
+                html += `<div style="display: grid; grid-template-columns: 40px 220px 65px 55px 65px 65px 1fr; background: ${bgRow}; border-bottom: 1px solid #d1d5db; border-left: 1px solid #d1d5db; border-right: 1px solid #d1d5db; align-items: center; font-weight: ${fontWeight};">
+                    <div style="padding: 5px; text-align: center; color: #4b5563; border-right: 1px solid #d1d5db;">${idx++}</div>
+                    <div style="padding: 5px; padding-left: ${8 + indent}px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-right: 1px solid #d1d5db;" title="${t.name}">
+                        ${t.isSummary ? '📁' : '🔹'} ${t.name}
+                    </div>
+                    <div style="padding: 5px; text-align: center; border-right: 1px solid #d1d5db;">${diffGiorni} d</div>
+                    <div style="padding: 5px; text-align: center; border-right: 1px solid #d1d5db;">${t.pct}%</div>
+                    <div style="padding: 5px; text-align: center; font-size: 0.75rem; border-right: 1px solid #d1d5db;">${t.start.split('-').reverse().join('/')}</div>
+                    <div style="padding: 5px; text-align: center; font-size: 0.75rem; border-right: 1px solid #d1d5db;">${t.finish.split('-').reverse().join('/')}</div>
+                    <div style="position: relative; height: 24px; background: #fafafa; margin: 0 4px;">
+                        ${gridLinesHtml}
+                        ${barraMarkup}
+                    </div>
+                </div>`;
+            });
+
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+
+        function leggiFileXMLInDettaglio() {
+            const fileInput = document.getElementById('xmlFileDettaglioInput');
+            if(fileInput.files.length === 0) return;
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                let res = estraiDatiDaXMLDoc(e.target.result, file.name);
+                let mrCalcolato = calcolaMRRitardoDaAttivita(res.listaAttivita);
+                let ritardoOrdiniCalcolato = calcolaRitardoOrdiniDaAttivita(res.listaAttivita);
+                let ritardoMaterialiCalcolato = calcolaRitardoArrivoMaterialiDaAttivita(res.listaAttivita);
+                let manufDettagli = calcolaManufacturingDettagliatoInRitardo(res.listaAttivita);
+
+                const dataConsegnaVelinaCorrente = analizzaDataItaliana(document.getElementById("d_dataConsegnaVelina").value.trim());
+                const dataFineNuovoWp = analizzaDataItaliana(res.dataComplFormattata);
+                let ritardoUltimoWpCalcolato = 0;
+                if (dataConsegnaVelinaCorrente && dataFineNuovoWp) {
+                    dataConsegnaVelinaCorrente.setHours(0,0,0,0);
+                    dataFineNuovoWp.setHours(0,0,0,0);
+                    if (dataFineNuovoWp > dataConsegnaVelinaCorrente) {
+                        ritardoUltimoWpCalcolato = Math.round((dataFineNuovoWp.getTime() - dataConsegnaVelinaCorrente.getTime()) / (1000 * 60 * 60 * 24));
+                    }
+                }
+
+                xmlTemporaneoDettaglio = { 
+                    attivita: res.listaAttivita, 
+                    dataComplPrev: res.dataComplFormattata, 
+                    dataPrevFab: res.dataManufFormattata,
+                    mrRitardo: mrCalcolato.toString(),
+                    ritardoOrdini: ritardoOrdiniCalcolato.toString(),
+                    ritardoArrivoMat: ritardoMaterialiCalcolato.toString(),
+                    manufRitardoInizio: manufDettagli.inizio.toString(),
+                    manufRitardoFine: manufDettagli.fine.toString()
+                };
+                
+                document.getElementById("d_inizioPrevFab").value = res.dataManufFormattata;
+                document.getElementById("d_mrRitardo").value = mrCalcolato;
+                document.getElementById("d_ritardoOrdini").value = ritardoOrdiniCalcolato;
+                document.getElementById("d_ritardoArrivoMat").value = ritardoMaterialiCalcolato;
+                document.getElementById("d_manufRitardoInizio").value = manufDettagli.inizio;
+                document.getElementById("d_manufRitardoFine").value = manufDettagli.fine;
+                document.getElementById("d_ritardoComplFasi").value = ritardoUltimoWpCalcolato;
+                
+                eseguiCalcoloRitardoFabbricazioneDettaglio();
+                sviluppaFasiInTabella(res.listaAttivita);
+                renderingGantt(idCommessaSelezionata);
+            };
+            reader.readAsText(file);
+        }
+
+        async function caricaDocumentoPDF() {
+            let id = idCommessaSelezionata;
+            if(!id) return;
+            const fileInput = document.getElementById('pdfFileInput');
+            const nomeInput = document.getElementById('pdfNomeInput');
+            
+            if(!fileInput || fileInput.files.length === 0) {
+                alert("Seleziona prima un file PDF!");
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            const isPdf = file.type === "application/pdf" || /\.pdf$/i.test(file.name);
+            if(!isPdf) {
+                alert("Puoi caricare esclusivamente file in formato PDF.");
+                return;
+            }
+
+            let nomeDoc = nomeInput.value.trim() || file.name;
+
+            try {
+                const base64Data = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = () => reject(reader.error || new Error("Errore nella lettura del PDF."));
+                    reader.readAsDataURL(file);
+                });
+
+                if(!AppData.metadata[id].documentiPdf) AppData.metadata[id].documentiPdf = [];
+
+                AppData.metadata[id].documentiPdf.push({
+                    idDoc: Date.now(),
+                    nomeDoc: nomeDoc,
+                    nomeFile: file.name,
+                    dataCaricamento: new Date().toLocaleDateString('it-IT'),
+                    base64: base64Data
+                });
+
+                const salvato = await salvaDatiCondivisi();
+                renderingTabellaPdfDettaglio(id);
+                nomeInput.value = "";
+                fileInput.value = "";
+                alert("Documento PDF allegato e salvato con successo!");
+            } catch(err) {
+                console.error("Errore caricamento PDF:", err);
+                alert("Non è stato possibile caricare/salvare il PDF: " + (err.message || err));
+            }
+        }
+
+        function eliminaDocumentoPDF(idDoc) {
+            let id = idCommessaSelezionata;
+            if(!id || !AppData.metadata[id].documentiPdf) return;
+
+            if(confirm("Eliminare questo documento PDF dalla commessa?")) {
+                AppData.metadata[id].documentiPdf = AppData.metadata[id].documentiPdf.filter(d => d.idDoc !== idDoc);
+                salvaDatiCondivisi();
+                renderingTabellaPdfDettaglio(id);
+            }
+        }
+
+        function apriDocumentoPDF(idDoc) {
+            let id = idCommessaSelezionata;
+            if(!id || !AppData.metadata[id] || !AppData.metadata[id].documentiPdf) return;
+            let doc = AppData.metadata[id].documentiPdf.find(d => String(d.idDoc) === String(idDoc));
+
+            if(!doc || !doc.base64) {
+                alert("Il documento PDF non contiene dati validi.");
+                return;
+            }
+
+            try {
+                const parts = doc.base64.split(',');
+                const header = parts[0] || "";
+                const base64 = parts.slice(1).join(',');
+                const match = header.match(/^data:([^;]+);base64$/i);
+                const mimeType = match ? match[1] : "application/pdf";
+                const binary = atob(base64);
+                const bytes = new Uint8Array(binary.length);
+                for(let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+                const blob = new Blob([bytes], { type: mimeType });
+                const blobUrl = URL.createObjectURL(blob);
+
+                const pdfWindow = window.open(blobUrl, "_blank");
+                if(!pdfWindow) {
+                    URL.revokeObjectURL(blobUrl);
+                    alert("Il browser ha bloccato l'apertura del PDF. Consenti i popup per questa pagina e riprova.");
+                    return;
+                }
+
+                setTimeout(() => URL.revokeObjectURL(blobUrl), 10 * 60 * 1000);
+            } catch(err) {
+                console.error("Errore apertura PDF:", err);
+                alert("Non è stato possibile aprire il PDF: " + (err.message || err));
+            }
+        }
+
+        function renderingTabellaPdfDettaglio(id) {
+            const tbody = document.getElementById("tbodyPdfDettaglio");
+            tbody.innerHTML = "";
+            let listaPdf = (AppData.metadata[id] && AppData.metadata[id].documentiPdf) ? AppData.metadata[id].documentiPdf : [];
+
+            if(listaPdf.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='4' style='text-align:center; padding:1rem; color:#6b7280;'>Nessun documento PDF allegato a questa commessa.</td></tr>";
+                return;
+            }
+
+            listaPdf.forEach(doc => {
+                let riga = `<tr>
+                    <td class="desc-cell"><strong>📄 ${doc.nomeDoc}</strong></td>
+                    <td>${doc.nomeFile}</td>
+                    <td>${doc.dataCaricamento}</td>
+                    <td>
+                        <button class="btn btn-secondary" onclick="apriDocumentoPDF(${doc.idDoc})" style="padding:0.3rem 0.6rem; font-size:0.75rem;">👁️ Apri PDF</button>
+                        <button class="btn btn-danger" onclick="eliminaDocumentoPDF(${doc.idDoc})" style="padding:0.3rem 0.6rem; font-size:0.75rem;">🗑️ Elimina</button>
+                    </td>
+                </tr>`;
+                tbody.innerHTML += riga;
+            });
+        }
+
+        function sviluppaFasiInTabella(attivita) {
+            const tbody = document.getElementById("tbodyFasiDettaglio");
+            tbody.innerHTML = "";
+            const oggi = new Date();
+            oggi.setHours(0,0,0,0);
+
+            if(!attivita || attivita.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='6' style='text-align:center;'>Nessuna fase caricata da file XML per questa commessa.</td></tr>";
+                return;
+            }
+
+            attivita.forEach(t => {
+                let dInizio = new Date(t.start);
+                let dFine = new Date(t.finish);
+                dInizio.setHours(0,0,0,0);
+                dFine.setHours(0,0,0,0);
+                
+                let dataInizioLeggibile = "-";
+                if(t.start && t.start !== "") {
+                    let partiS = t.start.split("-");
+                    if(partiS.length === 3) dataInizioLeggibile = `${partiS[2]}/${partiS[1]}/${partiS[0]}`;
+                }
+
+                let dataFineLeggibile = "-";
+                if(t.finish && t.finish !== "") {
+                    let partiF = t.finish.split("-");
+                    if(partiF.length === 3) dataFineLeggibile = `${partiF[2]}/${partiF[1]}/${partiF[0]}`;
+                }
+
+                let statoBadge = "";
+                let giorniRitardoFase = 0;
+
+                if (t.pct === 100) {
+                    statoBadge = `<span class="badge badge-success">FATTA (100%)</span>`;
+                } else if (t.pct > 0 && t.pct < 100) {
+                    statoBadge = `<span class="badge badge-info">INIZIATA (${t.pct}%)</span>`;
+                    if(dFine < oggi) {
+                        let diff = oggi.getTime() - dFine.getTime();
+                        giorniRitardoFase = Math.round(diff / (1000 * 60 * 60 * 24));
+                    }
+                } else {
+                    statoBadge = `<span class="badge badge-warning">DA FARE (0%)</span>`;
+                    if(dFine < oggi) {
+                        let diff = oggi.getTime() - dFine.getTime();
+                        giorniRitardoFase = Math.round(diff / (1000 * 60 * 60 * 24));
+                    }
+                }
+
+                let classeInizioScaduto = "";
+                if(t.pct === 0 && dInizio < oggi && t.start && !t.isSummary) {
+                    classeInizioScaduto = "text-red";
+                }
+
+                let tNameUpper = t.name.toUpperCase();
+                let isManuf = tNameUpper.includes("MANUFACTUR") || tNameUpper.includes("FABRICAT") || tNameUpper.includes("FABBRICAT");
+                let classLivello = `level-${t.level}`;
+                let classSummary = isManuf ? 'is-summary-manufacturing' : (t.isSummary ? 'is-summary' : '');
+                let icona = isManuf ? '🏭' : (t.isSummary ? '📁' : '🔹');
+
+                let riga = `<tr class="${classSummary}">
+                    <td class="desc-cell ${classLivello}">
+                        ${icona} ${t.name}
+                    </td>
+                    <td class="${classeInizioScaduto}">${dataInizioLeggibile}</td>
+                    <td>${dataFineLeggibile}</td>
+                    <td><strong>${t.pct}%</strong></td>
+                    <td>${statoBadge}</td>
+                    <td class="${giorniRitardoFase > 0 ? 'text-red' : ''}">${giorniRitardoFase > 0 ? giorniRitardoFase + ' gg' : '-'}</td>
+                </tr>`;
+                tbody.innerHTML += riga;
+            });
+        }
+
+        function renderingTabellaFasiDettaglio(id) {
+            sviluppaFasiInTabella(AppData.commesse[id] || []);
+        }
+
+        function salvaModificheDettaglio() {
+            let id = idCommessaSelezionata;
+            if(!id) return;
+            eseguiCalcoloRitardoFabbricazioneDettaglio();
+            eseguiCalcoloRitardoUltimoWpDettaglio();
+
+            if(xmlTemporaneoDettaglio) {
+                AppData.commesse[id] = xmlTemporaneoDettaglio.attivita;
+            }
+
+            AppData.metadata[id] = {
+                descrizione: document.getElementById("d_descrizione").value,
+                dataAperturaVelina: document.getElementById("d_dataAperturaVelina").value,
+                dataConsegnaVelina: document.getElementById("d_dataConsegnaVelina").value,
+                mrRitardo: document.getElementById("d_mrRitardo").value,
+                ritardoOrdini: document.getElementById("d_ritardoOrdini").value,
+                ritardoArrivoMat: document.getElementById("d_ritardoArrivoMat").value,
+                inizioPrevFab: document.getElementById("d_inizioPrevFab").value,
+                inizioReale: document.getElementById("d_inizioReale").value,
+                giorniRitardo: document.getElementById("d_giorniRitardo").value, 
+                ritardoComplFasi: document.getElementById("d_ritardoComplFasi").value,
+                manufRitardoInizio: document.getElementById("d_manufRitardoInizio").value,
+                manufRitardoFine: document.getElementById("d_manufRitardoFine").value,
+                fabbricante: document.getElementById("d_fabbricante").value,
+                archiviata: AppData.metadata[id].archiviata || false,
+                documentiPdf: AppData.metadata[id].documentiPdf || [],
+                dataComplPrev: xmlTemporaneoDettaglio ? xmlTemporaneoDettaglio.dataComplPrev : (AppData.metadata[id].dataComplPrev || "-"),
+                ultimoWpCaricato: xmlTemporaneoDettaglio ? (xmlTemporaneoDettaglio.nomeFile || "-") : (AppData.metadata[id].ultimoWpCaricato || "-"),
+                dataUltimoWpCaricato: xmlTemporaneoDettaglio ? (xmlTemporaneoDettaglio.dataCaricamento || "-") : (AppData.metadata[id].dataUltimoWpCaricato || "-"),
+                avanzamenti: AppData.metadata[id].avanzamenti || []
+            };
+
+            salvaDatiCondivisi();
+            xmlTemporaneoDettaglio = null;
+            alert("Modifiche salvate con successo!");
+            openTab(AppData.metadata[id].archiviata ? 'archivio' : 'report');
+        }
+
+        function renderingSinottico() {
+            const tbody = document.getElementById("tbodySinottico");
+            tbody.innerHTML = "";
+            const oggi = new Date();
+            oggi.setHours(0,0,0,0);
+            
+            const queryFiltro = document.getElementById("searchCommesse") ? document.getElementById("searchCommesse").value.toLowerCase().trim() : "";
+            const righe = [];
+
+            for(let id in AppData.metadata) {
+                let meta = AppData.metadata[id];
+                
+                if(meta.archiviata) continue;
+
+                if(queryFiltro !== "") {
+                    let idMatch = id.toLowerCase().includes(queryFiltro);
+                    let descMatch = (meta.descrizione || "").toLowerCase().includes(queryFiltro);
+                    let fabMatch = (meta.fabbricante || "").toLowerCase().includes(queryFiltro);
+                    if(!idMatch && !descMatch && !fabMatch) continue; 
+                }
+
+                let attInRitardo = 0;
+                if(AppData.commesse[id]) {
+                    AppData.commesse[id].forEach(t => {
+                        if(!t.isSummary && t.finish) {
+                            let dFine = analizzaDataItaliana(t.finish);
+                            if(dFine) {
+                                dFine.setHours(0,0,0,0);
+                                if(dFine < oggi && t.pct < 100) attInRitardo++;
+                            }
+                        }
+                    });
+                }
+
+                let mrVisualizzato = meta.mrRitardo || '0';
+                let ordiniVisualizzato = meta.ritardoOrdini || '0';
+                let materialiVisualizzato = meta.ritardoArrivoMat || '0';
+                let manufInizioVisualizzato = meta.manufRitardoInizio || '0';
+                let manufFineVisualizzato = meta.manufRitardoFine || '0';
+                let ritardoWpVisualizzato = meta.ritardoComplFasi || '0';
+                
+                if(AppData.commesse[id] && AppData.commesse[id].length > 0) {
+                    mrVisualizzato = calcolaMRRitardoDaAttivita(AppData.commesse[id]).toString();
+                    ordiniVisualizzato = calcolaRitardoOrdiniDaAttivita(AppData.commesse[id]).toString();
+                    materialiVisualizzato = calcolaRitardoArrivoMaterialiDaAttivita(AppData.commesse[id]).toString();
+                    
+                    let manufDettagli = calcolaManufacturingDettagliatoInRitardo(AppData.commesse[id]);
+                    manufInizioVisualizzato = manufDettagli.inizio.toString();
+                    manufFineVisualizzato = manufDettagli.fine.toString();
+                    
+                    let dCons = analizzaDataItaliana(meta.dataConsegnaVelina || "");
+                    let dWp = analizzaDataItaliana(meta.dataComplPrev || "");
+                    if (dCons && dWp && dWp > dCons) {
+                        ritardoWpVisualizzato = Math.round((dWp.getTime() - dCons.getTime()) / (1000 * 60 * 60 * 24)).toString();
+                    } else {
+                        ritardoWpVisualizzato = "0";
+                    }
+                }
+
+                const dataConsegna = analizzaDataItaliana(meta.dataConsegnaVelina || "");
+                const dataConsegnaOrdine = dataConsegna ? dataConsegna.getTime() : Number.POSITIVE_INFINITY;
+
+                righe.push({ dataConsegnaOrdine, id, html: `<tr>
+                    <td class="id-cell" onclick="apriDettaglioCommessa('${id}', 'report')">${id}</td>
+                    <td class="desc-cell"><strong>${meta.descrizione || '-'}</strong></td>
+                    <td>${meta.dataAperturaVelina || '-'}</td>
+                    <td>${meta.dataConsegnaVelina || '-'}</td>
+                    <td class="${attInRitardo > 0 ? 'text-red' : ''}">${attInRitardo}</td>
+                    <td class="${parseInt(mrVisualizzato) > 0 ? 'text-red' : ''}">${mrVisualizzato}</td>
+                    <td class="${parseInt(ordiniVisualizzato) > 0 ? 'text-red' : ''}">${ordiniVisualizzato}</td>
+                    <td class="${parseInt(materialiVisualizzato) > 0 ? 'text-red' : ''}">${materialiVisualizzato}</td>
+                    <td>${meta.inizioPrevFab || '-'}</td>
+                    <td>${meta.inizioReale || '-'}</td>
+                    <td class="${parseInt(meta.giorniRitardo) > 0 ? 'text-red' : ''}">${meta.giorniRitardo || '0'}</td>
+                    <td class="${parseInt(ritardoWpVisualizzato) > 0 ? 'text-red' : ''}">${ritardoWpVisualizzato} gg</td>
+                    <td><strong>${meta.dataComplPrev || '-'}</strong></td>
+                    <td class="${parseInt(manufInizioVisualizzato) > 0 ? 'text-red' : ''}">${manufInizioVisualizzato}</td>
+                    <td class="${parseInt(manufFineVisualizzato) > 0 ? 'text-red' : ''}">${manufFineVisualizzato}</td>
+                    <td style="font-weight:bold;">${meta.fabbricante || '-'}</td>
+                </tr>`});
+            }
+
+            righe.sort((a,b) => a.dataConsegnaOrdine - b.dataConsegnaOrdine || a.id.localeCompare(b.id, undefined, {numeric:true, sensitivity:'base'}));
+            righe.forEach(r => tbody.innerHTML += r.html);
+            
+            if(righe.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='16' style='text-align:center; padding:1rem; color:#6b7280;'>Nessuna commessa attiva trovata.</td></tr>";
+            }
+        }
+
+        function renderingArchivio() {
+            const tbody = document.getElementById("tbodyArchivio");
+            tbody.innerHTML = "";
+            const queryFiltro = document.getElementById("searchArchivio") ? document.getElementById("searchArchivio").value.toLowerCase().trim() : "";
+
+            for(let id in AppData.metadata) {
+                let meta = AppData.metadata[id];
+                
+                if(!meta.archiviata) continue;
+
+                if(queryFiltro !== "") {
+                    let idMatch = id.toLowerCase().includes(queryFiltro);
+                    let descMatch = (meta.descrizione || "").toLowerCase().includes(queryFiltro);
+                    let fabMatch = (meta.fabbricante || "").toLowerCase().includes(queryFiltro);
+                    if(!idMatch && !descMatch && !fabMatch) continue; 
+                }
+
+                let riga = `<tr>
+                    <td class="id-cell" onclick="apriDettaglioCommessa('${id}', 'archivio')">${id}</td>
+                    <td class="desc-cell"><strong>${meta.descrizione || '-'}</strong></td>
+                    <td>${meta.dataAperturaVelina || '-'}</td>
+                    <td>${meta.dataConsegnaVelina || '-'}</td>
+                    <td>${meta.inizioPrevFab || '-'}</td>
+                    <td>${meta.inizioReale || '-'}</td>
+                    <td><strong>${meta.dataComplPrev || '-'}</strong></td>
+                    <td style="font-weight:bold;">${meta.fabbricante || '-'}</td>
+                    <td>
+                        <button class="btn btn-secondary" onclick="apriDettaglioCommessa('${id}', 'archivio')" style="padding:0.3rem 0.6rem; font-size:0.75rem;">🔍 Apri Dettaglio</button>
+                        <button class="btn btn-warning" onclick="cambiaStatoArchivioCommessa('${id}', false)" style="padding:0.3rem 0.6rem; font-size:0.75rem;">🔄 Ripristina</button>
+                    </td>
+                </tr>`;
+                tbody.innerHTML += riga;
+            }
+
+            if(tbody.innerHTML === "") {
+                tbody.innerHTML = "<tr><td colspan='9' style='text-align:center; padding:1rem; color:#6b7280;'>Nessuna commessa presente nell'archivio.</td></tr>";
+            }
+        }
+
+        function esportaInCSV(tipo = 'active') {
+            let csv = [];
+            let tableSelector = tipo === 'active' ? "#tableSinotticoHome" : "#tableSinotticoArchivio";
+            let table = document.querySelector(tableSelector);
+            
+            if(!table) return;
+
+            let rows = table.querySelectorAll("tr");
+            if(rows.length === 0) { alert("Nessun dato da esportare."); return; }
+
+            for (let i = 0; i < rows.length; i++) {
+                let row = [], cols = rows[i].querySelectorAll("td, th");
+                for (let j = 0; j < cols.length; j++) {
+                    let data = cols[j].innerText.replace(/"/g, '""'); 
+                    row.push('"' + data + '"');
+                }
+                csv.push(row.join(";")); 
+            }
+
+            let csvFile = new Blob(["\uFEFF" + csv.join("\n")], {type: "text/csv;charset=utf-8;"});
+            let downloadLink = document.createElement("a");
+            downloadLink.download = (tipo === 'active' ? "Commesse_Attive_" : "Archivio_Commesse_") + new Date().toISOString().substring(0,10) + ".csv";
+            downloadLink.href = window.URL.createObjectURL(csvFile);
+            downloadLink.style.display = "none";
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        }
+
+        function generaHTMLReportCommessa(id, dataStampa = new Date()) {
+            if(!id || !AppData.metadata[id]) {
+                alert("Seleziona prima una commessa.");
+                return;
+            }
+            const meta = AppData.metadata[id] || {};
+            const attivita = Array.isArray(AppData.commesse[id]) ? AppData.commesse[id] : [];
+            const avanzamenti = Array.isArray(meta.avanzamenti) ? meta.avanzamenti : [];
+            const ultimoAvanzamento = avanzamenti.length ? avanzamenti[avanzamenti.length - 1] : null;
+            const ultimoWp = meta.ultimoWpCaricato ? (meta.ultimoWpCaricato + (meta.dataUltimoWpCaricato && meta.dataUltimoWpCaricato !== "-" ? " • " + meta.dataUltimoWpCaricato : "")) : "-";
+            const dataReport = new Date(dataStampa);
+            dataReport.setHours(0, 0, 0, 0);
+
+            const parseDataReport = (v) => {
+                if (!v || v === "-") return null;
+                const str = String(v).trim();
+                let m = str.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})/);
+                if (m) return new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+                m = str.match(/^(\d{4})[\-\/](\d{1,2})[\-\/](\d{1,2})/);
+                if (m) return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+                const d = new Date(str);
+                if (isNaN(d)) return null;
+                d.setHours(0, 0, 0, 0);
+                return d;
+            };
+
+            const esc = (v) => String(v == null ? "" : v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
+
+            let minTime = Number.POSITIVE_INFINITY;
+            let maxTime = Number.NEGATIVE_INFINITY;
+            attivita.forEach(a => {
+                if(a.start && a.finish && a.start !== "-" && a.finish !== "-") {
+                    let st = new Date(a.start).getTime();
+                    let fi = new Date(a.finish).getTime();
+                    if(st < minTime) minTime = st;
+                    if(fi > maxTime) maxTime = fi;
+                }
+            });
+            if(minTime === maxTime || minTime === Number.POSITIVE_INFINITY) {
+                minTime = Date.now();
+                maxTime = minTime + (86400000 * 90);
+            }
+            
+            let startDate = new Date(minTime);
+            let dayOfWeek = startDate.getDay() || 7;
+            if(dayOfWeek > 1) startDate.setDate(startDate.getDate() - (dayOfWeek - 1));
+            minTime = startDate.getTime();
+
+            let endDate = new Date(maxTime);
+            let endDayOfWeek = endDate.getDay() || 7;
+            if(endDayOfWeek < 7) endDate.setDate(endDate.getDate() + (7 - endDayOfWeek));
+            maxTime = endDate.getTime();
+
+            const spanTempo = maxTime - minTime;
+            const msPerWeek = 7 * 86400000;
+            const totalWeeks = Math.round(spanTempo / msPerWeek);
+
+            let mesiHeaderHtml = '';
+            let settimaneHeaderHtml = '';
+            let currentMonth = -1;
+            let monthSpan = 0;
+            let monthName = '';
+            let gridLinesHtml = '';
+            const mesiNomi = ["Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic"];
+
+            function getWeekNumberPrint(d) {
+                let target = new Date(d.valueOf());
+                let dayNr = (d.getDay() + 6) % 7;
+                target.setDate(target.getDate() - dayNr + 3);
+                let firstThursday = new Date(target.getFullYear(), 0, 4);
+                let firstDayNr = (firstThursday.getDay() + 6) % 7;
+                firstThursday.setDate(firstThursday.getDate() - firstDayNr + 3);
+                return Math.round(((target - firstThursday) / 86400000 - 3) / 7) + 1;
+            }
+
+            let currentWStart = new Date(minTime);
+            for(let w = 0; w < totalWeeks; w++) {
+                let wStartTime = currentWStart.getTime();
+                let leftP = ((wStartTime - minTime) / spanTempo) * 100;
+                let widthP = (msPerWeek / spanTempo) * 100;
+
+                let m = currentWStart.getMonth();
+                let mStr = mesiNomi[m] + " " + String(currentWStart.getFullYear()).slice(-2);
+                let wkNum = getWeekNumberPrint(currentWStart);
+
+                if(currentMonth === -1) {
+                    currentMonth = m;
+                    monthName = mStr;
+                    monthSpan = widthP;
+                } else if(currentMonth === m) {
+                    monthSpan += widthP;
+                } else {
+                    mesiHeaderHtml += `<div style="position: absolute; left: ${leftP - monthSpan}%; width: ${monthSpan}%; border-right: 1px solid #6b7280; text-align: center; font-size: 7px; font-weight: bold; background: #e5e7eb; overflow: hidden; white-space: nowrap;">${monthName}</div>`;
+                    currentMonth = m;
+                    monthName = mStr;
+                    monthSpan = widthP;
+                }
+
+                settimaneHeaderHtml += `<div style="position: absolute; left: ${leftP}%; width: ${widthP}%; border-right: 1px solid #d1d5db; text-align: center; font-size: 6px; color: #374151;">${wkNum}</div>`;
+                gridLinesHtml += `<div style="position: absolute; left: ${leftP}%; top: 0; bottom: 0; border-right: 1px dashed #e5e7eb; pointer-events: none;"></div>`;
+
+                currentWStart.setDate(currentWStart.getDate() + 7);
+            }
+            let lastLeft = 100 - monthSpan;
+            mesiHeaderHtml += `<div style="position: absolute; left: ${lastLeft}%; width: ${monthSpan}%; border-right: 1px solid #6b7280; text-align: center; font-size: 7px; font-weight: bold; background: #e5e7eb; overflow: hidden; white-space: nowrap;">${monthName}</div>`;
+
+            let idxR = 1;
+            const righeAttivita = attivita.map(a => {
+                const nome = a.name || a.nome || a.taskName || a.id || "-";
+                const start = a.start || a.inizio || a.dataInizio || "-";
+                const finish = a.finish || a.fine || a.dataFine || "-";
+                const pctRaw = a.pct != null ? a.pct : (a.percentComplete != null ? a.percentComplete : "-");
+                const pctNum = Number(String(pctRaw).replace(',', '.'));
+                const completata = pctRaw !== "-" && !isNaN(pctNum) && pctNum >= 100;
+                const dataFine = parseDataReport(finish);
+                let giorniRitardoAttivita = 0;
+                if (dataFine && dataFine < dataReport && !completata) {
+                    giorniRitardoAttivita = Math.floor((dataReport - dataFine) / 86400000);
+                }
+                const level = Math.max(1, Number(a.level || 1));
+                const indentPx = (level - 1) * 8;
+                const isSummary = Boolean(a.isSummary);
+                const rowClasses = [];
+                if (isSummary) rowClasses.push("attivita-summary");
+                if (giorniRitardoAttivita > 0 && !isSummary) rowClasses.push("attivita-ritardo");
+                const classeRiga = rowClasses.length ? ` class="${rowClasses.join(' ')}"` : '';
+
+                let barraHtml = "";
+                if(start !== "-" && finish !== "-") {
+                    let stTime = new Date(start).getTime();
+                    let fiTime = new Date(finish).getTime();
+                    let leftP = Math.max(0, Math.min(100, ((stTime - minTime) / spanTempo) * 100));
+                    let widthP = Math.max(1, Math.min(100 - leftP, ((fiTime - stTime) / spanTempo) * 100));
+                    
+                    if(isSummary) {
+                        barraHtml = `<div style="position:relative; width:100%; height:12px; background:#fafafa;">${gridLinesHtml}<div style="position: absolute; top: 2px; left: ${leftP}%; width: ${widthP}%; height: 6px;"><div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background-color: #000080;"></div><div style="position: absolute; top: 0; left: 0; width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 6px solid #000080;"></div><div style="position: absolute; top: 0; right: 0; width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 6px solid #000080;"></div></div></div>`;
+                    } else {
+                        let colorBar = completata ? "#10b981" : (giorniRitardoAttivita > 0 ? "#ef4444" : "#38bdf8");
+                        let progressoPrintHtml = (pctNum > 0 && pctNum < 100) ? `<div style="position:absolute; top:0; left:0; width:${pctNum}%; height:100%; background:#f97316;"></div>` : "";
+                        barraHtml = `<div style="position:relative; width:100%; height:12px; background:#fafafa; border-radius:2px;">${gridLinesHtml}<div style="position:absolute; top:2px; left:${leftP}%; width:${widthP}%; height:8px; background:${colorBar}; border-radius:2px; overflow:hidden;">${progressoPrintHtml}</div></div>`;
+                    }
+                }
+
+                let dStartitaLeg = start !== "-" ? start.split('-').reverse().join('/') : "-";
+                let dFinLeg = finish !== "-" ? finish.split('-').reverse().join('/') : "-";
+
+                return `<tr${classeRiga}>
+                    <td style="text-align:center;">${idxR++}</td>
+                    <td style="padding-left:${4 + indentPx}px">${esc(nome)}</td>
+                    <td style="text-align:center;">${pctRaw !== "-" ? pctRaw + "%" : "-"}</td>
+                    <td style="text-align:center;">${dStartitaLeg}</td>
+                    <td style="text-align:center;">${dFinLeg}</td>
+                    <td>${barraHtml}</td>
+                </tr>`;
+            }).join("");
+
+            const storico = avanzamenti.slice().reverse().map(a => `<div class="avv"><div class="data">${esc(a.data || "-")}</div><div>${esc(a.testo || "")}</div></div>`).join("");
+            const html = `<!doctype html><html lang="it"><head><meta charset="utf-8"><title>Report Commessa ${esc(id)}</title>
+            <style>
+                @page{size:A4 landscape;margin:10mm} *{box-sizing:border-box} body{font-family:Arial,sans-serif;color:#111827;font-size:10px;line-height:1.3;margin:0; -webkit-print-color-adjust:exact; print-color-adjust:exact;}
+                h1{font-size:20px;margin:0 0 2px} h2{font-size:13px;margin:14px 0 6px;border-bottom:1px solid #9ca3af;padding-bottom:3px}
+                .sub{color:#4b5563;margin-bottom:12px}.grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px 15px}.item{border-bottom:1px solid #e5e7eb;padding:4px 0}.label{font-size:8px;text-transform:uppercase;color:#6b7280;font-weight:bold}.value{font-weight:600;margin-top:2px}
+                .box{border:1px solid #9ca3af;border-radius:5px;padding:8px;margin-top:6px;white-space:pre-wrap}.latest{border:2px solid #2563eb;background:#eff6ff}.avv{border-bottom:1px solid #e5e7eb;padding:5px 0}.data{font-weight:bold;margin-bottom:2px}
+                table{width:100%;border-collapse:collapse;border-spacing:0;font-size:8px;margin:0;overflow:visible}thead{display:table-header-group}tr{break-inside:avoid;page-break-inside:avoid}th,td{border:1px solid #6b7280;padding:3px 4px;text-align:left;overflow-wrap:anywhere;word-break:break-word}th{background:#e5e7eb !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;text-align:center}.attivita-summary{background:#f3f4f6 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;font-weight:700}.attivita-ritardo{background:#fee2e2 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;font-weight:600}.footer{margin-top:12px;font-size:8px;color:#6b7280}
+                .page{min-height:calc(210mm - 20mm)}.page-break{break-before:page;page-break-before:always}.bulk-page-break{break-before:page;page-break-before:always;height:0;margin:0;padding:0}.actions{margin-bottom:10px}@media print{.actions{display:none}.page{min-height:auto;overflow:visible}.page-break{break-before:page;page-break-before:always}.bulk-page-break{break-before:page;page-break-before:always;height:0;margin:0;padding:0}}
+            </style></head><body>
+            <div class="actions"><button onclick="window.print()">🖨️ Stampa</button></div>
+            <div class="page"><h1>Report Commessa ${esc(id)}</h1><div class="sub">Riepilogo commessa &amp; Gantt • Data di stampa: ${esc(dataStampa.toLocaleDateString('it-IT'))}</div>
+            <h2>Riepilogo commessa</h2><div class="grid">
+                <div class="item"><div class="label">Commessa</div><div class="value">${esc(id)}</div></div>
+                <div class="item"><div class="label">Descrizione / Cliente</div><div class="value">${esc(meta.descrizione || "-")}</div></div>
+                <div class="item"><div class="label">Fabbricante</div><div class="value">${esc(meta.fabbricante || "-")}</div></div>
+                <div class="item"><div class="label">Data apertura velina</div><div class="value">${esc(meta.dataAperturaVelina || "-")}</div></div>
+                <div class="item"><div class="label">Consegna da velina</div><div class="value">${esc(meta.dataConsegnaVelina || "-")}</div></div>
+                <div class="item"><div class="label">Ultima revisione WP</div><div class="value">${esc(ultimoWp)}</div></div>
+                <div class="item"><div class="label">Inizio fabbricazione da WP</div><div class="value">${esc(meta.inizioPrevFab || "-")}</div></div>
+                <div class="item"><div class="label">Inizio reale</div><div class="value">${esc(meta.inizioReale || "-")}</div></div>
+                <div class="item"><div class="label">Completamento previsto da ultimo WP</div><div class="value">${esc(meta.dataComplPrev || "-")}</div></div>
+            </div>
+            <h2>Ultimo avanzamento</h2><div class="box latest">${ultimoAvanzamento ? `<strong>${esc(ultimoAvanzamento.data || "-")}</strong><br>${esc(ultimoAvanzamento.testo || "")}` : "Nessun aggiornamento inserito."}</div>
+            <h2>Storico avanzamenti</h2>${storico || '<div class="box">Nessun aggiornamento inserito.</div>'}
+            </div>
+            <div class="page page-break"><h1>Report Commessa ${esc(id)} — Diagramma di Gantt &amp; Fasi</h1><div class="sub">Data di stampa: ${esc(dataStampa.toLocaleDateString('it-IT'))} • Totale attività: ${attivita.length}</div>
+            ${righeAttivita ? `<table><colgroup><col style="width:26px"><col style="width:22%"><col style="width:38px"><col style="width:52px"><col style="width:52px"><col style="width:calc(78% - 170px)"></colgroup><thead><tr><th>ID</th><th>Activity name</th><th>%</th><th>Start</th><th>End</th><th style="position:relative; height:28px; padding:0;"><div style="position:absolute; top:0; left:0; right:0; height:14px; border-bottom:1px solid #6b7280;">${mesiHeaderHtml}</div><div style="position:absolute; bottom:0; left:0; right:0; height:14px;">${settimaneHeaderHtml}</div></th></tr></thead><tbody>${righeAttivita}</tbody></table>` : '<div class="box">Nessuna attività disponibile nell\'ultima revisione WP.</div>'}
+            <div class="footer">Report generato da Riepilogo Commesse</div></div>
+            </body></html>`;
+            return html;
+        }
+
+        function stampaReportCommessa(id) {
+            if(!id || !AppData.metadata[id]) {
+                alert("Seleziona prima una commessa.");
+                return;
+            }
+            const dataStampa = new Date();
+            const html = generaHTMLReportCommessa(id, dataStampa);
+            const win = window.open("", "_blank");
+            if(!win) { alert("Il browser ha bloccato la finestra del report. Consenti i popup per questa pagina."); return; }
+            win.document.open(); win.document.write(html); win.document.close();
+            win.focus();
+        }
+
+        function stampaReportTutteCommesse() {
+            const ids = Object.keys(AppData.metadata || {});
+            if(ids.length === 0) {
+                alert("Non ci sono commesse inserite da stampare.");
+                return;
+            }
+            const dataStampa = new Date();
+            const reports = ids.map(id => generaHTMLReportCommessa(id, dataStampa));
+            const first = reports[0];
+            const bodyStart = first.indexOf("<body>");
+            const headEnd = first.indexOf("</head>");
+            if(bodyStart === -1 || headEnd === -1) {
+                alert("Impossibile preparare il report multiplo.");
+                return;
+            }
+            const head = first.substring(0, headEnd + 7);
+            const bodies = reports.map(r => {
+                const b = r.indexOf("<body>");
+                const e = r.lastIndexOf("</body>");
+                return r.substring(b + 6, e);
+            }).join('<div class="bulk-page-break"></div>');
+            const html = head + "<body>" + bodies + "</body></html>";
+            const win = window.open("", "_blank");
+            if(!win) { alert("Il browser ha bloccato la finestra del report. Consenti i popup per questa pagina."); return; }
+            win.document.open(); win.document.write(html); win.document.close();
+            win.focus();
+            setTimeout(() => win.print(), 350);
+        }
+
+        function eliminaCommessaDaDettaglio() {
+            let id = idCommessaSelezionata;
+            if(!id) return;
+            if(confirm("Sei assolutamente sicuro di voler eliminare definitivamente la commessa " + id + "? Tutti i dati associati andranno persi.")){
+                delete AppData.commesse[id];
+                delete AppData.metadata[id];
+                salvaDatiCondivisi();
+                document.getElementById("btn-tab-dettaglio").style.display = "none";
+                openTab(tabOrigine || 'report');
+            }
+        }
+
+        function salvaDiario() {
+            const commessa = document.getElementById('diarioCommessaSelect').value;
+            const tipo = document.getElementById('diarioTipo').value;
+            const nota = document.getElementById('diarioNota').value.trim();
+            const editIdxEl = document.getElementById('diarioEditIndex');
+            const editIndex = editIdxEl ? parseInt(editIdxEl.value, 10) : -1;
+            if(!nota || !commessa) return;
+
+            if(editIndex >= 0 && editIndex < AppData.diario.length) {
+                AppData.diario[editIndex].commessa = commessa;
+                AppData.diario[editIndex].tipo = tipo;
+                AppData.diario[editIndex].nota = nota;
+                AppData.diario[editIndex].dataModifica = new Date().toLocaleDateString('it-IT');
+            } else {
+                AppData.diario.push({ commessa, tipo, nota, data: new Date().toLocaleDateString('it-IT') });
+            }
+            salvaDatiCondivisi();
+            annullaModificaDiario();
+            renderingDiario();
+        }
+
+        function preparaModificaDiario(index) {
+            if(!AppData.diario || !AppData.diario[index]) return;
+            const d = AppData.diario[index];
+            document.getElementById('diarioEditIndex').value = index;
+            document.getElementById('diarioCommessaSelect').value = d.commessa;
+            document.getElementById('diarioTipo').value = d.tipo;
+            document.getElementById('diarioNota').value = d.nota;
+            document.getElementById('diarioFormTitle').textContent = "✏️ Modifica Nota o Allerta";
+            document.getElementById('btnSalvaDiario').textContent = "💾 Salva Modifica";
+            document.getElementById('btnAnnullaDiario').style.display = "inline-flex";
+            document.getElementById('diarioNota').focus();
+        }
+
+        function annullaModificaDiario() {
+            const editIdxEl = document.getElementById('diarioEditIndex');
+            if(editIdxEl) editIdxEl.value = "-1";
+            const notaEl = document.getElementById('diarioNota');
+            if(notaEl) notaEl.value = "";
+            const titleEl = document.getElementById('diarioFormTitle');
+            if(titleEl) titleEl.textContent = "✍️ Registra Nota o Allerta Critica";
+            const btnSave = document.getElementById('btnSalvaDiario');
+            if(btnSave) btnSave.textContent = "Salva Annotazione";
+            const btnCancel = document.getElementById('btnAnnullaDiario');
+            if(btnCancel) btnCancel.style.display = "none";
+        }
+
+        function renderingDiario() {
+            const container = document.getElementById("timelineDiario");
+            if(!container) return;
+            container.innerHTML = "";
+            let select = document.getElementById("diarioCommessaSelect");
+            let vecchioValore = select.value;
+            select.innerHTML = "";
+            for(let id in AppData.metadata) { select.innerHTML += `<option value="${id}">${id}</option>`; }
+            if(vecchioValore) select.value = vecchioValore;
+            const commessaSelezionata = select.value;
+            if(!commessaSelezionata || !AppData.diario) return;
+            let filtrati = AppData.diario.map((d, idx) => ({ ...d, originalIndex: idx })).filter(d => d.commessa === commessaSelezionata);
+            filtrati.reverse().forEach(d => {
+                container.innerHTML += `<div class="card" style="border-left:4px solid ${d.tipo === 'Allerta' ? 'var(--danger)' : 'var(--primary-light)'}">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <strong>${d.data} - ${d.tipo}${d.dataModifica ? ` <small style="color:#6b7280;">(modificato il ${d.dataModifica})</small>` : ''}</strong>
+                        <button type="button" class="btn btn-secondary" onclick="preparaModificaDiario(${d.originalIndex})" style="padding:0.2rem 0.5rem; font-size:0.75rem;">✏️ Modifica</button>
+                    </div>
+                    <p style="margin:0.5rem 0 0 0; white-space:pre-wrap;">${escapeHtmlAvanzamento(d.nota)}</p>
+                </div>`;
+            });
+        }
+
+        window.addEventListener('pagehide', () => {
+            if(!MODALITA_VISUALIZZAZIONE && archivioCondivisoHandle && databaseModificato) {
+                scriviDatabaseCondiviso(true);
+            }
+        });
+
+        setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleString('it-IT'); }, 1000);
+        renderingSinottico();
+        inizializzaArchivioCondiviso();
+    </script>
+</body>
+</html>
