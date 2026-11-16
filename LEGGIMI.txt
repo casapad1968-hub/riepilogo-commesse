@@ -78,7 +78,7 @@ CARICARE LE TUE COMMESSE DA MS PROJECT
      - Opzione A: carica il file XML esportato da MS Project
        L'app compila da sola numero commessa, descrizione, attività, date
      - Compila a mano solo i campi che l'XML non contiene:
-       date velina, fabbricante, inizio fabbricazione
+       date dell'ordine, fabbricante, inizio fabbricazione
 
   Per AGGIORNARE una commessa esistente:
      - entra nel dettaglio della commessa
