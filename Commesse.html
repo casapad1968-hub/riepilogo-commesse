@@ -301,14 +301,16 @@
                 <button id="btn-tab-diario" class="tab-btn" onclick="openTab('diario')">📔 Diario & Problematiche</button>
             </div>
 
-            <!-- PULSANTI SALVA / CARICA DATABASE DI RETE -->
+                        <!-- PULSANTI SALVA / CARICA DATABASE DI RETE -->
             <div class="db-sync-group">
                 <button class="btn btn-secondary" onclick="esportaDatabaseJSON()" style="font-size:0.8rem; padding:0.4rem 0.8rem;">💾 Salva Dati Condivisi</button>
                 <button class="btn btn-warning" onclick="collegaArchivioCondiviso()" style="font-size:0.8rem; padding:0.4rem 0.8rem;">🔗 Collega Archivio Condiviso</button>
+                <button class="btn btn-info" id="btnCollegaCartellaPdf" onclick="selezionaCartellaArchivioPdf()" style="font-size:0.8rem; padding:0.4rem 0.8rem;">📁 Cartella Archivio PDF</button>
                 <button class="btn btn-warning" onclick="document.getElementById('importDbFileInput').click()" style="font-size:0.8rem; padding:0.4rem 0.8rem;">📂 Carica JSON Manuale</button>
                 <button class="btn btn-danger" id="btnSvuotaDemo" onclick="svuotaDatiDemo()" style="font-size:0.8rem; padding:0.4rem 0.8rem; display:none;">🗑️ Svuota dati demo</button>
                 <input type="file" id="importDbFileInput" accept=".json" style="display:none;" onchange="importaDatabaseJSON()">
                 <span id="statoArchivioCondiviso" style="font-size:0.75rem; margin-left:0.5rem; color:#6b7280;">Archivio condiviso non collegato</span>
+                <span id="statoCartellaPdf" style="font-size:0.75rem; margin-left:0.5rem; color:#6b7280;">• Cartella PDF: non collegata</span>
             </div>
         </div>
 
@@ -590,12 +592,13 @@
                 <button class="btn btn-success" onclick="caricaDocumentoPDF()" style="margin-top: 1rem;">➕ Aggiungi Documento PDF alla Commessa</button>
 
                 <div class="table-wrapper" style="margin-top: 1rem;">
-                    <table class="pdf-table">
+                                        <table class="pdf-table">
                         <thead>
                             <tr>
                                 <th>NOME / DESCRIZIONE DOCUMENTO</th>
                                 <th>NOME FILE ORIGINALE</th>
                                 <th>DATA CARICAMENTO</th>
+                                <th>DIMENSIONE / POSIZIONE</th>
                                 <th>AZIONI</th>
                             </tr>
                         </thead>
@@ -723,11 +726,13 @@
         if (USA_DATI_PRECARICATI && DATABASE_PRECARICATO && DATABASE_PRECARICATO.metadata) {
             AppData = normalizzaDatiCompatibilita(JSON.parse(JSON.stringify(DATABASE_PRECARICATO)));
         }
-        let archivioCondivisoHandle = null;
+                let archivioCondivisoHandle = null;
+        let cartellaArchivioPdfHandle = null;
         let salvataggioCondivisoInCorso = Promise.resolve();
         let databaseModificato = false;
         const NOME_DATABASE_CONDIVISO = "database_commesse.json";
         const DB_HANDLE_NAME = "CommesseArchivioCondiviso";
+        const STORE_PDF_BLOBS = "documenti_pdf";
         const MODALITA_VISUALIZZAZIONE = false;
 
         let xmlTemporaneoDettaglio = null;
@@ -751,6 +756,7 @@
             if(targetBtn) targetBtn.classList.add('active');
             
             if(tabId === 'report') renderingSinottico();
+        ripristinaCartellaPdfHandle();
             if(tabId === 'archivio') renderingArchivio();
             if(tabId === 'scadenziario') {
                 aggiornaSelectCommesseScadenziario();
@@ -768,10 +774,23 @@
             if(el) { el.textContent = testo; el.style.color = colore; }
         }
 
+        function aggiornaStatoCartellaPdf(testo, colore = "#6b7280") {
+            const el = document.getElementById("statoCartellaPdf");
+            if(el) { el.textContent = "• " + testo; el.style.color = colore; }
+        }
+
         function apriDBHandleStore() {
             return new Promise((resolve, reject) => {
-                const req = indexedDB.open(DB_HANDLE_NAME, 1);
-                req.onupgradeneeded = () => req.result.createObjectStore("handles");
+                const req = indexedDB.open(DB_HANDLE_NAME, 2);
+                req.onupgradeneeded = (e) => {
+                    const db = req.result;
+                    if(!db.objectStoreNames.contains("handles")) {
+                        db.createObjectStore("handles");
+                    }
+                    if(!db.objectStoreNames.contains(STORE_PDF_BLOBS)) {
+                        db.createObjectStore(STORE_PDF_BLOBS);
+                    }
+                };
                 req.onsuccess = () => resolve(req.result);
                 req.onerror = () => reject(req.error);
             });
@@ -805,6 +824,135 @@
                 return handle;
             } catch(err) {
                 return null;
+            }
+        }
+
+        async function salvaHandleCartellaPdf(handle) {
+            try {
+                const db = await apriDBHandleStore();
+                await new Promise((resolve, reject) => {
+                    const tx = db.transaction("handles", "readwrite");
+                    tx.objectStore("handles").put(handle, "cartella_pdf");
+                    tx.oncomplete = resolve;
+                    tx.onerror = () => reject(tx.error);
+                });
+                db.close();
+            } catch(err) {
+                console.warn("Impossibile memorizzare il collegamento alla cartella PDF:", err);
+            }
+        }
+
+        async function caricaHandleCartellaPdf() {
+            try {
+                const db = await apriDBHandleStore();
+                const handle = await new Promise((resolve, reject) => {
+                    const tx = db.transaction("handles", "readonly");
+                    const req = tx.objectStore("handles").get("cartella_pdf");
+                    req.onsuccess = () => resolve(req.result || null);
+                    req.onerror = () => reject(req.error);
+                });
+                db.close();
+                return handle;
+            } catch(err) {
+                return null;
+            }
+        }
+
+        async function salvaPdfInIndexedDB(idDoc, blobOrBase64) {
+            try {
+                const db = await apriDBHandleStore();
+                await new Promise((resolve, reject) => {
+                    const tx = db.transaction(STORE_PDF_BLOBS, "readwrite");
+                    tx.objectStore(STORE_PDF_BLOBS).put(blobOrBase64, String(idDoc));
+                    tx.oncomplete = resolve;
+                    tx.onerror = () => reject(tx.error);
+                });
+                db.close();
+                return true;
+            } catch(err) {
+                console.error("Errore salvataggio PDF in IndexedDB:", err);
+                return false;
+            }
+        }
+
+        async function leggiPdfDaIndexedDB(idDoc) {
+            try {
+                const db = await apriDBHandleStore();
+                const res = await new Promise((resolve, reject) => {
+                    const tx = db.transaction(STORE_PDF_BLOBS, "readonly");
+                    const req = tx.objectStore(STORE_PDF_BLOBS).get(String(idDoc));
+                    req.onsuccess = () => resolve(req.result || null);
+                    req.onerror = () => reject(req.error);
+                });
+                db.close();
+                return res;
+            } catch(err) {
+                console.error("Errore lettura PDF da IndexedDB:", err);
+                return null;
+            }
+        }
+
+        async function eliminaPdfDaIndexedDB(idDoc) {
+            try {
+                const db = await apriDBHandleStore();
+                await new Promise((resolve, reject) => {
+                    const tx = db.transaction(STORE_PDF_BLOBS, "readwrite");
+                    tx.objectStore(STORE_PDF_BLOBS).delete(String(idDoc));
+                    tx.oncomplete = resolve;
+                    tx.onerror = () => reject(tx.error);
+                });
+                db.close();
+            } catch(err) {}
+        }
+
+        function clonaAppDataLeggeroPerSalvataggio(dati) {
+            if(!dati) return dati;
+            const clone = JSON.parse(JSON.stringify(dati));
+            if(clone.metadata) {
+                for(let cid in clone.metadata) {
+                    if(clone.metadata[cid].documentiPdf && Array.isArray(clone.metadata[cid].documentiPdf)) {
+                        clone.metadata[cid].documentiPdf = clone.metadata[cid].documentiPdf.map(d => {
+                            const { base64, ...rest } = d;
+                            return rest;
+                        });
+                    }
+                }
+            }
+            return clone;
+        }
+
+        async function selezionaCartellaArchivioPdf(silenzioso = false) {
+            if(!window.showDirectoryPicker) {
+                if(!silenzioso) alert("Il tuo browser non supporta la selezione diretta di cartelle. Usa Microsoft Edge o Google Chrome aggiornato.");
+                return false;
+            }
+            try {
+                const handle = await window.showDirectoryPicker({ mode: "readwrite" });
+                const ok = await verificaPermessoScrittura(handle);
+                if(!ok) {
+                    if(!silenzioso) alert("Permesso di lettura/scrittura sulla cartella non concesso.");
+                    return false;
+                }
+                cartellaArchivioPdfHandle = handle;
+                await salvaHandleCartellaPdf(handle);
+                aggiornaStatoCartellaPdf("Cartella PDF collegata: " + handle.name, "#15803d");
+                if(!silenzioso) alert("Cartella archivio PDF collegata con successo: " + handle.name + "\n\nI file PDF verranno salvati in sottocartelle divise per numero commessa.");
+                return true;
+            } catch(err) {
+                if(err.name !== 'AbortError') console.error("Errore selezione cartella PDF:", err);
+                return false;
+            }
+        }
+
+        async function ripristinaCartellaPdfHandle() {
+            try {
+                const handle = await caricaHandleCartellaPdf();
+                if(handle) {
+                    cartellaArchivioPdfHandle = handle;
+                    aggiornaStatoCartellaPdf("Cartella PDF: " + handle.name, "#15803d");
+                }
+            } catch(err) {
+                console.warn("Ripristino cartella PDF fallito:", err);
             }
         }
 
@@ -857,6 +1005,7 @@
                         if(!AppData.scadenziario) AppData.scadenziario = [];
                         databaseModificato = false;
                         renderingSinottico();
+        ripristinaCartellaPdfHandle();
                         renderingArchivio();
                         renderingScadenziario();
                         renderingDiario();
@@ -887,7 +1036,7 @@
                     return false;
                 }
                 const writable = await archivioCondivisoHandle.createWritable();
-                await writable.write(JSON.stringify(AppData, null, 2));
+                await writable.write(JSON.stringify(clonaAppDataLeggeroPerSalvataggio(AppData), null, 2));
                 await writable.close();
                 databaseModificato = false;
                 aggiornaStatoArchivioCondiviso("Salvato: " + archivioCondivisoHandle.name + " • " + new Date().toLocaleTimeString('it-IT'), "#15803d");
@@ -907,7 +1056,7 @@
                 return Promise.resolve(false);
             }
             try {
-                localStorage.setItem('AppData_Sinottico_V10_Fasi', JSON.stringify(AppData));
+                localStorage.setItem('AppData_Sinottico_V10_Fasi', JSON.stringify(clonaAppDataLeggeroPerSalvataggio(AppData)));
             } catch(err) {
                 console.warn("Cache localStorage non aggiornata (limite dimensione):", err);
             }
@@ -948,6 +1097,7 @@
             databaseModificato = true;
             try { localStorage.removeItem('AppData_Sinottico_V10_Fasi'); } catch(err) {}
             renderingSinottico();
+        ripristinaCartellaPdfHandle();
             renderingArchivio();
             renderingScadenziario();
             renderingDiario();
@@ -972,6 +1122,7 @@
                 origineDati = "JSON del sito (" + URL_DATABASE_REMOTO + ")";
                 aggiornaStatoArchivioCondiviso("Dati dal sito • sola lettura • " + new Date().toLocaleTimeString('it-IT'), "#15803d");
                 renderingSinottico();
+        ripristinaCartellaPdfHandle();
                 renderingArchivio();
                 renderingScadenziario();
                 renderingDiario();
@@ -990,7 +1141,7 @@
                 if(ok) { alert("Dati salvati nel database condiviso."); return; }
             }
 
-            let dataStr = "data:application/json;charset=utf-8," + encodeURIComponent(JSON.stringify(AppData, null, 2));
+            let dataStr = "data:application/json;charset=utf-8," + encodeURIComponent(JSON.stringify(clonaAppDataLeggeroPerSalvataggio(AppData), null, 2));
             let downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute("href", dataStr);
             downloadAnchor.setAttribute("download", NOME_DATABASE_CONDIVISO);
@@ -1016,6 +1167,7 @@
                         salvaDatiCondivisi();
                         alert("Database caricato con successo! Tutti i dati sono stati aggiornati.");
                         renderingSinottico();
+        ripristinaCartellaPdfHandle();
                         renderingArchivio();
                         renderingScadenziario();
                         renderingDiario();
@@ -1983,10 +2135,13 @@
 
         async function caricaDocumentoPDF() {
             let id = idCommessaSelezionata;
-            if(!id) return;
-            const fileInput = document.getElementById('pdfFileInput');
-            const nomeInput = document.getElementById('pdfNomeInput');
-            
+            if(!id || !AppData.metadata[id]) {
+                alert("Nessuna commessa selezionata.");
+                return;
+            }
+
+            const nomeInput = document.getElementById("pdfNomeInput");
+            const fileInput = document.getElementById("pdfFileInput");
             if(!fileInput || fileInput.files.length === 0) {
                 alert("Seleziona prima un file PDF!");
                 return;
@@ -2000,76 +2155,158 @@
             }
 
             let nomeDoc = nomeInput.value.trim() || file.name;
+            let nomeFileSicuro = file.name.replace(/[^a-zA-Z0-9_.-]/g, "_");
+            let percorsoRelativo = "";
+            let salvatoSuDisco = false;
 
             try {
-                const base64Data = await new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = () => resolve(reader.result);
-                    reader.onerror = () => reject(reader.error || new Error("Errore nella lettura del PDF."));
-                    reader.readAsDataURL(file);
-                });
+                // Tentativo 1: Salva direttamente nella cartella su disco (archivio_pdf/<commessa>/<file.pdf>)
+                if(cartellaArchivioPdfHandle) {
+                    try {
+                        const okPerm = await verificaPermessoScrittura(cartellaArchivioPdfHandle);
+                        if(okPerm) {
+                            const subDir = await cartellaArchivioPdfHandle.getDirectoryHandle(String(id), { create: true });
+                            const fileHandle = await subDir.getFileHandle(nomeFileSicuro, { create: true });
+                            const writable = await fileHandle.createWritable();
+                            await writable.write(file);
+                            await writable.close();
+                            percorsoRelativo = cartellaArchivioPdfHandle.name + "/" + id + "/" + nomeFileSicuro;
+                            salvatoSuDisco = true;
+                        }
+                    } catch(errDir) {
+                        console.warn("Salvataggio su cartella disco fallito, uso IndexedDB come fallback:", errDir);
+                    }
+                }
+
+                const docId = Date.now();
+                // Salva sempre anche copia binaria in IndexedDB per accesso istantaneo
+                await salvaPdfInIndexedDB(docId, file);
+
+                const sizeStr = (file.size < 1024 * 1024) 
+                    ? (file.size / 1024).toFixed(1) + " KB" 
+                    : (file.size / (1024 * 1024)).toFixed(2) + " MB";
 
                 if(!AppData.metadata[id].documentiPdf) AppData.metadata[id].documentiPdf = [];
 
                 AppData.metadata[id].documentiPdf.push({
-                    idDoc: Date.now(),
+                    idDoc: docId,
                     nomeDoc: nomeDoc,
                     nomeFile: file.name,
-                    dataCaricamento: new Date().toLocaleDateString('it-IT'),
-                    base64: base64Data
+                    dimensione: sizeStr,
+                    percorsoRelativo: percorsoRelativo,
+                    inCartella: salvatoSuDisco,
+                    dataCaricamento: new Date().toLocaleDateString('it-IT')
                 });
 
-                const salvato = await salvaDatiCondivisi();
+                await salvaDatiCondivisi();
                 renderingTabellaPdfDettaglio(id);
                 nomeInput.value = "";
                 fileInput.value = "";
-                alert("Documento PDF allegato e salvato con successo!");
+
+                let msgSuccess = "Documento PDF allegato con successo!";
+                if(salvatoSuDisco) {
+                    msgSuccess += "\n\n📁 Salvato nella cartella: " + percorsoRelativo;
+                } else {
+                    msgSuccess += "\n\n💾 Archiviato in modo sicuro in memoria IndexedDB (nessun limite di spazio).";
+                }
+                alert(msgSuccess);
             } catch(err) {
                 console.error("Errore caricamento PDF:", err);
                 alert("Non è stato possibile caricare/salvare il PDF: " + (err.message || err));
             }
         }
 
-        function eliminaDocumentoPDF(idDoc) {
+        async function eliminaDocumentoPDF(idDoc) {
             let id = idCommessaSelezionata;
             if(!id || !AppData.metadata[id].documentiPdf) return;
 
-            if(confirm("Eliminare questo documento PDF dalla commessa?")) {
-                AppData.metadata[id].documentiPdf = AppData.metadata[id].documentiPdf.filter(d => d.idDoc !== idDoc);
-                salvaDatiCondivisi();
-                renderingTabellaPdfDettaglio(id);
+            let doc = AppData.metadata[id].documentiPdf.find(d => String(d.idDoc) === String(idDoc));
+            if(!confirm("Eliminare il documento PDF '" + (doc ? doc.nomeDoc : '') + "' dalla commessa?")) return;
+
+            // Se è su disco e abbiamo la cartella collegata, prova a cancellarlo anche dalla sottocartella
+            if(doc && doc.inCartella && cartellaArchivioPdfHandle) {
+                try {
+                    const subDir = await cartellaArchivioPdfHandle.getDirectoryHandle(String(id), { create: false });
+                    let nomeFileSicuro = doc.nomeFile.replace(/[^a-zA-Z0-9_.-]/g, "_");
+                    await subDir.removeEntry(nomeFileSicuro);
+                } catch(err) {
+                    console.warn("Impossibile rimuovere il file dalla cartella su disco:", err);
+                }
             }
+
+            await eliminaPdfDaIndexedDB(idDoc);
+
+            AppData.metadata[id].documentiPdf = AppData.metadata[id].documentiPdf.filter(d => d.idDoc !== idDoc);
+            salvaDatiCondivisi();
+            renderingTabellaPdfDettaglio(id);
         }
 
-        function apriDocumentoPDF(idDoc) {
+        async function apriDocumentoPDF(idDoc) {
             let id = idCommessaSelezionata;
             if(!id || !AppData.metadata[id] || !AppData.metadata[id].documentiPdf) return;
             let doc = AppData.metadata[id].documentiPdf.find(d => String(d.idDoc) === String(idDoc));
 
-            if(!doc || !doc.base64) {
-                alert("Il documento PDF non contiene dati validi.");
+            if(!doc) {
+                alert("Documento PDF non trovato.");
                 return;
             }
 
             try {
-                const parts = doc.base64.split(',');
-                const header = parts[0] || "";
-                const base64 = parts.slice(1).join(',');
-                const match = header.match(/^data:([^;]+);base64$/i);
-                const mimeType = match ? match[1] : "application/pdf";
-                const binary = atob(base64);
-                const bytes = new Uint8Array(binary.length);
-                for(let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-                const blob = new Blob([bytes], { type: mimeType });
-                const blobUrl = URL.createObjectURL(blob);
+                let blob = null;
 
+                // 1. Prova a leggere da cartella su disco se collegata
+                if(cartellaArchivioPdfHandle) {
+                    try {
+                        const subDir = await cartellaArchivioPdfHandle.getDirectoryHandle(String(id), { create: false });
+                        let nomeFileSicuro = doc.nomeFile.replace(/[^a-zA-Z0-9_.-]/g, "_");
+                        const fileHandle = await subDir.getFileHandle(nomeFileSicuro);
+                        const file = await fileHandle.getFile();
+                        blob = file;
+                    } catch(err) {
+                        console.warn("File non trovato nella cartella su disco, provo da IndexedDB:", err);
+                    }
+                }
+
+                // 2. Se non ancora trovato, leggi da IndexedDB
+                if(!blob) {
+                    const stored = await leggiPdfDaIndexedDB(idDoc);
+                    if(stored) {
+                        if(stored instanceof Blob) {
+                            blob = stored;
+                        } else if(typeof stored === 'string') {
+                            const parts = stored.split(',');
+                            const base64 = parts.slice(1).join(',') || parts[0];
+                            const binary = atob(base64);
+                            const bytes = new Uint8Array(binary.length);
+                            for(let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+                            blob = new Blob([bytes], { type: "application/pdf" });
+                        }
+                    }
+                }
+
+                // 3. Fallback per vecchi database con base64 inline
+                if(!blob && doc.base64) {
+                    const parts = doc.base64.split(',');
+                    const base64 = parts.slice(1).join(',') || parts[0];
+                    const binary = atob(base64);
+                    const bytes = new Uint8Array(binary.length);
+                    for(let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+                    blob = new Blob([bytes], { type: "application/pdf" });
+                    salvaPdfInIndexedDB(idDoc, blob);
+                }
+
+                if(!blob) {
+                    alert("Impossibile reperire i dati del PDF.\nSe il file era salvato nella cartella su disco, assicurati di aver collegato la 'Cartella Archivio PDF'.");
+                    return;
+                }
+
+                const blobUrl = URL.createObjectURL(blob);
                 const pdfWindow = window.open(blobUrl, "_blank");
                 if(!pdfWindow) {
                     URL.revokeObjectURL(blobUrl);
                     alert("Il browser ha bloccato l'apertura del PDF. Consenti i popup per questa pagina e riprova.");
                     return;
                 }
-
                 setTimeout(() => URL.revokeObjectURL(blobUrl), 10 * 60 * 1000);
             } catch(err) {
                 console.error("Errore apertura PDF:", err);
@@ -2083,15 +2320,22 @@
             let listaPdf = (AppData.metadata[id] && AppData.metadata[id].documentiPdf) ? AppData.metadata[id].documentiPdf : [];
 
             if(listaPdf.length === 0) {
-                tbody.innerHTML = "<tr><td colspan='4' style='text-align:center; padding:1rem; color:#6b7280;'>Nessun documento PDF allegato a questa commessa.</td></tr>";
+                tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:1rem; color:#6b7280;'>Nessun documento PDF allegato a questa commessa.</td></tr>";
                 return;
             }
 
             listaPdf.forEach(doc => {
+                let badgeLoc = doc.percorsoRelativo 
+                    ? `<span style="background:#e0f2fe; color:#0369a1; padding:2px 6px; border-radius:4px; font-size:0.75rem;">📁 ${doc.percorsoRelativo}</span>`
+                    : `<span style="background:#f3f4f6; color:#4b5563; padding:2px 6px; border-radius:4px; font-size:0.75rem;">💾 IndexedDB</span>`;
+
+                let dimStr = doc.dimensione ? ` <small style="color:#6b7280;">(${doc.dimensione})</small>` : '';
+
                 let riga = `<tr>
                     <td class="desc-cell"><strong>📄 ${doc.nomeDoc}</strong></td>
-                    <td>${doc.nomeFile}</td>
+                    <td>${doc.nomeFile}${dimStr}</td>
                     <td>${doc.dataCaricamento}</td>
+                    <td>${badgeLoc}</td>
                     <td>
                         <button class="btn btn-secondary" onclick="apriDocumentoPDF(${doc.idDoc})" style="padding:0.3rem 0.6rem; font-size:0.75rem;">👁️ Apri PDF</button>
                         <button class="btn btn-danger" onclick="eliminaDocumentoPDF(${doc.idDoc})" style="padding:0.3rem 0.6rem; font-size:0.75rem;">🗑️ Elimina</button>
@@ -2100,7 +2344,6 @@
                 tbody.innerHTML += riga;
             });
         }
-
         function sviluppaFasiInTabella(attivita) {
             const tbody = document.getElementById("tbodyFasiDettaglio");
             tbody.innerHTML = "";
@@ -2699,6 +2942,7 @@
             if(btnDemo) btnDemo.style.display = 'inline-flex';
         }
         renderingSinottico();
+        ripristinaCartellaPdfHandle();
         if(E_IN_RETE) {
             caricaDatabaseRemoto();
         } else {
