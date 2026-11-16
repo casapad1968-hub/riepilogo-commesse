@@ -1,11 +1,14 @@
 # Database e dati personali — MAI versionare
 *.json
-!package.json
+!/package.json
 database_commesse.json
 *.bak1
 *.bak2
 documenti/
 PRIVATE/
+
+# Eccezione: database DIMOSTRATIVO con dati inventati (deve stare in fondo)
+!/demo/*.json
 
 # Sistema
 .DS_Store
