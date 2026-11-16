@@ -104,10 +104,13 @@ CONSIGLI PER LA SICUREZZA DEI DATI
   2. NON mettere il file su un cloud pubblico (Drive/Dropbox condivisi)
      Se lo metti su un disco di rete condiviso, va bene: è il caso d'uso previsto
 
-  3. I PDF caricati dentro l'app vengono salvati DENTRO il JSON.
-     Il browser ha un limite di circa 5 MB per il salvataggio automatico:
-     con molti PDF pesanti il salvataggio in cache può fallire.
-     Il file JSON su disco resta comunque valido.
+  3. GESTIONE ARCHIVIO PDF DEI CERTIFICATI:
+     I documenti PDF allegati alle commesse vengono archiviati nella cartella
+     dedicata 'archivio_pdf/' (suddivisi automaticamente in sottocartelle per
+     numero di commessa) e memorizzati nel motore IndexedDB del browser.
+     In questo modo il file JSON e il salvataggio locale restano sempre
+     leggerissimi (pochi KB), senza alcun limite di dimensione e senza rischi
+     di saturazione.
 
 
 LIMITI DA CONOSCERE
