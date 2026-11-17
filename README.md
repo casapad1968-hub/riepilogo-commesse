@@ -102,3 +102,32 @@ Nessuna dipendenza. Zero build step. Solo HTML, CSS e JavaScript vanilla in un u
 ## Licenza
 
 MIT — vedi [LICENSE](LICENSE).
+
+------------------------------------------------------------------
+📈 GANTT TAB (MS Project style)
+------------------------------------------------------------------
+From the top tab bar choose "📈 Gantt (MS Project style)".
+
+What you can do:
+  • Switch order from the dropdown at the top.
+  • Time scale: Days / Weeks / Months, with + and − zoom.
+  • Red vertical line = TODAY, always visible.
+  • Dependencies: arrows linking the finish of one activity to the
+    start of the next ("dependencies" field in the database, or
+    imported automatically from an MS Project XML file - PredecessorLink).
+  • Critical path: activities that would delay the final delivery are
+    highlighted in red (CPM algorithm).
+  • Milestones: ◆ diamonds for zero-duration activities.
+  • Working days: enable the option to exclude Saturday and Sunday
+    from duration calculations.
+  • Quick filters: All / Critical only / Late / Due soon.
+  • Direct editing:
+      - drag the bar to move dates
+      - drag the bar edges to resize
+      - double-click the bar to edit name, dates, % and predecessors
+      - "＋ New activity" button to add a phase
+  • Export PNG (image to paste into an email or report).
+  • Print A4 landscape.
+
+Changes made in the Gantt are saved to the shared database, with the
+multi-user lock already in place.
