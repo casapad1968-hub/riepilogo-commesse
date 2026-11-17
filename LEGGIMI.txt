@@ -8,8 +8,10 @@ trovi anche il riferimento alla guida tecnica README.md).
 COSA C'È IN QUESTA CARTELLA
 ---------------------------
   Commesse.html                  L'applicazione in italiano (un unico file,
-                                 non serve installare nulla)
-  Orders.html                    La stessa applicazione in inglese
+                                 non serve installare nulla) — VUOTA, per l'uso reale
+  Orders.html                    La stessa applicazione in inglese — VUOTA
+  Commesse_demo.html             Versione di prova con dati demo in italiano
+  Orders_demo.html               Versione di prova con dati demo in inglese
   database_commesse.json         Database DIMOSTRATIVO con dati inventati
   database_vuoto.json            Database vuoto, per iniziare da zero
   demo\database_commesse.json    Copia del dimostrativo (usata online)
@@ -32,15 +34,11 @@ PRIMO AVVIO
 -----------
   1. Apri Commesse.html con doppio clic (o tasto destro > Apri con > Chrome/Edge)
 
-  2. L'app si apre GIÀ POPOLATA con due commesse dimostrative:
-       70777 - Cliente A, in ritardo
-       70812 - Cliente B, in linea
+  2. L'app si apre VUOTA e ti chiede di collegare il tuo database:
+     premi "🔗 Collega Archivio Condiviso" e scegli il file JSON.
 
-  3. Quando hai capito come funziona, premi "🗑️ Svuota dati demo" per partire
-     da zero.
-
-  4. Per collegare il TUO database: "🔗 Collega Archivio Condiviso" e scegli
-     il file JSON.
+  3. Se vuoi prima vedere come funziona, apri Commesse_demo.html: è la stessa
+     app con due commesse di esempio già pronte.
 
 
 DUE MODI DI FUNZIONARE
@@ -300,3 +298,22 @@ DOMANDE FREQUENTI
 ---
 Progetto open source: https://github.com/casapad1968-hub/riepilogo-commesse
 Licenza MIT — Versione del documento: 17 novembre 2026
+
+VERSIONE CON DEMO E VERSIONE SENZA DEMO
+---------------------------------------
+Nello ZIP trovi due coppie di file:
+
+  SENZA DEMO (per l'uso vero) — NOMI PRINCIPALI
+    Commesse.html / Orders.html
+    Si aprono VUOTE e chiedono subito di collegare il tuo database JSON.
+    Nessun dato di esempio dentro, nessun caricamento automatico.
+    È la versione da usare ogni giorno in ufficio.
+
+  CON DEMO (solo per provare)
+    Commesse_demo.html / Orders_demo.html
+    Si aprono già popolate con due commesse inventate (70777 e 70812).
+    Servono solo per vedere come funziona l'app. C'è il pulsante
+    "🗑️ Svuota dati demo" per ripulire.
+
+  Le due versioni sono identiche in tutto il resto: stesse funzioni,
+  stesso Gantt, stessa gestione PDF, stessa protezione multi-utente.
