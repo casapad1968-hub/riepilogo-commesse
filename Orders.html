@@ -5044,8 +5044,12 @@ function ganttDisegna(chiave) {
             const wide = Math.max(6, (r.finishD - r.startD + 1) * pxDay);
             const palS = (mf >= 0) ? GANTT_WBS_PALETTE[mf] : null;
             const c = (r.crit && st.critico) ? "#a04a3c" : (palS ? palS[2] : "#5a6a78");
-            barra = `<div class="gantt-bar" data-row="${i}" style="position:absolute; top:9px; left:${left}px; width:${wide}px; height:9px; cursor:${ro ? "default" : "grab"};">
-                <div style="position:absolute; top:0; left:0; right:0; height:4px; background:${c};"></div>
+            // avanzamento visibile anche sul riepilogo: porzione piena sotto la barra
+            const progS = (r.pct > 0)
+                ? `<div style="position:absolute; top:5px; left:0; width:${r.pct}%; height:4px; background:${c};"></div>` : "";
+            barra = `<div class="gantt-bar" data-row="${i}" style="position:absolute; top:9px; left:${left}px; width:${wide}px; height:11px; cursor:${ro ? "default" : "grab"};" title="${ganttEscape(r.name)} — ${r.pct}%">
+                <div style="position:absolute; top:0; left:0; right:0; height:4px; background:${c}; opacity:.45;"></div>
+                ${progS}
                 <div style="position:absolute; top:0; left:0; width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent; border-top:9px solid ${c};"></div>
                 <div style="position:absolute; top:0; right:0; width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent; border-top:9px solid ${c};"></div>
             </div>`;
@@ -5098,13 +5102,13 @@ function ganttDisegna(chiave) {
                 const giu = y2 >= y1;
                 const d = Math.max(12, Math.min(26, Math.abs(y2 - y1) / 2 + 8));
                 const isC = st.critico && pred.crit && r.crit;
-                paths += `<path d="M ${x1} ${y1} H ${x1 + d} V ${y2 + (giu ? -3 : 3)} H ${x2 - 5}" fill="none" stroke="${isC ? "#a04a3c" : "#b8c2c9"}" stroke-width="1.3" marker-end="url(#gArw${isC ? "C" : ""})"/>`;
+                paths += `<path d="M ${x1} ${y1} H ${x1 + d} V ${y2 + (giu ? -3 : 3)} H ${x2 - 6}" fill="none" stroke="${isC ? "#a04a3c" : "#5f7385"}" stroke-width="${isC ? 1.8 : 1.6}" stroke-linejoin="round" marker-end="url(#gArw${isC ? "C" : ""})" opacity="${isC ? 1 : 0.95}"/>`;
             });
         });
         svgDip = `<svg style="position:absolute; top:0; left:0; width:${totalW}px; height:${bodyH}px; pointer-events:none; overflow:visible;">
             <defs>
-                <marker id="gArw" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#94a3b8"/></marker>
-                <marker id="gArwC" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#dc2626"/></marker>
+                <marker id="gArw" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#5f7385"/></marker>
+                <marker id="gArwC" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#a04a3c"/></marker>
             </defs>${paths}
         </svg>`;
     }
