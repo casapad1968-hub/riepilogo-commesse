@@ -180,31 +180,32 @@ DOMANDE FREQUENTI
 Progetto open source: https://github.com/casapad1968-hub/riepilogo-commesse
 Licenza MIT
 
+📈 GANTT — DUE VISTE
 ------------------------------------------------------------------
-📈 SCHEDA GANTT (stile MS Project)
-------------------------------------------------------------------
-Dalla barra delle schede in alto scegli "📈 Gantt (stile MS Project)".
+1) SCHEDA "📈 Gantt — Riepilogo Progetti"
+   Mostra TUTTE le commesse attive su un'unica scala temporale.
+   Ogni commessa e' una riga riassuntiva (barra indigo, rossa se in ritardo).
+   • Clicca il nome di una commessa per espanderne le fasi.
+   • "Espandi tutto" / "Comprimi tutto" per aprire o chiudere tutte.
+   • Filtri: Tutte / Solo critiche / In ritardo / In scadenza.
+   • Nessuna modifica qui: e' una vista di insieme.
 
-Cosa puoi fare:
-  • Cambiare commessa dal menu a tendina in alto.
-  • Scala temporale: Giorni / Settimane / Mesi, con zoom + e −.
-  • Linea rossa verticale = OGGI, sempre visibile.
-  • Dipendenze: frecce che collegano la fine di un'attività all'inizio
-    della successiva (campo "dependencies" nel database, oppure
-    importate automaticamente dal file MS Project XML - PredecessorLink).
-  • Percorso critico: le attività che, se in ritardo, spostano la
-    consegna finale vengono evidenziate in rosso (algoritmo CPM).
-  • Milestone: rombi ◆ per le attività a durata zero.
-  • Giorni lavorativi: attiva l'opzione per escludere sabato e
-    domenica dal calcolo delle durate.
-  • Filtri rapidi: Tutte / Solo critiche / In ritardo / In scadenza.
-  • Modifica diretta:
-      - trascina la barra per spostare le date
-      - trascina i bordi della barra per allungare o accorciare
-      - doppio clic sulla barra per modificare nome, date, % e predecessori
-      - pulsante "＋ Nuova attività" per aggiungere una fase
-  • Esporta PNG (immagine da incollare in una mail o in un report).
-  • Stampa A4 orizzontale.
+2) DENTRO IL DETTAGLIO DI OGNI COMMESSA
+   Il vecchio grafico e' stato sostituito dal Gantt completo editabile:
+   • Scala Giorni / Settimane / Mesi, zoom + / -, linea rossa OGGI.
+   • Dipendenze (frecce), percorso critico (rosso), milestone (rombi).
+   • Giorni lavorativi: esclude sabato e domenica dalle durate.
+   • MODIFICA COMPLETA stile Project:
+       - trascina la barra ........................ sposta le date
+       - trascina i bordi della barra ............. allunga / accorcia
+       - doppio clic sulla barra .................. apre la modale completa
+       - campo % nella tabella .................... modifica l'avanzamento subito
+       - pulsante "✏️" ............................ modifica la fase
+       - pulsante "+ Nuova fase" .................. aggiunge una fase
+   • Nella modale puoi cambiare: nome, date, %, livello gerarchico,
+     riga di sintesi, milestone, predecessori e note.
+   • Eliminazione fase dalla stessa modale.
+   • Esporta PNG e Stampa A4 orizzontale.
 
-Le modifiche fatte nel Gantt vengono salvate nel database condiviso,
-con il controllo multi-utente già attivo (file di lock).
+Tutte le modifiche vengono salvate nel database condiviso, con il
+controllo multi-utente (file di lock) gia' attivo.
