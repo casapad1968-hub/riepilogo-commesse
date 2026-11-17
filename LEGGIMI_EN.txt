@@ -7,8 +7,10 @@ English version. For the Italian version see LEGGIMI.txt.
 WHAT'S IN THIS FOLDER
 ---------------------
   Commesse.html                  The application in Italian (single file,
-                                 nothing to install)
-  Orders.html                    The same application in English
+                                 nothing to install) — EMPTY, for real use
+  Orders.html                    The same application in English — EMPTY
+  Commesse_demo.html             Demo version with sample data, Italian
+  Orders_demo.html               Demo version with sample data, English
   database_commesse.json         DEMO database with invented data
   database_vuoto.json            Empty database, to start from scratch
   demo\database_commesse.json    Copy of the demo (used online)
@@ -32,15 +34,11 @@ FIRST START
   1. Open Orders.html with a double click (or right click > Open with >
      Chrome/Edge)
 
-  2. The app opens ALREADY POPULATED with two demo orders:
-       70777 - Customer A, late
-       70812 - Customer B, on track
+  2. The app opens EMPTY and asks you to connect your database:
+     press "🔗 Connect Shared Archive" and choose the JSON file.
 
-  3. When you understand how it works, press "🗑️ Clear demo data" to start
-     from scratch.
-
-  4. To connect YOUR database: "🔗 Connect Shared Archive" and choose the
-     JSON file.
+  3. To see how it works first, open Commesse_demo.html / Orders_demo.html:
+     the same app with two sample orders already loaded.
 
 
 TWO WAYS OF WORKING
@@ -295,3 +293,22 @@ FREQUENTLY ASKED QUESTIONS
 ---
 Open source project: https://github.com/casapad1968-hub/riepilogo-commesse
 MIT license — Document version: 17 November 2026
+
+DEMO VERSION vs NO-DEMO VERSION
+-------------------------------
+The ZIP contains two pairs of files:
+
+  NO DEMO (for real use) — MAIN FILE NAMES
+    Commesse.html / Orders.html
+    They open EMPTY and immediately ask you to connect your own JSON
+    database. No sample data inside, no automatic loading.
+    This is the version to use every day at work.
+
+  WITH DEMO (to try it out only)
+    Commesse_demo.html / Orders_demo.html
+    They open already populated with two invented orders (70777 and 70812).
+    They are meant only to show how the app works. There is a
+    "🗑️ Clear demo data" button to wipe them.
+
+  Both versions are identical in everything else: same features, same
+  Gantt, same PDF handling, same multi-user protection.
