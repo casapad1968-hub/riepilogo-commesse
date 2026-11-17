@@ -439,6 +439,8 @@
             padding: 0.2rem 0.38rem !important;
             font-size: 0.735rem !important;
             line-height: 1.15 !important;
+            border-bottom: 1px solid #e3e8eb !important;
+            border-right: 1px solid #e8ecef !important;
         }
         body.density-compact table.sinottico th,
         body.density-compact table.fasi-table th,
@@ -635,8 +637,13 @@
         }
         table.sinottico td, table.fasi-table td, table.pdf-table td, table.scadenze-table td {
             padding: 0.38rem 0.5rem !important;
-            border-bottom: 1px solid #e8ebed !important;
+            border-bottom: 1px solid #dbe1e6 !important;
+            border-right: 1px solid #e3e8eb !important;
             font-size: 0.79rem !important;
+        }
+        table.sinottico td:last-child, table.fasi-table td:last-child,
+        table.pdf-table td:last-child, table.scadenze-table td:last-child {
+            border-right: none !important;
         }
         table.sinottico tr:nth-child(even) td { background: #f7f8f9; }
         table.sinottico tr:hover td { background: #eef2f5 !important; }
@@ -4191,7 +4198,7 @@ async function migraPdfLegacy() {
                 }
 
                 settimaneHeaderHtml += `<div style="position: absolute; left: ${leftP}%; width: ${widthP}%; border-right: 1px solid #d1d5db; text-align: center; font-size: 6px; color: #374151;">${wkNum}</div>`;
-                gridLinesHtml += `<div style="position: absolute; left: ${leftP}%; top: 0; bottom: 0; border-right: 1px dashed #e5e7eb; pointer-events: none;"></div>`;
+                gridLinesHtml += `<div style="position: absolute; left: ${leftP}%; top: 0; bottom: 0; border-right: 1px solid #d5dce1; pointer-events: none;"></div>`;
 
                 currentWStart.setDate(currentWStart.getDate() + 7);
             }
@@ -4814,7 +4821,7 @@ function ganttDisegna(chiave) {
         : "38px 268px 56px 62px 76px 76px";
     const leftW = showAzioni ? 610 : 576;
 
-    /* sfondo: weekend + griglia mesi */
+    /* sfondo: weekend + griglia verticale visibile (per periodo) */
     let bg = "";
     for (let e = minD; e <= maxD; e++) {
         const dow = ganttDowEpoch(e);
@@ -4822,10 +4829,27 @@ function ganttDisegna(chiave) {
             bg += `<div style="position:absolute; top:0; bottom:0; left:${(e - minD) * pxDay}px; width:${pxDay}px; background:rgba(148,163,184,0.15);"></div>`;
         }
     }
+
+    // griglia verticale sottile a ogni periodo della scala corrente
+    const passoGriglia = (st.scala === "giorni") ? 1 : ((st.scala === "settimane") ? 7 : 0);
+    if (passoGriglia > 0) {
+        let eG = minD;
+        if (passoGriglia === 7) {
+            const dw = ganttDowEpoch(eG);
+            eG = eG - ((dw + 6) % 7);
+            if (eG < minD) eG += 7;
+        }
+        for (let e = eG; e <= maxD; e += passoGriglia) {
+            const x = (e - minD) * pxDay;
+            bg += `<div style="position:absolute; top:0; bottom:0; left:${x}px; width:1px; background:#dbe1e6;"></div>`;
+        }
+    }
+
+    // griglia mensile: appena più marcata, sempre sottile
     let curM = new Date(ganttEpochToDate(minD).getFullYear(), ganttEpochToDate(minD).getMonth(), 1);
     while (ganttGiornoEpoch(curM) <= maxD) {
         const x = (ganttGiornoEpoch(curM) - minD) * pxDay;
-        if (x >= 0) bg += `<div style="position:absolute; top:0; bottom:0; left:${x}px; width:1px; background:#cbd5e1;"></div>`;
+        if (x >= 0) bg += `<div style="position:absolute; top:0; bottom:0; left:${x}px; width:1px; background:#c9d2d9;"></div>`;
         curM = new Date(curM.getFullYear(), curM.getMonth() + 1, 1);
     }
 
@@ -4890,7 +4914,7 @@ function ganttDisegna(chiave) {
         const bgRow = r.kind === "p" ? "#eef2ff" : (r.isSummary ? "#f1f5f9" : "#ffffff");
         const fw = (r.kind === "p" || r.isSummary) ? "700" : "400";
         const colore = r.kind === "p" ? "#3730a3" : "#1e293b";
-        leftRows += `<div style="display:grid; grid-template-columns:${cols}; height:${rowH}px; background:${bgRow}; align-items:center; font-size:11px; font-weight:${fw}; color:${colore}; border-bottom:1px solid #e2e8f0;">`;
+        leftRows += `<div style="display:grid; grid-template-columns:${cols}; height:${rowH}px; background:${bgRow}; align-items:center; font-size:11px; font-weight:${fw}; color:${colore}; border-bottom:1px solid #dbe1e6;">`;
         leftRows += `<div style="padding:0 4px; text-align:center; color:#94a3b8; border-right:1px solid #e2e8f0; font-size:10px;">${r.kind === "p" ? "▸" : (r.idx + 1)}</div>`;
         const icona = r.kind === "p" ? (r.espanso ? "📂" : "📁") : (r.isSummary ? "📁" : (r.milestone ? "◆" : "🔹"));
         const clickAttr = r.kind === "p" ? ` onclick="ganttToggleProgetto('${chiave}','${ganttEscape(r.id)}')" style="cursor:pointer;"` : "";
@@ -4954,7 +4978,7 @@ function ganttDisegna(chiave) {
             </div>`;
         }
         const sfondoRiga = r.kind === "p" ? "background:rgba(238,242,255,.6);" : (r.isSummary ? "background:rgba(241,245,249,.7);" : "");
-        rightRows += `<div style="position:relative; height:${rowH}px; border-bottom:1px solid #eef2f7; ${sfondoRiga}">${barra}</div>`;
+        rightRows += `<div style="position:relative; height:${rowH}px; border-bottom:1px solid #dbe1e6; ${sfondoRiga}">${barra}</div>`;
     });
 
     /* dipendenze */
@@ -5417,6 +5441,29 @@ function ganttCanvas(chiave) {
             ctx.fillRect(leftW + (e - minD) * pxDay, y0, pxDay, bodyH);
         }
     }
+
+    // griglia verticale (periodo corrente) — sottile e visibile
+    (function grigliaCanvas() {
+        const passo = (st.scala === "giorni") ? 1 : ((st.scala === "settimane") ? 7 : 0);
+        if (passo <= 0) return;
+        let eG = minD;
+        if (passo === 7) {
+            const dw = ganttDowEpoch(eG);
+            eG = eG - ((dw + 6) % 7);
+            if (eG < minD) eG += 7;
+        }
+        ctx.save();
+        ctx.strokeStyle = "#dbe1e6";
+        ctx.lineWidth = 1;
+        for (let e = eG; e <= maxD; e += passo) {
+            const x = Math.round(leftW + (e - minD) * pxDay) + 0.5;
+            ctx.beginPath();
+            ctx.moveTo(x, y0 + headH);
+            ctx.lineTo(x, y0 + headH + bodyH);
+            ctx.stroke();
+        }
+        ctx.restore();
+    })();
     // header
     ctx.fillStyle = "#e2e8f0";
     ctx.fillRect(0, y0, leftW + totalW, headH);
@@ -5453,8 +5500,9 @@ function ganttCanvas(chiave) {
         else if (r.isSummary) { ctx.fillStyle = "#f1f5f9"; }
         else { ctx.fillStyle = (i % 2) ? "#fbfdff" : "#ffffff"; }
         ctx.fillRect(0, ry, leftW + totalW, rowH);
-        ctx.strokeStyle = "#e2e8f0";
-        ctx.beginPath(); ctx.moveTo(0, ry + rowH); ctx.lineTo(leftW + totalW, ry + rowH); ctx.stroke();
+        ctx.strokeStyle = "#dbe1e6";
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(0, ry + rowH + 0.5); ctx.lineTo(leftW + totalW, ry + rowH + 0.5); ctx.stroke();
 
         ctx.fillStyle = r.kind === "p" ? "#3730a3" : "#1e293b";
         ctx.font = ((r.kind === "p" || r.isSummary) ? "bold " : "") + "10.5px Arial";
