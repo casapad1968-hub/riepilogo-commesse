@@ -7,32 +7,61 @@
     
     <style>
         :root {
-            --primary: #1e3a8a;
-            --primary-light: #3b82f6;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --dark: #1f2937;
-            --light: #f3f4f6;
-            --gray-header: #bcbcbc;
+            --primary: #0f172a;          /* Ardesia scura / Navy profondo */
+            --primary-light: #2563eb;    /* Royal Blue per accenti e pulsanti primari */
+            --primary-hover: #1d4ed8;
+            --accent: #0ea5e9;           /* Ciano brillante per focus e highlight */
+            --success: #059669;          /* Smeraldo */
+            --success-bg: #ecfdf5;
+            --success-border: #a7f3d0;
+            --warning: #d97706;          /* Ambra */
+            --warning-bg: #fffbeb;
+            --warning-border: #fde68a;
+            --danger: #dc2626;           /* Rosso vivo */
+            --danger-bg: #fef2f2;
+            --danger-border: #fecaca;
+            --dark: #0f172a;
+            --slate-600: #475569;
+            --slate-500: #64748b;
+            --slate-400: #94a3b8;
+            --slate-200: #e2e8f0;
+            --slate-100: #f1f5f9;
+            --slate-50: #f8fafc;
+            --light: #f8fafc;
+            --gray-header: #334155;
+            --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.07), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+            --card-shadow-hover: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.08);
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             margin: 0;
             padding: 0;
             background-color: var(--light);
             color: var(--dark);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
         }
 
         header {
-            background-color: var(--primary);
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
             color: white;
-            padding: 0.75rem 2rem;
+            padding: 0.85rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
         .header-title-container {
@@ -43,22 +72,26 @@
 
         header h2 {
             margin: 0;
-            font-size: 1.6rem;
-            font-weight: 600;
-            letter-spacing: 0.5px;
+            font-size: 1.45rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: #f8fafc;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .container {
             max-width: 100%;
-            margin: 1.5rem auto;
-            padding: 0 1rem;
+            margin: 1.25rem auto;
+            padding: 0 1.25rem;
         }
 
         .tabs {
             display: flex;
             gap: 0.5rem;
-            margin-bottom: 1.5rem;
-            border-bottom: 2px solid #e5e7eb;
+            margin-bottom: 1.25rem;
+            border-bottom: 2px solid var(--slate-200);
             flex-wrap: wrap;
             align-items: center;
             justify-content: space-between;
@@ -66,46 +99,63 @@
 
         .tab-group {
             display: flex;
-            gap: 0.5rem;
+            gap: 0.25rem;
             flex-wrap: wrap;
         }
 
         .db-sync-group {
             display: flex;
             gap: 0.5rem;
-            background-color: #e0f2fe;
-            padding: 0.4rem 0.8rem;
-            border-radius: 6px;
-            border: 1px solid var(--primary-light);
+            background: linear-gradient(180deg, #f0f9ff 0%, #e0f2fe 100%);
+            padding: 0.35rem 0.75rem;
+            border-radius: var(--radius-md);
+            border: 1px solid #bae6fd;
+            align-items: center;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
         }
 
         .tab-btn {
-            padding: 0.75rem 1.25rem;
+            padding: 0.7rem 1.15rem;
             border: none;
             background: none;
             font-weight: 600;
-            font-size: 0.95rem;
+            font-size: 0.92rem;
             cursor: pointer;
-            color: #6b7280;
+            color: var(--slate-500);
             border-bottom: 3px solid transparent;
-            transition: all 0.2s;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 6px 6px 0 0;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary-light);
+            background: rgba(37, 99, 235, 0.04);
         }
 
         .tab-btn.active {
-            color: var(--primary);
-            border-bottom-color: var(--primary);
+            color: var(--primary-light);
+            border-bottom: 3px solid var(--primary-light);
+            background: white;
+            box-shadow: 0 -2px 6px rgba(0,0,0,0.02);
         }
 
         .tab-content {
             display: none;
             background: white;
             padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-radius: var(--radius-md);
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--slate-200);
         }
 
         .tab-content.active {
             display: block;
+            animation: fadeInTab 0.2s ease-out;
+        }
+
+        @keyframes fadeInTab {
+            from { opacity: 0; transform: translateY(3px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .grid-2 {
@@ -116,17 +166,26 @@
 
         .card {
             background: #ffffff;
-            border: 1px solid #e5e7eb;
-            border-radius: 6px;
+            border: 1px solid var(--slate-200);
+            border-radius: var(--radius-md);
             padding: 1.25rem;
             margin-bottom: 1rem;
+            box-shadow: var(--card-shadow);
+            transition: box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+
+        .card:hover {
+            box-shadow: var(--card-shadow-hover);
         }
 
         .card h3 {
             margin-top: 0;
-            border-bottom: 2px solid var(--light);
-            padding-bottom: 0.5rem;
+            border-bottom: 1.5px solid var(--slate-100);
+            padding-bottom: 0.6rem;
             color: var(--primary);
+            font-size: 1.15rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
         }
 
         .form-group {
@@ -136,40 +195,73 @@
         .form-group label {
             display: block;
             font-weight: 600;
+            font-size: 0.88rem;
             margin-bottom: 0.4rem;
+            color: #334155;
         }
 
         .form-control {
             width: 100%;
-            padding: 0.5rem;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            padding: 0.55rem 0.75rem;
+            border: 1px solid #cbd5e1;
+            border-radius: var(--radius-sm);
             box-sizing: border-box;
+            font-size: 0.88rem;
+            color: #1e293b;
+            background-color: #fff;
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
         }
 
         .btn {
             background-color: var(--primary-light);
             color: white;
-            padding: 0.6rem 1.2rem;
+            padding: 0.55rem 1.15rem;
             border: none;
-            border-radius: 4px;
+            border-radius: var(--radius-sm);
             cursor: pointer;
             font-weight: 600;
-            transition: background 0.2s;
+            font-size: 0.88rem;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 0.5rem;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.06);
         }
 
-        .btn:hover { background-color: var(--primary); }
+        .btn:hover { 
+            background-color: var(--primary-hover); 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.12);
+            transform: translateY(-1px);
+        }
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary { background-color: var(--primary-light); color: white; }
+        .btn-primary:hover { background-color: var(--primary-hover); }
         .btn-success { background-color: var(--success); }
         .btn-success:hover { background-color: #047857; }
         .btn-danger { background-color: var(--danger); }
         .btn-danger:hover { background-color: #b91c1c; }
-        .btn-secondary { background-color: #4b5563; }
-        .btn-secondary:hover { background-color: #374151; }
-        .btn-warning { background-color: var(--warning); color: #000; }
+        .btn-secondary { background-color: #475569; }
+        .btn-secondary:hover { background-color: #334155; }
+        .btn-warning { background-color: #f59e0b; color: #1e293b; }
         .btn-warning:hover { background-color: #d97706; color: #fff; }
+        .btn-info { background-color: #0284c7; }
+        .btn-info:hover { background-color: #0369a1; }
+
+        .btn-pill {
+            border-radius: 9999px !important;
+            padding: 0.35rem 0.85rem !important;
+            font-size: 0.82rem !important;
+        }
 
         .table-toolbar {
             display: flex;
@@ -185,116 +277,213 @@
             gap: 0.5rem;
             align-items: center;
             flex: 1;
-            min-width: 250px;
+            min-width: 260px;
         }
 
         .table-wrapper {
             overflow-x: auto;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--slate-200);
+            background: #fff;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+            position: relative;
+            max-height: 75vh;
         }
 
         table.sinottico, table.fasi-table, table.pdf-table, table.scadenze-table {
             width: 100%;
-            border-collapse: collapse;
-            font-size: 0.82rem;
-            margin-top: 0.5rem;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.84rem;
+            font-variant-numeric: tabular-nums;
         }
 
+        /* Sticky header per tutte le tabelle */
         table.sinottico th, table.fasi-table th, table.pdf-table th, table.scadenze-table th {
-            background-color: var(--gray-header);
-            color: #000;
-            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: #1e293b;
+            color: #f8fafc;
+            font-weight: 700;
             text-align: center;
             vertical-align: middle;
-            border: 1px solid #000;
-            padding: 0.5rem 0.2rem;
-            font-size: 0.75rem;
+            border: none;
+            border-bottom: 2px solid #0f172a;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0.65rem 0.4rem;
+            font-size: 0.74rem;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+        }
+
+        table.sinottico th:last-child, table.fasi-table th:last-child, table.pdf-table th:last-child, table.scadenze-table th:last-child {
+            border-right: none;
         }
 
         table.sinottico td, table.fasi-table td, table.pdf-table td, table.scadenze-table td {
-            border: 1px solid #666;
-            padding: 0.5rem 0.3rem;
+            border: none;
+            border-bottom: 1px solid var(--slate-200);
+            border-right: 1px solid #f1f5f9;
+            padding: 0.55rem 0.45rem;
             text-align: center;
             vertical-align: middle;
             background-color: #fff;
+            transition: background-color 0.15s ease;
         }
 
+        table.sinottico td:last-child, table.fasi-table td:last-child, table.pdf-table td:last-child, table.scadenze-table td:last-child {
+            border-right: none;
+        }
+
+        /* Zebra striping morbido */
         table.sinottico tr:nth-child(even) td, table.fasi-table tr:nth-child(even) td, table.pdf-table tr:nth-child(even) td, table.scadenze-table tr:nth-child(even) td {
-            background-color: #f9f9f9;
+            background-color: #f8fafc;
         }
 
-        table.sinottico tr:hover td, table.scadenze-table tr:hover td {
-            background-color: #f1f5f9 !important;
+        /* Hover riga piacevole */
+        table.sinottico tr:hover td, table.fasi-table tr:hover td, table.scadenze-table tr:hover td {
+            background-color: #e0f2fe !important;
         }
 
         table.sinottico td.desc-cell, table.fasi-table td.desc-cell, table.pdf-table td.desc-cell, table.scadenze-table td.desc-cell {
             text-align: left;
-            font-size: 0.78rem;
+            font-size: 0.82rem;
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
         }
 
         table.sinottico td.id-cell {
-            font-size: 1rem;
-            font-weight: bold;
+            font-size: 0.95rem;
+            font-weight: 700;
             color: var(--primary-light);
-            text-decoration: underline;
             cursor: pointer;
+            transition: color 0.15s;
+        }
+
+        table.sinottico td.id-cell:hover {
+            color: var(--primary-hover);
+            text-decoration: underline;
         }
 
         .text-red {
-            color: var(--danger) !important;
-            font-weight: bold !important;
+            color: #dc2626 !important;
+            font-weight: 700 !important;
+            background-color: #fef2f2 !important;
         }
 
+        /* Badge Pill Moderni */
         .badge {
-            padding: 0.2rem 0.5rem;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            color: white;
-            display: inline-block;
+            padding: 0.25rem 0.6rem;
+            border-radius: 9999px;
+            font-size: 0.74rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            line-height: 1.2;
+            border: 1px solid transparent;
         }
-        .badge-success { background-color: var(--success); }
-        .badge-warning { background-color: var(--warning); color: #000; }
-        .badge-info { background-color: #0284c7; color: white; }
 
-        .level-1 { padding-left: 8px !important; font-weight: bold; border-left: 3px solid #1e3a8a !important; }
-        .level-2 { padding-left: 24px !important; font-weight: 600; color: #1f2937; border-left: 2px solid #3b82f6 !important; }
-        .level-3 { padding-left: 40px !important; color: #4b5563; font-style: italic; }
-        .level-4 { padding-left: 56px !important; color: #6b7280; font-size: 0.75rem; }
-        .level-5 { padding-left: 72px !important; color: #9ca3af; font-size: 0.72rem; }
+        .badge-success { 
+            background-color: var(--success-bg); 
+            color: #065f46; 
+            border-color: var(--success-border); 
+        }
+
+        .badge-warning { 
+            background-color: var(--warning-bg); 
+            color: #92400e; 
+            border-color: var(--warning-border); 
+        }
+
+        .badge-danger { 
+            background-color: var(--danger-bg); 
+            color: #991b1b; 
+            border-color: var(--danger-border); 
+        }
+
+        .badge-info { 
+            background-color: #e0f2fe; 
+            color: #0369a1; 
+            border-color: #bae6fd; 
+        }
+
+        /* Modalità Compatta / Spaziosa */
+        body.density-compact table.sinottico td,
+        body.density-compact table.fasi-table td,
+        body.density-compact table.pdf-table td,
+        body.density-compact table.scadenze-table td {
+            padding: 0.3rem 0.35rem;
+            font-size: 0.78rem;
+        }
+
+        body.density-compact table.sinottico th,
+        body.density-compact table.fasi-table th,
+        body.density-compact table.pdf-table th,
+        body.density-compact table.scadenze-table th {
+            padding: 0.45rem 0.3rem;
+            font-size: 0.7rem;
+        }
+
+        .level-1 { padding-left: 8px !important; font-weight: 700; border-left: 4px solid var(--primary-light) !important; background-color: #f8fafc; }
+        .level-2 { padding-left: 24px !important; font-weight: 600; color: #1e293b; border-left: 2px solid #60a5fa !important; }
+        .level-3 { padding-left: 40px !important; color: #475569; font-style: italic; }
+        .level-4 { padding-left: 56px !important; color: #64748b; font-size: 0.78rem; }
+        .level-5 { padding-left: 72px !important; color: #94a3b8; font-size: 0.75rem; }
         
-        .is-summary { font-weight: bold; background-color: #f3f4f6 !important; }
-        .is-summary-manufacturing { background-color: #e0f2fe !important; font-weight: bold; color: #0369a1 !important; }
+        .is-summary { font-weight: 700; background-color: #f1f5f9 !important; }
+        .is-summary-manufacturing { background-color: #e0f2fe !important; font-weight: 700; color: #0369a1 !important; }
+
+        /* Progress Bar Elegante */
+        .progress-bar-container {
+            flex: 1;
+            background: #e2e8f0;
+            border-radius: 9999px;
+            height: 9px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.06);
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 0.3s ease;
+        }
 
         @media print {
             @page { size: landscape; margin: 0.5cm; }
             body * { visibility: hidden; }
             .table-wrapper, .table-wrapper * { visibility: visible; }
-            .table-wrapper { position: absolute; left: 0; top: 0; width: 100% !important; margin: 0 !important; padding: 0 !important; }
+            .table-wrapper { position: absolute; left: 0; top: 0; width: 100% !important; margin: 0 !important; padding: 0 !important; max-height: none !important; border: none !important; }
             table.sinottico { border: 1px solid #000 !important; }
-            table.sinottico th { background-color: #bcbcbc !important; color: black !important; border: 1px solid #000 !important; }
+            table.sinottico th { background-color: #bcbcbc !important; color: black !important; border: 1px solid #000 !important; position: static !important; }
             table.sinottico td { border: 1px solid #000 !important; }
             .no-print, header, .tabs, .btn, h3, p, .table-toolbar { display: none !important; }
         }
-    </style>
+</style>
 </head>
 <body>
 
     <header class="no-print">
         <div class="header-title-container">
-            <h2>Riepilogo commesse</h2>
-            <div style="margin-left: 1rem; display: flex; gap: 0.3rem;">
-                <span style="background: rgba(255,255,255,0.25); padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">🇮🇹 IT</span>
-                <a href="Orders.html" style="color: white; text-decoration: none; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; background: rgba(0,0,0,0.2);">🇬🇧 EN</a>
+            <h2>🏢 Riepilogo Commesse</h2>
+            <div style="margin-left: 0.5rem; display: flex; gap: 0.35rem; align-items: center;">
+                <span style="background: rgba(255,255,255,0.22); padding: 0.2rem 0.55rem; border-radius: 6px; font-size: 0.8rem; font-weight: 700; border: 1px solid rgba(255,255,255,0.3);">🇮🇹 IT</span>
+                <a href="Orders.html" style="color: rgba(255,255,255,0.8); text-decoration: none; padding: 0.2rem 0.55rem; border-radius: 6px; font-size: 0.8rem; background: rgba(0,0,0,0.2); transition: all 0.2s;">🇬🇧 EN</a>
             </div>
         </div>
-        <div style="display:flex; align-items:center; gap:12px;">
-            <div id="badgeOperatore" onclick="modificaNomeOperatore()" title="Clicca per cambiare nome operatore" style="cursor:pointer; background:rgba(255,255,255,0.2); padding:3px 10px; border-radius:15px; font-size:0.82rem; font-weight:bold; display:flex; align-items:center; gap:5px; border:1px solid rgba(255,255,255,0.3);">
+        <div style="display:flex; align-items:center; gap:10px;">
+            <button id="btnToggleDensita" onclick="toggleDensitaTabella()" title="Alterna visualizzazione compatta / standard" style="background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.25); color:white; padding:4px 10px; border-radius:16px; font-size:0.78rem; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:5px; transition:all 0.2s;">
+                <span id="labelIconaDensita">📏</span> <span id="labelTestoDensita">Compatta</span>
+            </button>
+            <div id="badgeOperatore" onclick="modificaNomeOperatore()" title="Clicca per cambiare nome operatore" style="cursor:pointer; background:rgba(255,255,255,0.15); padding:4px 11px; border-radius:16px; font-size:0.82rem; font-weight:600; display:flex; align-items:center; gap:6px; border:1px solid rgba(255,255,255,0.25); transition:background 0.2s;">
                 👤 <span id="labelNomeOperatore">Operatore</span> ✏️
             </div>
-            <div id="badgeStatoLock" style="display:none; font-size:0.8rem; padding:3px 8px; border-radius:12px; background:rgba(0,0,0,0.25); color:#fff; align-items:center; gap:4px;">
+            <div id="badgeStatoLock" style="display:none; font-size:0.78rem; padding:4px 10px; border-radius:14px; background:rgba(0,0,0,0.3); color:#fff; align-items:center; gap:5px; font-weight:600;">
                 🔒 <span id="labelStatoLock">Condiviso</span>
             </div>
-            <div id="clock"></div>
+            <div id="clock" style="font-size:0.82rem; font-weight:600; opacity:0.9; font-variant-numeric: tabular-nums;"></div>
         </div>
     </header>
 
@@ -317,6 +506,7 @@
                 <button id="btn-tab-dashboard" class="tab-btn active" onclick="openTab('dashboard')">📊 Dashboard</button>
                 <button id="btn-tab-report" class="tab-btn" onclick="openTab('report')">📋 Quadro Sinottico Completo</button>
                 <button id="btn-tab-scadenziario" class="tab-btn" onclick="openTab('scadenziario')">📅 Scadenziario Attività</button>
+                <button id="btn-tab-gantt" class="tab-btn" onclick="openTab('gantt')">📈 Gantt (stile MS Project)</button>
                 <button id="btn-tab-archivio" class="tab-btn" onclick="openTab('archivio')">📦 Archivio Commesse</button>
                 <button id="btn-tab-dettaglio" class="tab-btn" style="display:none;" onclick="openTab('dettaglio')">🔍 Dettaglio Commessa Selezionata</button>
                 <button id="btn-tab-maschera" class="tab-btn" onclick="openTab('maschera')">➕ Nuova Commessa (Manuale / XML)</button>
@@ -352,43 +542,43 @@
             <!-- SCHEDE KPI RIASSUNTIVE -->
             <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
                 <!-- KPI Totali -->
-                <div style="background:#fff; border-radius:10px; padding:16px 20px; box-shadow:0 2px 6px rgba(0,0,0,0.06); border-left:5px solid #3b82f6;">
+                <div class="card" style="margin:0; padding:18px 20px; border-top:4px solid #2563eb; position:relative; overflow:hidden;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-size:0.85rem; font-weight:600; color:#6b7280; text-transform:uppercase;">Commesse Attive</span>
-                        <span style="font-size:1.4rem;">📦</span>
+                        <span style="font-size:0.82rem; font-weight:700; color:var(--slate-500); text-transform:uppercase; letter-spacing:0.04em;">Commesse Attive</span>
+                        <span style="font-size:1.4rem; background:#eff6ff; padding:6px; border-radius:8px;">📦</span>
                     </div>
-                    <div id="kpiTotaliAttive" style="font-size:2rem; font-weight:bold; color:#1e3a8a; margin-top:4px;">0</div>
-                    <div style="font-size:0.75rem; color:#9ca3af; margin-top:2px;">In gestione in officina</div>
+                    <div id="kpiTotaliAttive" style="font-size:2.2rem; font-weight:800; color:var(--primary); margin-top:6px; line-height:1; font-variant-numeric:tabular-nums;">0</div>
+                    <div style="font-size:0.75rem; color:var(--slate-500); margin-top:6px; display:flex; align-items:center; gap:4px;">In gestione in officina</div>
                 </div>
 
                 <!-- KPI In Linea -->
-                <div style="background:#fff; border-radius:10px; padding:16px 20px; box-shadow:0 2px 6px rgba(0,0,0,0.06); border-left:5px solid #10b981;">
+                <div class="card" style="margin:0; padding:18px 20px; border-top:4px solid var(--success); position:relative; overflow:hidden;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-size:0.85rem; font-weight:600; color:#065f46; text-transform:uppercase;">In Linea</span>
-                        <span style="font-size:1.4rem;">🟢</span>
+                        <span style="font-size:0.82rem; font-weight:700; color:#047857; text-transform:uppercase; letter-spacing:0.04em;">In Linea</span>
+                        <span style="font-size:1.4rem; background:#ecfdf5; padding:6px; border-radius:8px;">🟢</span>
                     </div>
-                    <div id="kpiInLinea" style="font-size:2rem; font-weight:bold; color:#10b981; margin-top:4px;">0</div>
-                    <div style="font-size:0.75rem; color:#059669; margin-top:2px;">WP rispetta la consegna d'ordine</div>
+                    <div id="kpiInLinea" style="font-size:2.2rem; font-weight:800; color:var(--success); margin-top:6px; line-height:1; font-variant-numeric:tabular-nums;">0</div>
+                    <div style="font-size:0.75rem; color:#059669; margin-top:6px;">WP rispetta la consegna d'ordine</div>
                 </div>
 
                 <!-- KPI In Ritardo Consegna -->
-                <div style="background:#fff; border-radius:10px; padding:16px 20px; box-shadow:0 2px 6px rgba(0,0,0,0.06); border-left:5px solid #ef4444;">
+                <div class="card" style="margin:0; padding:18px 20px; border-top:4px solid var(--danger); position:relative; overflow:hidden;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-size:0.85rem; font-weight:600; color:#991b1b; text-transform:uppercase;">Ritardo Consegna</span>
-                        <span style="font-size:1.4rem;">🔴</span>
+                        <span style="font-size:0.82rem; font-weight:700; color:#b91c1c; text-transform:uppercase; letter-spacing:0.04em;">Ritardo Consegna</span>
+                        <span style="font-size:1.4rem; background:#fef2f2; padding:6px; border-radius:8px;">🔴</span>
                     </div>
-                    <div id="kpiInRitardo" style="font-size:2rem; font-weight:bold; color:#ef4444; margin-top:4px;">0</div>
-                    <div style="font-size:0.75rem; color:#b91c1c; margin-top:2px;">Data WP oltre la consegna contrattuale</div>
+                    <div id="kpiInRitardo" style="font-size:2.2rem; font-weight:800; color:var(--danger); margin-top:6px; line-height:1; font-variant-numeric:tabular-nums;">0</div>
+                    <div style="font-size:0.75rem; color:#b91c1c; margin-top:6px;">Data WP oltre consegna d'ordine</div>
                 </div>
 
                 <!-- KPI Con Criticità Fasi/Materiali -->
-                <div style="background:#fff; border-radius:10px; padding:16px 20px; box-shadow:0 2px 6px rgba(0,0,0,0.06); border-left:5px solid #f59e0b;">
+                <div class="card" style="margin:0; padding:18px 20px; border-top:4px solid var(--warning); position:relative; overflow:hidden;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-size:0.85rem; font-weight:600; color:#92400e; text-transform:uppercase;">Criticità Fasi / Materiali</span>
-                        <span style="font-size:1.4rem;">🟡</span>
+                        <span style="font-size:0.82rem; font-weight:700; color:#b45309; text-transform:uppercase; letter-spacing:0.04em;">Attenzione Fasi / Mat.</span>
+                        <span style="font-size:1.4rem; background:#fffbeb; padding:6px; border-radius:8px;">🟡</span>
                     </div>
-                    <div id="kpiCriticita" style="font-size:2rem; font-weight:bold; color:#f59e0b; margin-top:4px;">0</div>
-                    <div style="font-size:0.75rem; color:#d97706; margin-top:2px;">Ritardo su MR, Ordini o Attività</div>
+                    <div id="kpiCriticita" style="font-size:2.2rem; font-weight:800; color:var(--warning); margin-top:6px; line-height:1; font-variant-numeric:tabular-nums;">0</div>
+                    <div style="font-size:0.75rem; color:#b45309; margin-top:6px;">Ritardo su MR, Ordini o Attività</div>
                 </div>
             </div>
 
@@ -406,10 +596,10 @@
                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
                     <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                         <span style="font-weight:600; font-size:0.9rem; color:#374151;">Filtro rapido stato:</span>
-                        <button id="btnFiltroDashTutte" class="btn btn-primary" onclick="impostaFiltroDashboard('tutte')" style="font-size:0.8rem; padding:0.35rem 0.8rem; border-radius:20px;">Tutte (<span id="countDashTutte">0</span>)</button>
-                        <button id="btnFiltroDashRitardo" class="btn btn-secondary" onclick="impostaFiltroDashboard('ritardo')" style="font-size:0.8rem; padding:0.35rem 0.8rem; border-radius:20px; color:#b91c1c;">🔴 In Ritardo (<span id="countDashRitardo">0</span>)</button>
-                        <button id="btnFiltroDashCriticita" class="btn btn-secondary" onclick="impostaFiltroDashboard('criticita')" style="font-size:0.8rem; padding:0.35rem 0.8rem; border-radius:20px; color:#b45309;">🟡 Attenzione (<span id="countDashCriticita">0</span>)</button>
-                        <button id="btnFiltroDashInLinea" class="btn btn-secondary" onclick="impostaFiltroDashboard('inlinea')" style="font-size:0.8rem; padding:0.35rem 0.8rem; border-radius:20px; color:#047857;">🟢 In Linea (<span id="countDashInLinea">0</span>)</button>
+                        <button id="btnFiltroDashTutte" class="btn btn-primary btn-pill" onclick="impostaFiltroDashboard('tutte')">Tutte (<span id="countDashTutte">0</span>)</button>
+                        <button id="btnFiltroDashRitardo" class="btn btn-secondary btn-pill" onclick="impostaFiltroDashboard('ritardo')" style="color:#fecaca;">🔴 In Ritardo (<span id="countDashRitardo">0</span>)</button>
+                        <button id="btnFiltroDashCriticita" class="btn btn-secondary btn-pill" onclick="impostaFiltroDashboard('criticita')" style="color:#fde68a;">🟡 Attenzione (<span id="countDashCriticita">0</span>)</button>
+                        <button id="btnFiltroDashInLinea" class="btn btn-secondary btn-pill" onclick="impostaFiltroDashboard('inlinea')" style="color:#a7f3d0;">🟢 In Linea (<span id="countDashInLinea">0</span>)</button>
                     </div>
                     <div style="display:flex; align-items:center; gap:6px;">
                         <label for="searchDashboard" style="font-size:0.85rem; font-weight:600; color:#6b7280;">Cerca:</label>
@@ -549,6 +739,67 @@
                         </thead>
                         <tbody id="tbodyScadenziario"></tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- TAB GANTT PRO -->
+        <div id="gantt" class="tab-content no-print">
+            <div class="card" style="margin-bottom:1rem;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap; margin-bottom:12px;">
+                    <div>
+                        <h3 style="margin:0 0 3px 0; color:#1e3a8a; font-size:1.25rem;">Diagramma di Gantt — Pianificazione Commessa</h3>
+                        <div style="color:#64748b; font-size:0.82rem;">Scheda dedicata con scala temporale, dipendenze, percorso critico, milestone, modifica drag &amp; drop ed esportazione</div>
+                    </div>
+                </div>
+
+                <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:10px 12px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:9px;">
+                    <div style="display:flex; align-items:center; gap:5px;">
+                        <label style="font-size:11px; font-weight:700; color:#475569;">Commessa:</label>
+                        <select id="ganttCommessaSelect" onchange="ganttCambiaCommessa()" style="padding:5px 10px; font-size:11px; border:1px solid #cbd5e1; border-radius:6px; background:#fff; color:#334155; min-width:110px; max-width:300px;"></select>
+                    </div>
+
+                    <div style="width:1px; height:22px; background:#cbd5e1;"></div>
+
+                    <div style="display:flex; align-items:center; gap:4px;">
+                        <label style="font-size:11px; font-weight:700; color:#475569;">Scala:</label>
+                        <button id="ganttBtn-giorni" onclick="ganttImpostaScala('giorni')" style="padding:5px 12px; font-size:11px; font-weight:600; border:1px solid #cbd5e1; border-radius:6px; background:#fff; color:#334155; cursor:pointer; white-space:nowrap;">Giorni</button>
+                        <button id="ganttBtn-settimane" onclick="ganttImpostaScala('settimane')" style="padding:5px 12px; font-size:11px; font-weight:600; border:1px solid #cbd5e1; border-radius:6px; background:#fff; color:#334155; cursor:pointer; white-space:nowrap;">Settimane</button>
+                        <button id="ganttBtn-mesi" onclick="ganttImpostaScala('mesi')" style="padding:5px 12px; font-size:11px; font-weight:600; border:1px solid #cbd5e1; border-radius:6px; background:#fff; color:#334155; cursor:pointer; white-space:nowrap;">Mesi</button>
+                    </div>
+
+                    <div style="display:flex; align-items:center; gap:3px;">
+                        <button onclick="ganttZoom(0.75)" title="Zoom out" style="padding:5px 12px; font-size:11px; font-weight:600; border:1px solid #cbd5e1; border-radius:6px; background:#fff; color:#334155; cursor:pointer; white-space:nowrap; padding:5px 9px;">−</button>
+                        <button onclick="ganttZoom(1.33)" title="Zoom in" style="padding:5px 12px; font-size:11px; font-weight:600; border:1px solid #cbd5e1; border-radius:6px; background:#fff; color:#334155; cursor:pointer; white-space:nowrap; padding:5px 9px;">+</button>
+                    </div>
+
+                    <div style="width:1px; height:22px; background:#cbd5e1;"></div>
+
+                    <button id="ganttBtnDip" onclick="ganttToggleDipendenze()" style="padding:5px 12px; font-size:11px; font-weight:600; border:1px solid #cbd5e1; border-radius:6px; background:#fff; color:#334155; cursor:pointer; white-space:nowrap;">🔗 Dipendenze</button>
+                    <button id="ganttBtnCritico" onclick="ganttToggleCritico()" style="padding:5px 12px; font-size:11px; font-weight:600; border:1px solid #cbd5e1; border-radius:6px; background:#fff; color:#334155; cursor:pointer; white-space:nowrap;">🔴 Percorso critico</button>
+                    <button id="ganttBtnLav" onclick="ganttToggleLavorativi()" style="padding:5px 12px; font-size:11px; font-weight:600; border:1px solid #cbd5e1; border-radius:6px; background:#fff; color:#334155; cursor:pointer; white-space:nowrap;" title="Esclude sabato e domenica dal calcolo delle durate">🏖️ Solo giorni lavorativi</button>
+
+                    <div style="display:flex; align-items:center; gap:4px;">
+                        <label style="font-size:11px; font-weight:700; color:#475569;">Mostra:</label>
+                        <select id="ganttFiltro" onchange="ganttCambiaFiltro(this.value)" style="padding:5px 10px; font-size:11px; border:1px solid #cbd5e1; border-radius:6px; background:#fff; color:#334155; min-width:110px;">
+                            <option value="tutte">Tutte</option>
+                            <option value="critiche">Solo critiche</option>
+                            <option value="ritardo">In ritardo</option>
+                            <option value="prossime">In scadenza (15 gg)</option>
+                        </select>
+                    </div>
+
+                    <div style="margin-left:auto; display:flex; gap:6px;">
+                        <button onclick="ganttEsportaPNG()" style="padding:5px 12px; font-size:11px; font-weight:600; border:1px solid #cbd5e1; border-radius:6px; background:#fff; color:#334155; cursor:pointer; white-space:nowrap;">🖼️ Esporta PNG</button>
+                        <button onclick="ganttStampa()" style="padding:5px 12px; font-size:11px; font-weight:600; border:1px solid #cbd5e1; border-radius:6px; background:#fff; color:#334155; cursor:pointer; white-space:nowrap;">🖨️ Stampa A4</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="padding:14px;">
+                <div id="ganttArea">
+                    <div style="padding:2rem; text-align:center; color:#94a3b8;">…</div>
                 </div>
             </div>
         </div>
@@ -826,7 +1077,7 @@
         // === DATABASE PRECARICATO ===
         // Dati dimostrativi inclusi nel file: l'app si apre gia' popolata.
         // Sostituito automaticamente quando colleghi il tuo archivio JSON.
-        const DATABASE_PRECARICATO = {"commesse":{"70777":[{"name":"PO ISSUANCE","start":"2026-01-10","finish":"2026-04-30","pct":75,"level":1,"isSummary":true},{"name":"PO 001 - Riduttori","start":"2026-01-10","finish":"2026-03-15","pct":100,"level":2,"isSummary":false},{"name":"PO 002 - Motori elettrici","start":"2026-02-01","finish":"2026-04-20","pct":40,"level":2,"isSummary":false},{"name":"PO 003 - Quadri elettrici","start":"2026-02-15","finish":"2026-12-10","pct":10,"level":2,"isSummary":false},{"name":"MATERIAL DELIVERABLES","start":"2026-05-01","finish":"2026-10-31","pct":55,"level":1,"isSummary":true},{"name":"MD - Lamiera carpenteria","start":"2026-05-01","finish":"2026-09-30","pct":60,"level":2,"isSummary":false},{"name":"MD - Valvole e raccorderia","start":"2026-06-01","finish":"2026-10-15","pct":35,"level":2,"isSummary":false},{"name":"MD - Strumentazione","start":"2026-07-01","finish":"2026-12-15","pct":0,"level":2,"isSummary":false},{"name":"MANUFACTURING","start":"2026-10-01","finish":"2026-12-20","pct":20,"level":1,"isSummary":true},{"name":"Fabrication - Skid principale","start":"2026-10-01","finish":"2026-12-10","pct":25,"level":2,"isSummary":false},{"name":"Assembly - Cablaggio","start":"2026-11-15","finish":"2026-12-20","pct":0,"level":2,"isSummary":false},{"name":"DELIVERY","start":"2027-01-15","finish":"2027-01-20","pct":0,"level":1,"isSummary":false}],"70812":[{"name":"PO ISSUANCE","start":"2026-06-01","finish":"2026-08-31","pct":100,"level":1,"isSummary":true},{"name":"PO 010 - Pompa centrifuga","start":"2026-06-01","finish":"2026-07-20","pct":100,"level":2,"isSummary":false},{"name":"PO 011 - Scambiatore","start":"2026-06-15","finish":"2026-08-30","pct":100,"level":2,"isSummary":false},{"name":"MATERIAL DELIVERABLES","start":"2026-09-01","finish":"2026-12-31","pct":70,"level":1,"isSummary":true},{"name":"MD - Tubazioni","start":"2026-09-01","finish":"2026-10-31","pct":100,"level":2,"isSummary":false},{"name":"MD - Flange","start":"2026-09-15","finish":"2027-01-15","pct":40,"level":2,"isSummary":false},{"name":"MANUFACTURING","start":"2027-01-10","finish":"2027-02-28","pct":0,"level":1,"isSummary":true},{"name":"Fabrication - Skid pompa","start":"2027-01-10","finish":"2027-02-20","pct":0,"level":2,"isSummary":false},{"name":"DELIVERY","start":"2027-03-05","finish":"2027-03-10","pct":0,"level":1,"isSummary":false}]},"metadata":{"70777":{"descrizione":"Cliente A - Skid di compressione gas","dataAperturaVelina":"10/01/2026","dataConsegnaOrdine":"15/12/2026","mrRitardo":"1","ritardoOrdini":"1","ritardoArrivoMat":"2","inizioPrevFab":"01/10/2026","inizioReale":"12/10/2026","giorniRitardo":"11","ritardoComplFasi":"36","manufRitardoInizio":"0","manufRitardoFine":"0","fabbricante":"Officina 1","dataComplPrev":"20/01/2027","archiviata":false,"documentiPdf":[],"ultimoWpCaricato":"WP_2026_11.mpp.xml","dataUltimoWpCaricato":"10/11/2026","avanzamenti":[{"data":"05/11/2026","testo":"Carpenteria consegnata con 3 settimane di ritardo. Recupero previsto in fase di assemblaggio."},{"data":"12/11/2026","testo":"Motori elettrici: confermata spedizione dal fornitore per il 20/11."}]},"70812":{"descrizione":"Cliente B - Skid pompa centrifuga","dataAperturaVelina":"01/06/2026","dataConsegnaOrdine":"30/03/2027","mrRitardo":"0","ritardoOrdini":"0","ritardoArrivoMat":"0","inizioPrevFab":"10/01/2027","inizioReale":"-","giorniRitardo":"0","ritardoComplFasi":"0","manufRitardoInizio":"0","manufRitardoFine":"0","fabbricante":"Officina 2","dataComplPrev":"10/03/2027","archiviata":false,"documentiPdf":[],"ultimoWpCaricato":"WP_2026_11.mpp.xml","dataUltimoWpCaricato":"10/11/2026","avanzamenti":[{"data":"10/11/2026","testo":"Commessa in linea con la velina. Materiali principali ordinati."}]}},"diario":[{"commessa":"70777","tipo":"Allerta","nota":"Fornitore motori elettrici ha comunicato slittamento di 2 settimane. Impatto sul montaggio finale da valutare.","data":"12/11/2026"},{"commessa":"70777","tipo":"Nota","nota":"Visita cliente in officina effettuata, nessuna osservazione critica.","data":"14/11/2026"},{"commessa":"70812","tipo":"Nota","nota":"Ordine flange piazzato.","data":"10/11/2026"}],"scadenziario":[{"idScad":1763312400000,"nome":"Sollecito fornitore motori elettrici","commessa":"70777","dataFine":"20/11/2026","stato":"In corso"},{"idScad":1764176400000,"nome":"Invio disegno costruttivo al cliente","commessa":"70777","dataFine":"05/11/2026","stato":"Da fare"},{"idScad":1765904400000,"nome":"Controllo qualità saldature","commessa":"70777","dataFine":"10/12/2026","stato":"Da fare"},{"idScad":1768496400000,"nome":"Conferma data collaudo","commessa":"70812","dataFine":"15/01/2027","stato":"Da fare"}]};
+        const DATABASE_PRECARICATO = {"commesse":{"70777":[{"name":"PO ISSUANCE","start":"2026-01-10","finish":"2026-04-30","pct":75,"level":1,"isSummary":true},{"name":"PO 001 - Riduttori","start":"2026-01-10","finish":"2026-03-15","pct":100,"level":2,"isSummary":false},{"name":"PO 002 - Motori elettrici","start":"2026-02-01","finish":"2026-04-20","pct":40,"level":2,"isSummary":false,"dependencies":"PO 001 - Riduttori"},{"name":"PO 003 - Quadri elettrici","start":"2026-02-15","finish":"2026-12-10","pct":10,"level":2,"isSummary":false,"dependencies":"PO 002 - Motori elettrici"},{"name":"MATERIAL DELIVERABLES","start":"2026-05-01","finish":"2026-10-31","pct":55,"level":1,"isSummary":true},{"name":"MD - Lamiera carpenteria","start":"2026-05-01","finish":"2026-09-30","pct":60,"level":2,"isSummary":false},{"name":"MD - Valvole e raccorderia","start":"2026-06-01","finish":"2026-10-15","pct":35,"level":2,"isSummary":false,"dependencies":"MD - Lamiera carpenteria"},{"name":"MD - Strumentazione","start":"2026-07-01","finish":"2026-12-15","pct":0,"level":2,"isSummary":false,"dependencies":"MD - Valvole e raccorderia"},{"name":"MANUFACTURING","start":"2026-10-01","finish":"2026-12-20","pct":20,"level":1,"isSummary":true},{"name":"Fabrication - Skid principale","start":"2026-10-01","finish":"2026-12-10","pct":25,"level":2,"isSummary":false},{"name":"Assembly - Cablaggio","start":"2026-11-15","finish":"2026-12-20","pct":0,"level":2,"isSummary":false,"dependencies":"Fabrication - Skid principale"},{"name":"DELIVERY","start":"2027-01-15","finish":"2027-01-20","pct":0,"level":1,"isSummary":false,"dependencies":"Assembly - Cablaggio"}],"70812":[{"name":"PO ISSUANCE","start":"2026-06-01","finish":"2026-08-31","pct":100,"level":1,"isSummary":true},{"name":"PO 010 - Pompa centrifuga","start":"2026-06-01","finish":"2026-07-20","pct":100,"level":2,"isSummary":false},{"name":"PO 011 - Scambiatore","start":"2026-06-15","finish":"2026-08-30","pct":100,"level":2,"isSummary":false,"dependencies":"PO 010 - Pompa centrifuga"},{"name":"MATERIAL DELIVERABLES","start":"2026-09-01","finish":"2026-12-31","pct":70,"level":1,"isSummary":true},{"name":"MD - Tubazioni","start":"2026-09-01","finish":"2026-10-31","pct":100,"level":2,"isSummary":false},{"name":"MD - Flange","start":"2026-09-15","finish":"2027-01-15","pct":40,"level":2,"isSummary":false,"dependencies":"MD - Tubazioni"},{"name":"MANUFACTURING","start":"2027-01-10","finish":"2027-02-28","pct":0,"level":1,"isSummary":true},{"name":"Fabrication - Skid pompa","start":"2027-01-10","finish":"2027-02-20","pct":0,"level":2,"isSummary":false},{"name":"DELIVERY","start":"2027-03-05","finish":"2027-03-10","pct":0,"level":1,"isSummary":false,"dependencies":"Fabrication - Skid pompa"}]},"metadata":{"70777":{"descrizione":"Cliente A - Skid di compressione gas","dataAperturaVelina":"10/01/2026","dataConsegnaOrdine":"15/12/2026","mrRitardo":"1","ritardoOrdini":"1","ritardoArrivoMat":"2","inizioPrevFab":"01/10/2026","inizioReale":"12/10/2026","giorniRitardo":"11","ritardoComplFasi":"36","manufRitardoInizio":"0","manufRitardoFine":"0","fabbricante":"Officina 1","dataComplPrev":"20/01/2027","archiviata":false,"documentiPdf":[],"ultimoWpCaricato":"WP_2026_11.mpp.xml","dataUltimoWpCaricato":"10/11/2026","avanzamenti":[{"data":"05/11/2026","testo":"Carpenteria consegnata con 3 settimane di ritardo. Recupero previsto in fase di assemblaggio."},{"data":"12/11/2026","testo":"Motori elettrici: confermata spedizione dal fornitore per il 20/11."}]},"70812":{"descrizione":"Cliente B - Skid pompa centrifuga","dataAperturaVelina":"01/06/2026","dataConsegnaOrdine":"30/03/2027","mrRitardo":"0","ritardoOrdini":"0","ritardoArrivoMat":"0","inizioPrevFab":"10/01/2027","inizioReale":"-","giorniRitardo":"0","ritardoComplFasi":"0","manufRitardoInizio":"0","manufRitardoFine":"0","fabbricante":"Officina 2","dataComplPrev":"10/03/2027","archiviata":false,"documentiPdf":[],"ultimoWpCaricato":"WP_2026_11.mpp.xml","dataUltimoWpCaricato":"10/11/2026","avanzamenti":[{"data":"10/11/2026","testo":"Commessa in linea con la velina. Materiali principali ordinati."}]}},"diario":[{"commessa":"70777","tipo":"Allerta","nota":"Fornitore motori elettrici ha comunicato slittamento di 2 settimane. Impatto sul montaggio finale da valutare.","data":"12/11/2026"},{"commessa":"70777","tipo":"Nota","nota":"Visita cliente in officina effettuata, nessuna osservazione critica.","data":"14/11/2026"},{"commessa":"70812","tipo":"Nota","nota":"Ordine flange piazzato.","data":"10/11/2026"}],"scadenziario":[{"idScad":1763312400000,"nome":"Sollecito fornitore motori elettrici","commessa":"70777","dataFine":"20/11/2026","stato":"In corso"},{"idScad":1764176400000,"nome":"Invio disegno costruttivo al cliente","commessa":"70777","dataFine":"05/11/2026","stato":"Da fare"},{"idScad":1765904400000,"nome":"Controllo qualità saldature","commessa":"70777","dataFine":"10/12/2026","stato":"Da fare"},{"idScad":1768496400000,"nome":"Conferma data collaudo","commessa":"70812","dataFine":"15/01/2027","stato":"Da fare"}]};
         const USA_DATI_PRECARICATI = true;
         // Se la pagina e' servita da un sito (GitHub Pages), i dati arrivano dal file
         // JSON della repository: modifichi il JSON, ricarichi, vedi le modifiche.
@@ -887,10 +1138,13 @@
             const targetBtn = document.getElementById('btn-tab-' + tabId);
             if(targetBtn) targetBtn.classList.add('active');
             
-            if(tabId === 'dashboard') renderingDashboard();
-            if(tabId === 'report') renderingDashboard();
+            if(tabId === 'dashboard') ripristinaPreferenzaDensita();
+        renderingDashboard();
+            if(tabId === 'report') ripristinaPreferenzaDensita();
+        renderingDashboard();
                         renderingSinottico();
             ripristinaCartellaPdfHandle();
+            if(tabId === 'gantt') { ganttPopolaSelect(); ganttAggiornaToolbar(); ganttRendering(); }
             if(tabId === 'archivio') renderingArchivio();
             if(tabId === 'scadenziario') {
                 aggiornaSelectCommesseScadenziario();
@@ -1340,7 +1594,8 @@
                             await acquisisciLockCondiviso();
                         }
 
-                        renderingDashboard();
+                        ripristinaPreferenzaDensita();
+        renderingDashboard();
                         renderingSinottico();
                         renderingArchivio();
                         renderingScadenziario();
@@ -1387,7 +1642,8 @@
                             await acquisisciLockCondiviso();
                         }
 
-                        renderingDashboard();
+                        ripristinaPreferenzaDensita();
+        renderingDashboard();
                         renderingSinottico();
                         renderingArchivio();
                         renderingScadenziario();
@@ -1544,8 +1800,10 @@
             AppData = { commesse: {}, metadata: {}, diario: [], scadenziario: [] };
             databaseModificato = true;
             try { localStorage.removeItem('AppData_Sinottico_V10_Fasi'); } catch(err) {}
-            renderingDashboard();
-                        renderingDashboard();
+            ripristinaPreferenzaDensita();
+        renderingDashboard();
+                        ripristinaPreferenzaDensita();
+        renderingDashboard();
         renderingSinottico();
         ripristinaCartellaPdfHandle();
             renderingArchivio();
@@ -1571,7 +1829,8 @@
                 databaseModificato = false;
                 origineDati = "JSON del sito (" + URL_DATABASE_REMOTO + ")";
                 aggiornaStatoArchivioCondiviso("Dati dal sito • sola lettura • " + new Date().toLocaleTimeString('it-IT'), "#15803d");
-                renderingDashboard();
+                ripristinaPreferenzaDensita();
+        renderingDashboard();
                         renderingSinottico();
         ripristinaCartellaPdfHandle();
                 renderingArchivio();
@@ -1617,7 +1876,8 @@
                         if(!AppData.scadenziario) AppData.scadenziario = [];
                         salvaDatiCondivisi();
                         alert("Database caricato con successo! Tutti i dati sono stati aggiornati.");
-                        renderingDashboard();
+                        ripristinaPreferenzaDensita();
+        renderingDashboard();
                         renderingSinottico();
         ripristinaCartellaPdfHandle();
                         renderingArchivio();
@@ -1769,6 +2029,8 @@
                 let pctNode = task.querySelector("PercentComplete") || task.querySelector("p\:PercentComplete");
                 let outlineLevelNode = task.querySelector("OutlineLevel") || task.querySelector("p\:OutlineLevel");
                 let summaryNode = task.querySelector("Summary") || task.querySelector("p\:Summary");
+                let uidNode = task.querySelector("UID") || task.querySelector("p\:UID");
+                let milestoneNode = task.querySelector("Milestone") || task.querySelector("p\:Milestone");
 
                 if(nameNode && finishNode) {
                     let name = nameNode.textContent.trim();
@@ -1796,10 +2058,41 @@
                     }
 
                     if(name !== "") {
-                        listaAttivita.push({ name, start, finish, pct, level, isSummary });
+                        let uid = uidNode ? uidNode.textContent.trim() : "";
+                        let isMilestone = false;
+                        if(milestoneNode) {
+                            isMilestone = (milestoneNode.textContent.trim() === "1" || milestoneNode.textContent.trim() === "true");
+                        }
+                        let predLinks = [];
+                        const linkNodes = task.querySelectorAll("PredecessorLink, p\:PredecessorLink");
+                        linkNodes.forEach(lk => {
+                            const pu = lk.querySelector("PredecessorUID") || lk.querySelector("p\:PredecessorUID");
+                            const ty = lk.querySelector("Type") || lk.querySelector("p\:Type");
+                            if(pu) {
+                                predLinks.push({ uid: pu.textContent.trim(), type: ty ? ty.textContent.trim() : "1" });
+                            }
+                        });
+                        let att = { name, start, finish, pct, level, isSummary, __uid: uid, __pred: predLinks };
+                        if(isMilestone) att.milestone = true;
+                        listaAttivita.push(att);
                     }
                 }
             });
+
+            // --- Risoluzione dipendenze: UID predecessore -> nome attività ---
+            (function risolviDipendenze() {
+                const mappaUid = {};
+                listaAttivita.forEach(a => { if(a.__uid) mappaUid[a.__uid] = a.name; });
+                listaAttivita.forEach(a => {
+                    const nomi = [];
+                    (a.__pred || []).forEach(lk => {
+                        const nm = mappaUid[lk.uid];
+                        if(nm && nm !== a.name) nomi.push(nm);
+                    });
+                    if(nomi.length) a.dependencies = Array.from(new Set(nomi)).join(";");
+                });
+                listaAttivita.forEach(a => { delete a.__uid; delete a.__pred; });
+            })();
 
             if(dataConsegnaWpDaAttivita) dataFineProgetto = dataConsegnaWpDaAttivita;
 
@@ -2917,13 +3210,14 @@
                 const btn = document.getElementById('btnFiltroDash' + t.charAt(0).toUpperCase() + t.slice(1));
                 if(btn) {
                     if(t === tipo) {
-                        btn.className = 'btn btn-primary';
+                        btn.className = 'btn btn-primary btn-pill';
                     } else {
-                        btn.className = 'btn btn-secondary';
+                        btn.className = 'btn btn-secondary btn-pill';
                     }
                 }
             });
-            renderingDashboard();
+            ripristinaPreferenzaDensita();
+        renderingDashboard();
         }
 
         function calcolaAvanzamentoComplessivoCommessa(attivita) {
@@ -3016,16 +3310,16 @@
                 if(ritardoWp > 0) {
                     statoTipo = 'ritardo';
                     countInRitardo++;
-                    badgeStatoHtml = `<span style="background:#fee2e2; color:#991b1b; padding:4px 8px; border-radius:12px; font-weight:bold; font-size:0.78rem; display:inline-flex; align-items:center; gap:4px;">🔴 +${ritardoWp} gg</span>`;
+                    badgeStatoHtml = `<span class="badge badge-danger">🔴 +${ritardoWp} gg</span>`;
                     puntiCritici.push(`Ritardo WP: +${ritardoWp} gg su consegna ordine`);
                 } else if(mrVisualizzato > 0 || ordiniVisualizzato > 0 || materialiVisualizzato > 0 || attInRitardo > 0 || manufInizio > 0 || manufFine > 0) {
                     statoTipo = 'criticita';
                     countCriticita++;
-                    badgeStatoHtml = `<span style="background:#fef3c7; color:#92400e; padding:4px 8px; border-radius:12px; font-weight:bold; font-size:0.78rem; display:inline-flex; align-items:center; gap:4px;">🟡 Attenzione</span>`;
+                    badgeStatoHtml = `<span class="badge badge-warning">🟡 Attenzione</span>`;
                 } else {
                     statoTipo = 'inlinea';
                     countInLinea++;
-                    badgeStatoHtml = `<span style="background:#d1fae5; color:#065f46; padding:4px 8px; border-radius:12px; font-weight:bold; font-size:0.78rem; display:inline-flex; align-items:center; gap:4px;">🟢 In Linea</span>`;
+                    badgeStatoHtml = `<span class="badge badge-success">🟢 In Linea</span>`;
                 }
 
                 if(mrVisualizzato > 0) puntiCritici.push(`MR in ritardo: ${mrVisualizzato}`);
@@ -3075,8 +3369,8 @@
                         <td><strong>${meta.dataComplPrev || '-'}</strong></td>
                         <td>
                             <div style="display:flex; align-items:center; gap:6px;">
-                                <div style="flex:1; background:#e5e7eb; border-radius:4px; height:8px; overflow:hidden;">
-                                    <div style="background:${pctTotale >= 100 ? '#10b981' : (statoTipo === 'ritardo' ? '#ef4444' : '#3b82f6')}; width:${pctTotale}%; height:100%;"></div>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar-fill" style="background:${pctTotale >= 100 ? 'linear-gradient(90deg, #10b981, #059669)' : (statoTipo === 'ritardo' ? 'linear-gradient(90deg, #f87171, #dc2626)' : 'linear-gradient(90deg, #38bdf8, #2563eb)')}; width:${pctTotale}%;"></div>
                                 </div>
                                 <span style="font-size:0.75rem; font-weight:bold; min-width:32px;">${pctTotale}%</span>
                             </div>
@@ -3612,6 +3906,47 @@
             });
         }
 
+        
+        function toggleDensitaTabella() {
+            const body = document.body;
+            const isCompact = body.classList.toggle('density-compact');
+            try {
+                localStorage.setItem('riepilogoCommesse_densita', isCompact ? 'compact' : 'standard');
+            } catch(e) {}
+            aggiornaStatoBottoneDensita(isCompact);
+        }
+
+        function aggiornaStatoBottoneDensita(isCompact) {
+            const btn = document.getElementById('btnToggleDensita');
+            const lbl = document.getElementById('labelTestoDensita');
+            const ico = document.getElementById('labelIconaDensita');
+            if(!lbl) return;
+            const isEn = false;
+            if(isCompact) {
+                lbl.textContent = isEn ? "Standard" : "Spaziosa";
+                if(ico) ico.textContent = "📐";
+                if(btn) btn.style.background = "rgba(37, 99, 235, 0.45)";
+            } else {
+                lbl.textContent = isEn ? "Compact" : "Compatta";
+                if(ico) ico.textContent = "📏";
+                if(btn) btn.style.background = "rgba(255, 255, 255, 0.12)";
+            }
+        }
+
+        function ripristinaPreferenzaDensita() {
+            try {
+                const salvata = localStorage.getItem('riepilogoCommesse_densita');
+                if(salvata === 'compact') {
+                    document.body.classList.add('density-compact');
+                    aggiornaStatoBottoneDensita(true);
+                } else {
+                    aggiornaStatoBottoneDensita(false);
+                }
+            } catch(e) {
+                aggiornaStatoBottoneDensita(false);
+            }
+        }
+
         window.addEventListener('pagehide', () => {
             if(!MODALITA_VISUALIZZAZIONE && archivioCondivisoHandle && databaseModificato) {
                 scriviDatabaseCondiviso(true);
@@ -3627,6 +3962,7 @@
             const btnDemo = document.getElementById('btnSvuotaDemo');
             if(btnDemo) btnDemo.style.display = 'inline-flex';
         }
+        ripristinaPreferenzaDensita();
         renderingDashboard();
                         renderingSinottico();
         ripristinaCartellaPdfHandle();
@@ -3635,6 +3971,845 @@
         } else {
             inizializzaArchivioCondiviso();
         }
+/* ================================================================
+   GANTT PRO — diagramma di Gantt stile MS Project
+   Funzionalità: scala giorni/settimane/mesi, zoom, linea OGGI,
+   dipendenze, percorso critico, milestone, drag & resize,
+   modifica attività, export PNG, stampa A4, weekend/lavorativi.
+   ================================================================ */
+const GANTT_TXT = {
+    it: {
+        titolo: "Diagramma di Gantt",
+        sottotitolo: "Pianificazione temporale stile MS Project — trascina la barra per spostare le date, trascina i bordi per allungare o accorciare",
+        commessa: "Commessa",
+        scala: "Scala",
+        giorni: "Giorni", settimane: "Settimane", mesi: "Mesi",
+        zoomOut: "Riduci", zoomIn: "Ingrandisci",
+        dipendenze: "Dipendenze", critico: "Percorso critico", lavorativi: "Giorni lavorativi",
+        filtro: "Mostra",
+        tutte: "Tutte", critiche: "Solo critiche", ritardo: "In ritardo", prossime: "In scadenza",
+        esportaPng: "Esporta PNG", stampa: "Stampa A4",
+        nessuna: "Nessuna attività con date valide per questa commessa.",
+        nessunaCommessa: "Nessuna commessa disponibile.",
+        colonne: ["ID", "Attività", "Durata", "%", "Inizio", "Fine"],
+        oggi: "OGGI",
+        settimana: "S",
+        modifica: "Modifica attività",
+        nome: "Nome attività", inizio: "Data inizio", fine: "Data fine", avanzamento: "% Avanzamento",
+        milestone: "Milestone (durata zero)", predecessors: "Predecessori (nomi separati da ;)",
+        salva: "Salva", annulla: "Annulla", elimina: "Elimina attività",
+        nuova: "Nuova attività", solaLettura: "Sola visualizzazione: modifiche disabilitate",
+        gg: "gg",
+        confermaElimina: "Eliminare questa attività?",
+        totale: "Attività", criticheN: "critiche"
+    },
+    en: {
+        titolo: "Gantt Chart",
+        sottotitolo: "MS Project–style timeline — drag the bar to move dates, drag the edges to resize",
+        commessa: "Order",
+        scala: "Scale",
+        giorni: "Days", settimane: "Weeks", mesi: "Months",
+        zoomOut: "Zoom out", zoomIn: "Zoom in",
+        dipendenze: "Dependencies", critico: "Critical path", lavorativi: "Working days only",
+        filtro: "Show",
+        tutte: "All", critiche: "Critical only", ritardo: "Late", prossime: "Due soon",
+        esportaPng: "Export PNG", stampa: "Print A4",
+        nessuna: "No activities with valid dates for this order.",
+        nessunaCommessa: "No order available.",
+        colonne: ["ID", "Activity", "Duration", "%", "Start", "Finish"],
+        oggi: "TODAY",
+        settimana: "W",
+        modifica: "Edit activity",
+        nome: "Activity name", inizio: "Start date", fine: "Finish date", avanzamento: "% Complete",
+        milestone: "Milestone (zero duration)", predecessors: "Predecessors (names separated by ;)",
+        salva: "Save", annulla: "Cancel", elimina: "Delete activity",
+        nuova: "New activity", solaLettura: "Read-only: editing disabled",
+        gg: "d",
+        confermaElimina: "Delete this activity?",
+        totale: "Activities", criticheN: "critical"
+    }
+};
+const GANTT_L = GANTT_TXT['it'];
+
+const GANTT_MESI = ["Gen","Feb","Mar","Apr","Mag","Giu","Lug","Ago","Set","Ott","Nov","Dic"];
+const GANTT_MESI_EN = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+let ganttStato = { id: null, scala: "settimane", zoom: 1, dip: true, critico: true, lavorativi: false, filtro: "tutte" };
+let ganttMouseMove = null;
+let ganttMouseUp = null;
+
+function ganttEscape(s) {
+    return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+function ganttGiornoEpoch(d) { return Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000); }
+function ganttEpochToDate(e) { const d = new Date(e * 86400000); return new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()); }
+function ganttEpochToISO(e) { return ganttISO(ganttEpochToDate(e)); }
+function ganttDowEpoch(e) { return (((e + 4) % 7) + 7) % 7; }
+function ganttISO(d) {
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+}
+function ganttIT(d) {
+    return String(d.getDate()).padStart(2, "0") + "/" + String(d.getMonth() + 1).padStart(2, "0") + "/" + d.getFullYear();
+}
+function ganttParse(v) {
+    if (!v) return null;
+    if (v instanceof Date) return isNaN(v.getTime()) ? null : v;
+    const s = String(v).trim();
+    if (!s || s === "-") return null;
+    let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+    if (m) return new Date(+m[1], +m[2] - 1, +m[3]);
+    m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (m) return new Date(+m[3], +m[2] - 1, +m[1]);
+    const d = new Date(s);
+    return isNaN(d.getTime()) ? null : d;
+}
+function ganttNormalizzaDeps(v) {
+    if (!v) return [];
+    if (Array.isArray(v)) return v.map(x => String(x).trim()).filter(Boolean);
+    return String(v).split(/[;,]/).map(x => x.trim()).filter(Boolean);
+}
+function ganttGiorniLavorativi(startE, endE) {
+    let n = 0;
+    for (let e = startE; e <= endE; e++) { const dow = ganttDowEpoch(e); if (dow !== 0 && dow !== 6) n++; }
+    return Math.max(1, n);
+}
+
+/* ---------- CPM: percorso critico ---------- */
+function ganttCalcolaCritico(att, lavorativi) {
+    const foglie = att.filter(a => !a.isSummary);
+    const crit = new Set();
+    if (!foglie.length) return crit;
+    const byName = {};
+    foglie.forEach(a => { if (!(a.name in byName)) byName[a.name] = a; });
+    const dur = a => lavorativi ? ganttGiorniLavorativi(a.startD, a.finishD) : Math.max(1, a.finishD - a.startD + 1);
+    const succ = {};
+    foglie.forEach(a => { succ[a.name] = succ[a.name] || []; });
+    foglie.forEach(a => {
+        a.deps.forEach(dn => {
+            if (byName[dn] && byName[dn] !== a) {
+                succ[dn] = succ[dn] || [];
+                if (succ[dn].indexOf(a.name) === -1) succ[dn].push(a.name);
+            }
+        });
+    });
+    const projStart = Math.min.apply(null, foglie.map(a => a.startD));
+    const ES = {}, EF = {}, LS = {}, LF = {};
+    foglie.forEach(a => { ES[a.name] = a.startD - projStart; EF[a.name] = ES[a.name] + dur(a); });
+    for (let pass = 0; pass <= foglie.length; pass++) {
+        let changed = false;
+        foglie.forEach(a => {
+            a.deps.forEach(dn => {
+                if (!byName[dn] || byName[dn] === a) return;
+                const cand = EF[dn];
+                if (cand > ES[a.name] + 0.0001) { ES[a.name] = cand; EF[a.name] = cand + dur(a); changed = true; }
+            });
+        });
+        if (!changed) break;
+    }
+    const span = Math.max.apply(null, foglie.map(a => EF[a.name]));
+    foglie.forEach(a => { LF[a.name] = span; LS[a.name] = span - dur(a); });
+    for (let pass = 0; pass <= foglie.length; pass++) {
+        let changed = false;
+        foglie.forEach(a => {
+            (succ[a.name] || []).forEach(sn => {
+                if (LS[sn] === undefined) return;
+                if (LS[sn] < LF[a.name] - 0.0001) { LF[a.name] = LS[sn]; LS[a.name] = LS[sn] - dur(a); changed = true; }
+            });
+        });
+        if (!changed) break;
+    }
+    foglie.forEach(a => { if ((LS[a.name] - ES[a.name]) <= 0.5) crit.add(a.idx); });
+    return crit;
+}
+
+/* ---------- preparazione dati ---------- */
+function ganttPxDay() {
+    const base = ganttStato.scala === "giorni" ? 34 : (ganttStato.scala === "settimane" ? 9 : 3.4);
+    return base * ganttStato.zoom;
+}
+
+function ganttPreparaDati() {
+    const sel = document.getElementById("ganttCommessaSelect");
+    if (sel && sel.value) ganttStato.id = sel.value;
+    const id = ganttStato.id;
+    if (!id || !AppData.commesse || !AppData.commesse[id]) return { vuoto: true };
+    const grezze = AppData.commesse[id] || [];
+    const att = [];
+    grezze.forEach((t, i) => {
+        const s = ganttParse(t.start), f = ganttParse(t.finish);
+        if (!s || !f) return;
+        const sd = ganttGiornoEpoch(s), fd = ganttGiornoEpoch(f);
+        att.push({
+            idx: i,
+            name: t.name || "",
+            startD: sd,
+            finishD: Math.max(sd, fd),
+            pct: Math.max(0, Math.min(100, Number(t.pct || 0))),
+            level: Number(t.level || 1),
+            isSummary: !!t.isSummary,
+            milestone: !!t.milestone || sd === fd,
+            deps: ganttNormalizzaDeps(t.dependencies)
+        });
+    });
+    if (!att.length) return { vuoto: true };
+
+    let minD = Infinity, maxD = -Infinity;
+    att.forEach(a => { if (a.startD < minD) minD = a.startD; if (a.finishD > maxD) maxD = a.finishD; });
+    if (minD === maxD) maxD = minD + 30;
+
+    const oggiE = ganttGiornoEpoch(new Date());
+    if (oggiE < minD) minD = oggiE;
+    if (oggiE > maxD) maxD = oggiE;
+
+    const crit = ganttCalcolaCritico(att, ganttStato.lavorativi);
+
+    // filtro
+    const oggiLimit = oggiE + 15;
+    let visibili = att;
+    if (ganttStato.filtro === "critiche") visibili = att.filter(a => crit.has(a.idx));
+    else if (ganttStato.filtro === "ritardo") visibili = att.filter(a => a.finishD < oggiE && a.pct < 100);
+    else if (ganttStato.filtro === "prossime") visibili = att.filter(a => a.finishD >= oggiE && a.finishD <= oggiLimit);
+
+    const pxDay = ganttPxDay();
+    const totalDays = maxD - minD + 1;
+    const rowH = 30;
+    const totalW = Math.max(360, Math.round(totalDays * pxDay));
+
+    return {
+        vuoto: false, id: id, att: att, visibili: visibili, crit: crit,
+        minD: minD, maxD: maxD, pxDay: pxDay, rowH: rowH,
+        totalDays: totalDays, totalW: totalW, oggiE: oggiE
+    };
+}
+
+/* ---------- select commesse ---------- */
+function ganttPopolaSelect() {
+    const sel = document.getElementById("ganttCommessaSelect");
+    if (!sel) return;
+    const attuale = ganttStato.id || sel.value;
+    const ids = Object.keys(AppData.commesse || {}).sort();
+    let html = "";
+    ids.forEach(id => {
+        const m = (AppData.metadata && AppData.metadata[id]) || {};
+        const etichetta = id + (m.cliente ? " — " + m.cliente : "") + (m.descrizione ? " — " + m.descrizione : "");
+        html += `<option value="${ganttEscape(id)}">${ganttEscape(etichetta)}</option>`;
+    });
+    sel.innerHTML = ids.length ? html : `<option value="">${ganttEscape(GANTT_L.nessunaCommessa)}</option>`;
+    if (attuale && ids.indexOf(attuale) !== -1) sel.value = attuale;
+    else if (ids.length) sel.value = ids[0];
+    ganttStato.id = sel.value || null;
+}
+
+/* ---------- barra strumenti ---------- */
+function ganttAggiornaToolbar() {
+    ["giorni", "settimane", "mesi"].forEach(s => {
+        const b = document.getElementById("ganttBtn-" + s);
+        if (!b) return;
+        const on = ganttStato.scala === s;
+        b.style.background = on ? "#4f46e5" : "#ffffff";
+        b.style.color = on ? "#ffffff" : "#334155";
+        b.style.borderColor = on ? "#4f46e5" : "#cbd5e1";
+    });
+    const d = document.getElementById("ganttBtnDip");
+    if (d) { d.style.background = ganttStato.dip ? "#eef2ff" : "#ffffff"; d.style.borderColor = ganttStato.dip ? "#4f46e5" : "#cbd5e1"; d.style.color = ganttStato.dip ? "#3730a3" : "#334155"; }
+    const c = document.getElementById("ganttBtnCritico");
+    if (c) { c.style.background = ganttStato.critico ? "#fef2f2" : "#ffffff"; c.style.borderColor = ganttStato.critico ? "#dc2626" : "#cbd5e1"; c.style.color = ganttStato.critico ? "#991b1b" : "#334155"; }
+    const l = document.getElementById("ganttBtnLav");
+    if (l) { l.style.background = ganttStato.lavorativi ? "#ecfdf5" : "#ffffff"; l.style.borderColor = ganttStato.lavorativi ? "#059669" : "#cbd5e1"; l.style.color = ganttStato.lavorativi ? "#065f46" : "#334155"; }
+    const f = document.getElementById("ganttFiltro");
+    if (f) f.value = ganttStato.filtro;
+}
+
+function ganttCambiaCommessa() {
+    const sel = document.getElementById("ganttCommessaSelect");
+    if (sel && sel.value) ganttStato.id = sel.value;
+    ganttRendering();
+}
+
+function ganttImpostaScala(s) { ganttStato.scala = s; ganttAggiornaToolbar(); ganttRendering(); }
+function ganttZoom(delta) {
+    ganttStato.zoom = Math.max(0.35, Math.min(4, +(ganttStato.zoom * delta).toFixed(2)));
+    ganttAggiornaToolbar(); ganttRendering();
+}
+function ganttToggleDipendenze() { ganttStato.dip = !ganttStato.dip; ganttAggiornaToolbar(); ganttRendering(); }
+function ganttToggleCritico() { ganttStato.critico = !ganttStato.critico; ganttAggiornaToolbar(); ganttRendering(); }
+function ganttToggleLavorativi() { ganttStato.lavorativi = !ganttStato.lavorativi; ganttAggiornaToolbar(); ganttRendering(); }
+function ganttCambiaFiltro(v) { ganttStato.filtro = v || "tutte"; ganttRendering(); }
+
+/* ---------- rendering ---------- */
+function ganttRendering() {
+    const box = document.getElementById("ganttArea");
+    if (!box) return;
+    ganttAggiornaToolbar();
+    const D = ganttPreparaDati();
+    if (D.vuoto) {
+        box.innerHTML = `<div style="padding:2.5rem 1rem; text-align:center; color:#64748b; background:#f8fafc; border:1px dashed #cbd5e1; border-radius:10px;">${ganttEscape(GANTT_L.nessuna)}</div>`;
+        return;
+    }
+
+    const ro = (typeof MODALITA_VISUALIZZAZIONE !== "undefined") && MODALITA_VISUALIZZAZIONE;
+    const pxDay = D.pxDay, rowH = D.rowH, totalW = D.totalW;
+    const headH = 44;
+    const rowIdxMap = {};
+    D.visibili.forEach((a, i) => { rowIdxMap[a.idx] = i; });
+    const bodyH = D.visibili.length * rowH;
+
+    /* --- sfondo timeline: weekend, griglia mesi, linea OGGI --- */
+    let bg = "";
+    if (ganttStato.scala === "giorni" && pxDay >= 6) {
+        for (let e = D.minD; e <= D.maxD; e++) {
+            const dow = ganttDowEpoch(e);
+            if (dow === 0 || dow === 6) {
+                bg += `<div style="position:absolute; top:0; bottom:0; left:${(e - D.minD) * pxDay}px; width:${pxDay}px; background:rgba(148,163,184,0.18);"></div>`;
+            }
+        }
+    } else {
+        for (let e = D.minD; e <= D.maxD; e++) {
+            const dow = ganttDowEpoch(e);
+            if (dow === 0 || dow === 6) {
+                bg += `<div style="position:absolute; top:0; bottom:0; left:${(e - D.minD) * pxDay}px; width:${pxDay * 2}px; background:rgba(148,163,184,0.13);"></div>`;
+            }
+            if (dow === 1) e += 5;
+        }
+    }
+    /* griglia verticale ai cambi mese */
+    let cur = ganttEpochToDate(D.minD);
+    let cursorM = new Date(cur.getFullYear(), cur.getMonth(), 1);
+    while (ganttGiornoEpoch(cursorM) <= D.maxD) {
+        const x = (ganttGiornoEpoch(cursorM) - D.minD) * pxDay;
+        if (x >= 0) bg += `<div style="position:absolute; top:0; bottom:0; left:${x}px; width:1px; background:#cbd5e1;"></div>`;
+        cursorM = new Date(cursorM.getFullYear(), cursorM.getMonth() + 1, 1);
+    }
+    /* linea OGGI */
+    const xOggi = (D.oggiE - D.minD) * pxDay;
+    let oggiHtml = "";
+    if (xOggi >= -2 && xOggi <= totalW + 2) {
+        oggiHtml = `<div style="position:absolute; top:0; bottom:0; left:${xOggi}px; width:2px; background:#dc2626; z-index:3; pointer-events:none;">
+            <div style="position:absolute; top:-20px; left:-16px; background:#dc2626; color:#fff; font-size:9px; font-weight:700; padding:1px 5px; border-radius:8px; white-space:nowrap;">${ganttEscape(GANTT_L.oggi)}</div>
+        </div>`;
+    }
+
+    /* --- intestazione temporale --- */
+    const nomiMesi = (GANTT_L === GANTT_TXT.en) ? GANTT_MESI_EN : GANTT_MESI;
+    let mesiHtml = "";
+    let mStart = new Date(ganttEpochToDate(D.minD).getFullYear(), ganttEpochToDate(D.minD).getMonth(), 1);
+    while (ganttGiornoEpoch(mStart) <= D.maxD) {
+        const mEnd = new Date(mStart.getFullYear(), mStart.getMonth() + 1, 0);
+        const fromE = Math.max(D.minD, ganttGiornoEpoch(mStart));
+        const toE = Math.min(D.maxD, ganttGiornoEpoch(mEnd));
+        const left = (fromE - D.minD) * pxDay;
+        const w = (toE - fromE + 1) * pxDay;
+        const etichetta = nomiMesi[mStart.getMonth()] + " " + String(mStart.getFullYear()).slice(-2);
+        mesiHtml += `<div style="position:absolute; top:0; left:${left}px; width:${w}px; height:22px; border-right:1px solid #94a3b8; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; color:#334155; background:#e2e8f0; overflow:hidden; white-space:nowrap;">${w > 42 ? etichetta : ""}</div>`;
+        mStart = new Date(mStart.getFullYear(), mStart.getMonth() + 1, 1);
+    }
+
+    let subHtml = "";
+    if (ganttStato.scala === "giorni") {
+        for (let e = D.minD; e <= D.maxD; e++) {
+            const dow = ganttDowEpoch(e);
+            const dt = ganttEpochToDate(e);
+            const x = (e - D.minD) * pxDay;
+            const we = (dow === 0 || dow === 6);
+            subHtml += `<div style="position:absolute; top:0; left:${x}px; width:${pxDay}px; height:22px; border-right:1px solid #e2e8f0; display:flex; align-items:center; justify-content:center; font-size:9px; color:${we ? "#94a3b8" : "#475569"}; background:${we ? "#f1f5f9" : "#f8fafc"};">${pxDay >= 14 ? dt.getDate() : ""}</div>`;
+        }
+    } else if (ganttStato.scala === "settimane") {
+        let e = D.minD;
+        let dow = ganttDowEpoch(e);
+        let primoLun = e - ((dow + 6) % 7);
+        for (let w = primoLun; w <= D.maxD; w += 7) {
+            const fromE = Math.max(D.minD, w);
+            const toE = Math.min(D.maxD, w + 6);
+            const x = (fromE - D.minD) * pxDay;
+            const wd = (toE - fromE + 1) * pxDay;
+            const dt = ganttEpochToDate(w);
+            let wk = Math.floor((w + 3 - 0) / 7);
+            subHtml += `<div style="position:absolute; top:0; left:${x}px; width:${wd}px; height:22px; border-right:1px solid #e2e8f0; display:flex; align-items:center; justify-content:center; font-size:9px; color:#475569; background:#f8fafc;">${dt.getDate()}/${dt.getMonth() + 1}</div>`;
+        }
+    } else {
+        subHtml = `<div style="position:absolute; top:0; left:0; right:0; height:22px; background:#f8fafc;"></div>`;
+    }
+
+    /* --- colonna sinistra --- */
+    const cols = "40px 250px 60px 50px 80px 80px";
+    let leftHead = `<div style="display:grid; grid-template-columns:${cols}; height:${headH}px; background:#e2e8f0; align-items:center; font-size:10px; font-weight:700; color:#334155; text-transform:uppercase; letter-spacing:0.02em;">`;
+    GANTT_L.colonne.forEach((c, i) => {
+        leftHead += `<div style="padding:0 6px; text-align:${i === 1 ? "left" : "center"}; border-right:1px solid #cbd5e1; overflow:hidden; white-space:nowrap;">${ganttEscape(c)}</div>`;
+    });
+    leftHead += `</div>`;
+
+    let leftRows = "";
+    D.visibili.forEach(a => {
+        const dur = a.finishD - a.startD + 1;
+        const indent = (Math.max(1, a.level) - 1) * 12;
+        const isCrit = ganttStato.critico && D.crit.has(a.idx);
+        const bg = a.isSummary ? "#f1f5f9" : "#ffffff";
+        const fw = a.isSummary ? "700" : "400";
+        leftRows += `<div style="display:grid; grid-template-columns:${cols}; height:${rowH}px; background:${bg}; align-items:center; font-size:11px; font-weight:${fw}; color:#1e293b; border-bottom:1px solid #e2e8f0;">`;
+        leftRows += `<div style="padding:0 4px; text-align:center; color:#94a3b8; border-right:1px solid #e2e8f0; font-size:10px;">${a.idx + 1}</div>`;
+        leftRows += `<div style="padding:0 6px 0 ${8 + indent}px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; border-right:1px solid #e2e8f0;" title="${ganttEscape(a.name)}">${a.isSummary ? "📁" : (a.milestone ? "◆" : "🔹")} ${ganttEscape(a.name)}</div>`;
+        leftRows += `<div style="padding:0 4px; text-align:center; border-right:1px solid #e2e8f0; font-size:10px; color:#64748b;">${dur} ${ganttEscape(GANTT_L.gg)}</div>`;
+        leftRows += `<div style="padding:0 4px; text-align:center; border-right:1px solid #e2e8f0; font-size:10px; color:#64748b;">${a.pct}%</div>`;
+        leftRows += `<div style="padding:0 4px; text-align:center; border-right:1px solid #e2e8f0; font-size:10px; color:#64748b;">${ganttIT(ganttEpochToDate(a.startD))}</div>`;
+        leftRows += `<div style="padding:0 4px; text-align:center; font-size:10px; color:#64748b;">${ganttIT(ganttEpochToDate(a.finishD))}</div>`;
+        leftRows += `</div>`;
+    });
+
+    /* --- righe timeline --- */
+    let rightRows = "";
+    D.visibili.forEach(a => {
+        const left = (a.startD - D.minD) * pxDay;
+        const wide = Math.max(a.milestone ? 0 : 2, (a.finishD - a.startD + (a.milestone ? 0 : 1)) * pxDay);
+        const isCrit = ganttStato.critico && D.crit.has(a.idx);
+        let barra = "";
+        if (a.isSummary) {
+            barra = `<div class="gantt-bar" data-idx="${a.idx}" style="position:absolute; top:9px; left:${left}px; width:${Math.max(6, wide)}px; height:9px; cursor:${ro ? "default" : "grab"};">
+                <div style="position:absolute; top:0; left:0; right:0; height:4px; background:${isCrit ? "#b91c1c" : "#1e293b"};"></div>
+                <div style="position:absolute; top:0; left:0; width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent; border-top:9px solid ${isCrit ? "#b91c1c" : "#1e293b"};"></div>
+                <div style="position:absolute; top:0; right:0; width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent; border-top:9px solid ${isCrit ? "#b91c1c" : "#1e293b"};"></div>
+            </div>`;
+        } else if (a.milestone) {
+            barra = `<div class="gantt-bar gantt-ms" data-idx="${a.idx}" style="position:absolute; top:7px; left:${left - 8}px; width:16px; height:16px; background:${isCrit ? "#dc2626" : "#7c3aed"}; transform:rotate(45deg); border-radius:2px; cursor:${ro ? "default" : "grab"}; box-shadow:0 1px 2px rgba(0,0,0,.25);" title="${ganttEscape(a.name)}"></div>`;
+        } else {
+            const bgBar = a.pct >= 100 ? "#10b981" : (isCrit ? "#ef4444" : "#3b82f6");
+            const prog = (a.pct > 0 && a.pct < 100)
+                ? `<div style="position:absolute; top:0; left:0; width:${a.pct}%; height:100%; background:${isCrit ? "#991b1b" : "#1d4ed8"};"></div>`
+                : "";
+            barra = `<div class="gantt-bar" data-idx="${a.idx}" style="position:absolute; top:6px; left:${left}px; width:${wide}px; height:18px; background:${bgBar}; border-radius:4px; overflow:hidden; cursor:${ro ? "default" : "grab"}; box-shadow:0 1px 2px rgba(0,0,0,.18);" title="${ganttEscape(a.name)} — ${a.pct}%">
+                ${prog}
+                ${ro ? "" : `<div class="gantt-h gantt-hl" data-idx="${a.idx}" style="position:absolute; top:0; left:0; width:7px; height:100%; cursor:ew-resize; background:rgba(0,0,0,.001);"></div>
+                <div class="gantt-h gantt-hr" data-idx="${a.idx}" style="position:absolute; top:0; right:0; width:7px; height:100%; cursor:ew-resize; background:rgba(0,0,0,.001);"></div>`}
+            </div>`;
+        }
+        rightRows += `<div class="gantt-row" data-row="${rowIdxMap[a.idx]}" style="position:relative; height:${rowH}px; border-bottom:1px solid #eef2f7; ${a.isSummary ? "background:rgba(241,245,249,.75);" : ""}">${barra}</div>`;
+    });
+
+    /* --- dipendenze SVG --- */
+    let svgDip = "";
+    if (ganttStato.dip) {
+        let path = "";
+        D.visibili.forEach(a => {
+            if (!rowIdxMap.hasOwnProperty(a.idx)) return;
+            a.deps.forEach(dn => {
+                const pred = D.att.find(x => x.name === dn && rowIdxMap.hasOwnProperty(x.idx));
+                if (!pred) return;
+                const r1 = rowIdxMap[pred.idx], r2 = rowIdxMap[a.idx];
+                const x1 = (pred.finishD - D.minD + 1) * pxDay;
+                const y1 = r1 * rowH + rowH / 2;
+                const x2 = (a.startD - D.minD) * pxDay;
+                const y2 = r2 * rowH + rowH / 2;
+                const giu = y2 >= y1;
+                const d = Math.max(14, Math.min(28, Math.abs(y2 - y1) / 2 + 8));
+                const isCritP = ganttStato.critico && D.crit.has(pred.idx) && D.crit.has(a.idx);
+                path += `<path d="M ${x1} ${y1} H ${x1 + d} V ${y2 + (giu ? -3 : 3)} H ${x2 - 5}" fill="none" stroke="${isCritP ? "#dc2626" : "#94a3b8"}" stroke-width="1.4" marker-end="url(#ganttArrow${isCritP ? "C" : ""})"/>`;
+            });
+        });
+        svgDip = `<svg style="position:absolute; top:0; left:0; width:${totalW}px; height:${bodyH}px; pointer-events:none; overflow:visible;">
+            <defs>
+                <marker id="ganttArrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#94a3b8"/></marker>
+                <marker id="ganttArrowC" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#dc2626"/></marker>
+            </defs>${path}
+        </svg>`;
+    }
+
+    const nCrit = D.crit.size;
+    let html = "";
+    html += `<div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:10px; font-size:11px; color:#475569;">
+        <span>${D.att.length} ${ganttEscape(GANTT_L.totale)} · <b style="color:#dc2626;">${nCrit} ${ganttEscape(GANTT_L.criticheN)}</b></span>
+        ${ro ? `<span style="background:#fef3c7; color:#92400e; padding:2px 8px; border-radius:10px; font-weight:600;">${ganttEscape(GANTT_L.solaLettura)}</span>` : `<button class="btn" onclick="ganttNuovaAttivita()" style="font-size:11px; padding:3px 10px; background:#4f46e5; color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600;">＋ ${ganttEscape(GANTT_L.nuova)}</button>`}
+    </div>`;
+    html += `<div style="display:flex; border:1px solid #cbd5e1; border-radius:10px; overflow:hidden; background:#fff; box-shadow:0 1px 3px rgba(15,23,42,.06);">
+        <div style="flex:0 0 560px; border-right:2px solid #94a3b8; background:#fff;">
+            ${leftHead}
+            ${leftRows}
+        </div>
+        <div id="ganttTimeline" style="flex:1; overflow-x:auto; position:relative;">
+            <div style="width:${totalW}px; position:relative;">
+                <div style="position:relative; height:${headH}px; border-bottom:1px solid #94a3b8; background:#f8fafc;">
+                    ${mesiHtml}
+                    <div style="position:absolute; top:22px; left:0; right:0; height:22px; border-top:1px solid #cbd5e1;">${subHtml}</div>
+                </div>
+                <div style="position:relative; height:${bodyH}px;">
+                    ${bg}
+                    ${oggiHtml}
+                    <div style="position:relative;">${rightRows}</div>
+                    ${svgDip}
+                </div>
+            </div>
+        </div>
+    </div>`;
+
+    box.innerHTML = html;
+    if (!ro) ganttAttivaInterazioni(D);
+    const tl = document.getElementById("ganttTimeline");
+    if (tl) {
+        const xO = (D.oggiE - D.minD) * D.pxDay;
+        tl.scrollLeft = Math.max(0, xO - 260);
+    }
+}
+
+/* ---------- interazioni: drag & resize ---------- */
+function ganttAttivaInterazioni(D) {
+    const pxDay = D.pxDay;
+    let drag = null;
+
+    function inizia(ev, idx, modo) {
+        if (MODALITA_VISUALIZZAZIONE) return;
+        ev.preventDefault();
+        ev.stopPropagation();
+        const a = D.att.find(x => x.idx === idx);
+        if (!a) return;
+        drag = { idx: idx, modo: modo, x0: ev.clientX, s0: a.startD, f0: a.finishD, mosso: false, el: ev.currentTarget.closest(".gantt-bar") };
+        document.body.style.cursor = modo === "move" ? "grabbing" : "ew-resize";
+    }
+
+    document.querySelectorAll("#ganttArea .gantt-bar").forEach(bar => {
+        const idx = Number(bar.getAttribute("data-idx"));
+        bar.addEventListener("mousedown", ev => {
+            if (ev.target.classList.contains("gantt-h")) return;
+            inizia(ev, idx, "move");
+        });
+        bar.addEventListener("dblclick", ev => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            ganttModificaAttivita(idx);
+        });
+    });
+    document.querySelectorAll("#ganttArea .gantt-hl").forEach(h => {
+        const idx = Number(h.getAttribute("data-idx"));
+        h.addEventListener("mousedown", ev => inizia(ev, idx, "sinistra"));
+    });
+    document.querySelectorAll("#ganttArea .gantt-hr").forEach(h => {
+        const idx = Number(h.getAttribute("data-idx"));
+        h.addEventListener("mousedown", ev => inizia(ev, idx, "destra"));
+    });
+
+    function muovi(ev) {
+        if (!drag) return;
+        const delta = Math.round((ev.clientX - drag.x0) / pxDay);
+        if (delta !== 0) drag.mosso = true;
+        let s = drag.s0, f = drag.f0;
+        if (drag.modo === "move") { s = drag.s0 + delta; f = drag.f0 + delta; }
+        else if (drag.modo === "sinistra") { s = Math.min(drag.f0, drag.s0 + delta); }
+        else { f = Math.max(drag.s0, drag.f0 + delta); }
+        const left = (s - D.minD) * pxDay;
+        const wide = Math.max(6, (f - s + 1) * pxDay);
+        if (drag.el) {
+            drag.el.style.left = left + "px";
+            if (drag.el.classList.contains("gantt-ms")) { drag.el.style.left = (left - 8) + "px"; }
+            else drag.el.style.width = wide + "px";
+        }
+    }
+    function fine(ev) {
+        if (!drag) return;
+        document.body.style.cursor = "";
+        const d = drag; drag = null;
+        if (!d.mosso) return;
+        const delta = Math.round((ev.clientX - d.x0) / pxDay);
+        const att = AppData.commesse[ganttStato.id];
+        if (!att || !att[d.idx]) return;
+        let s = d.s0, f = d.f0;
+        if (d.modo === "move") { s = d.s0 + delta; f = d.f0 + delta; }
+        else if (d.modo === "sinistra") { s = Math.min(d.f0, d.s0 + delta); }
+        else { f = Math.max(d.s0, d.f0 + delta); }
+        att[d.idx].start = ganttEpochToISO(s);
+        att[d.idx].finish = ganttEpochToISO(f);
+        try { salvaDatiCondivisi(); } catch (e) { console.warn(e); }
+        ganttRendering();
+    }
+    if (ganttMouseMove) document.removeEventListener("mousemove", ganttMouseMove);
+    if (ganttMouseUp) document.removeEventListener("mouseup", ganttMouseUp);
+    ganttMouseMove = muovi;
+    ganttMouseUp = fine;
+    document.addEventListener("mousemove", ganttMouseMove);
+    document.addEventListener("mouseup", ganttMouseUp);
+}
+
+/* ---------- modale modifica ---------- */
+function ganttApriModale(titolo, campi) {
+    const vecchio = document.getElementById("ganttModal");
+    if (vecchio) vecchio.remove();
+    const wrap = document.createElement("div");
+    wrap.id = "ganttModal";
+    wrap.style.cssText = "position:fixed; inset:0; background:rgba(15,23,42,.55); backdrop-filter:blur(3px); z-index:9999; display:flex; align-items:center; justify-content:center; padding:16px;";
+    let campiHtml = "";
+    campi.forEach(c => {
+        if (c.type === "checkbox") {
+            campiHtml += `<label style="display:flex; align-items:center; gap:8px; font-size:12px; color:#334155; margin-bottom:10px; cursor:pointer;">
+                <input type="checkbox" id="gm_${c.key}" ${c.value ? "checked" : ""} style="width:16px; height:16px;"> ${ganttEscape(c.label)}</label>`;
+        } else {
+            campiHtml += `<div style="margin-bottom:10px;">
+                <label style="display:block; font-size:11px; font-weight:600; color:#475569; margin-bottom:3px;">${ganttEscape(c.label)}</label>
+                <input type="${c.type || "text"}" id="gm_${c.key}" value="${ganttEscape(c.value == null ? "" : c.value)}" ${c.min !== undefined ? `min="${c.min}"` : ""} ${c.max !== undefined ? `max="${c.max}"` : ""} style="width:100%; padding:7px 9px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px; box-sizing:border-box;">
+            </div>`;
+        }
+    });
+    wrap.innerHTML = `<div style="background:#fff; border-radius:12px; max-width:460px; width:100%; padding:20px; box-shadow:0 20px 50px rgba(15,23,42,.35); max-height:90vh; overflow-y:auto;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+            <h3 style="margin:0; font-size:1.05rem; color:#0f172a;">${ganttEscape(titolo)}</h3>
+            <button onclick="document.getElementById('ganttModal').remove()" style="background:none; border:none; font-size:20px; cursor:pointer; color:#64748b; line-height:1;">×</button>
+        </div>
+        ${campiHtml}
+        <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:16px; flex-wrap:wrap;">
+            <button id="gmElimina" style="background:#fee2e2; color:#991b1b; border:1px solid #fecaca; padding:8px 14px; border-radius:7px; font-size:12px; font-weight:600; cursor:pointer; margin-right:auto;">${ganttEscape(GANTT_L.elimina)}</button>
+            <button onclick="document.getElementById('ganttModal').remove()" style="background:#f1f5f9; color:#334155; border:1px solid #cbd5e1; padding:8px 14px; border-radius:7px; font-size:12px; font-weight:600; cursor:pointer;">${ganttEscape(GANTT_L.annulla)}</button>
+            <button id="gmSalva" style="background:#4f46e5; color:#fff; border:none; padding:8px 16px; border-radius:7px; font-size:12px; font-weight:700; cursor:pointer;">${ganttEscape(GANTT_L.salva)}</button>
+        </div>
+    </div>`;
+    document.body.appendChild(wrap);
+    return wrap;
+}
+
+function ganttModificaAttivita(idx) {
+    if (MODALITA_VISUALIZZAZIONE) { alert(GANTT_L.solaLettura); return; }
+    const att = AppData.commesse[ganttStato.id] || [];
+    const t = att[idx];
+    if (!t) return;
+    const campi = [
+        { key: "nome", label: GANTT_L.nome, value: t.name || "" },
+        { key: "inizio", label: GANTT_L.inizio, type: "date", value: t.start || "" },
+        { key: "fine", label: GANTT_L.fine, type: "date", value: t.finish || "" },
+        { key: "pct", label: GANTT_L.avanzamento, type: "number", min: 0, max: 100, value: Number(t.pct || 0) },
+        { key: "pred", label: GANTT_L.predecessors, value: ganttNormalizzaDeps(t.dependencies).join(";") },
+        { key: "ms", label: GANTT_L.milestone, type: "checkbox", value: !!t.milestone }
+    ];
+    const wrap = ganttApriModale(GANTT_L.modifica, campi);
+    wrap.querySelector("#gmSalva").onclick = () => {
+        const nome = wrap.querySelector("#gm_nome").value.trim();
+        const inizio = wrap.querySelector("#gm_inizio").value;
+        const fine = wrap.querySelector("#gm_fine").value;
+        if (!nome) { alert(GANTT_L.nome); return; }
+        if (!inizio || !fine) { alert(GANTT_L.inizio + " / " + GANTT_L.fine); return; }
+        t.name = nome;
+        t.start = inizio;
+        t.finish = fine;
+        t.pct = Math.max(0, Math.min(100, Number(wrap.querySelector("#gm_pct").value || 0)));
+        const preds = wrap.querySelector("#gm_pred").value.trim();
+        if (preds) t.dependencies = preds; else delete t.dependencies;
+        t.milestone = wrap.querySelector("#gm_ms").checked;
+        if (t.milestone) t.finish = t.start;
+        try { salvaDatiCondivisi(); } catch (e) { console.warn(e); }
+        wrap.remove();
+        ganttRendering();
+    };
+    wrap.querySelector("#gmElimina").onclick = () => {
+        if (!confirm(GANTT_L.confermaElimina)) return;
+        att.splice(idx, 1);
+        try { salvaDatiCondivisi(); } catch (e) { console.warn(e); }
+        wrap.remove();
+        ganttRendering();
+    };
+    const inpInizio = wrap.querySelector("#gm_inizio");
+    if (inpInizio) inpInizio.addEventListener("change", () => {
+        const ms = wrap.querySelector("#gm_ms");
+        if (ms && ms.checked) wrap.querySelector("#gm_fine").value = inpInizio.value;
+    });
+}
+
+function ganttNuovaAttivita() {
+    if (MODALITA_VISUALIZZAZIONE) { alert(GANTT_L.solaLettura); return; }
+    const id = ganttStato.id;
+    if (!id) return;
+    const att = AppData.commesse[id] || (AppData.commesse[id] = []);
+    const oggi = ganttISO(new Date());
+    const campi = [
+        { key: "nome", label: GANTT_L.nome, value: "" },
+        { key: "inizio", label: GANTT_L.inizio, type: "date", value: oggi },
+        { key: "fine", label: GANTT_L.fine, type: "date", value: oggi },
+        { key: "pct", label: GANTT_L.avanzamento, type: "number", min: 0, max: 100, value: 0 },
+        { key: "pred", label: GANTT_L.predecessors, value: "" },
+        { key: "ms", label: GANTT_L.milestone, type: "checkbox", value: false }
+    ];
+    const wrap = ganttApriModale(GANTT_L.nuova, campi);
+    wrap.querySelector("#gmElimina").style.display = "none";
+    wrap.querySelector("#gmSalva").onclick = () => {
+        const nome = wrap.querySelector("#gm_nome").value.trim();
+        const inizio = wrap.querySelector("#gm_inizio").value;
+        const fine = wrap.querySelector("#gm_fine").value;
+        if (!nome || !inizio || !fine) { alert(GANTT_L.nome); return; }
+        const nuova = {
+            name: nome, start: inizio, finish: fine,
+            pct: Math.max(0, Math.min(100, Number(wrap.querySelector("#gm_pct").value || 0))),
+            level: 2, isSummary: false
+        };
+        const preds = wrap.querySelector("#gm_pred").value.trim();
+        if (preds) nuova.dependencies = preds;
+        if (wrap.querySelector("#gm_ms").checked) { nuova.milestone = true; nuova.finish = nuova.start; }
+        att.push(nuova);
+        try { salvaDatiCondivisi(); } catch (e) { console.warn(e); }
+        wrap.remove();
+        ganttRendering();
+    };
+}
+
+/* ---------- export PNG ---------- */
+function ganttDisegnaCanvas(D) {
+    const leftW = 560, headH = 44, rowH = D.rowH;
+    const W = leftW + D.totalW;
+    const H = headH + D.visibili.length * rowH + 44;
+    const scale = 2;
+    const cv = document.createElement("canvas");
+    cv.width = Math.round(W * scale);
+    cv.height = Math.round(H * scale);
+    const ctx = cv.getContext("2d");
+    ctx.scale(scale, scale);
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, W, H);
+    ctx.textBaseline = "middle";
+
+    const pxDay = D.pxDay;
+    const rowIdxMap = {};
+    D.visibili.forEach((a, i) => { rowIdxMap[a.idx] = i; });
+
+    // titolo
+    const meta = (AppData.metadata && AppData.metadata[D.id]) || {};
+    ctx.fillStyle = "#0f172a";
+    ctx.font = "bold 15px Arial";
+    ctx.fillText((GANTT_L.titolo + " — " + D.id + (meta.cliente ? " · " + meta.cliente : "")), 10, 18);
+    ctx.font = "11px Arial";
+    ctx.fillStyle = "#64748b";
+    ctx.fillText(new Date().toLocaleString(), 10, 34);
+
+    const y0 = 44;
+    // sfondo weekend
+    for (let e = D.minD; e <= D.maxD; e++) {
+        const dow = ganttDowEpoch(e);
+        if (dow === 0 || dow === 6) {
+            ctx.fillStyle = "rgba(148,163,184,0.18)";
+            ctx.fillRect(leftW + (e - D.minD) * pxDay, y0, pxDay, D.visibili.length * rowH);
+        }
+    }
+    // header righe
+    ctx.fillStyle = "#e2e8f0";
+    ctx.fillRect(0, y0, W, headH);
+    ctx.fillStyle = "#334155";
+    ctx.font = "bold 10px Arial";
+    const colsX = [0, 40, 290, 350, 400, 480];
+    const labels = GANTT_L.colonne;
+    for (let i = 0; i < labels.length; i++) {
+        ctx.fillText(labels[i].toUpperCase(), colsX[i] + 6, y0 + headH / 2);
+    }
+    // mesi
+    const nomiMesi = (GANTT_L === GANTT_TXT.en) ? GANTT_MESI_EN : GANTT_MESI;
+    let mStart = new Date(ganttEpochToDate(D.minD).getFullYear(), ganttEpochToDate(D.minD).getMonth(), 1);
+    while (ganttGiornoEpoch(mStart) <= D.maxD) {
+        const mEnd = new Date(mStart.getFullYear(), mStart.getMonth() + 1, 0);
+        const fromE = Math.max(D.minD, ganttGiornoEpoch(mStart));
+        const toE = Math.min(D.maxD, ganttGiornoEpoch(mEnd));
+        const x = leftW + (fromE - D.minD) * pxDay;
+        const w = (toE - fromE + 1) * pxDay;
+        ctx.strokeStyle = "#94a3b8";
+        ctx.beginPath(); ctx.moveTo(x, y0); ctx.lineTo(x, y0 + headH); ctx.stroke();
+        if (w > 42) {
+            ctx.fillStyle = "#334155";
+            ctx.font = "bold 10px Arial";
+            const lbl = nomiMesi[mStart.getMonth()] + " " + String(mStart.getFullYear()).slice(-2);
+            ctx.fillText(lbl, x + 5, y0 + 12);
+        }
+        mStart = new Date(mStart.getFullYear(), mStart.getMonth() + 1, 1);
+    }
+    // righe
+    D.visibili.forEach((a, i) => {
+        const ry = y0 + headH + i * rowH;
+        ctx.fillStyle = a.isSummary ? "#f1f5f9" : (i % 2 ? "#fbfdff" : "#ffffff");
+        ctx.fillRect(0, ry, W, rowH);
+        ctx.strokeStyle = "#e2e8f0";
+        ctx.beginPath(); ctx.moveTo(0, ry + rowH); ctx.lineTo(W, ry + rowH); ctx.stroke();
+        // testo
+        ctx.fillStyle = "#1e293b";
+        ctx.font = (a.isSummary ? "bold " : "") + "11px Arial";
+        const indent = (Math.max(1, a.level) - 1) * 12;
+        ctx.fillText(String(a.idx + 1), 6, ry + rowH / 2);
+        let nm = a.name;
+        while (ctx.measureText(nm).width > 235 && nm.length > 4) nm = nm.slice(0, -2);
+        if (nm !== a.name) nm += "…";
+        ctx.fillText(nm, 46 + indent, ry + rowH / 2);
+        ctx.font = "10px Arial";
+        ctx.fillStyle = "#64748b";
+        const dur = a.finishD - a.startD + 1;
+        ctx.fillText(dur + " " + GANTT_L.gg, 296, ry + rowH / 2);
+        ctx.fillText(a.pct + "%", 356, ry + rowH / 2);
+        ctx.fillText(ganttIT(ganttEpochToDate(a.startD)), 404, ry + rowH / 2);
+        ctx.fillText(ganttIT(ganttEpochToDate(a.finishD)), 484, ry + rowH / 2);
+    });
+    // barre
+    D.visibili.forEach((a, i) => {
+        const ry = y0 + headH + i * rowH;
+        const x = leftW + (a.startD - D.minD) * pxDay;
+        const w = Math.max(a.milestone ? 0 : 3, (a.finishD - a.startD + (a.milestone ? 0 : 1)) * pxDay);
+        const isCrit = ganttStato.critico && D.crit.has(a.idx);
+        if (a.isSummary) {
+            ctx.fillStyle = isCrit ? "#b91c1c" : "#1e293b";
+            ctx.fillRect(x, ry + 10, Math.max(6, w), 4);
+        } else if (a.milestone) {
+            ctx.fillStyle = isCrit ? "#dc2626" : "#7c3aed";
+            ctx.save();
+            ctx.translate(x, ry + rowH / 2);
+            ctx.rotate(Math.PI / 4);
+            ctx.fillRect(-7, -7, 14, 14);
+            ctx.restore();
+        } else {
+            ctx.fillStyle = a.pct >= 100 ? "#10b981" : (isCrit ? "#ef4444" : "#3b82f6");
+            ctx.fillRect(x, ry + 7, w, 16);
+            if (a.pct > 0 && a.pct < 100) {
+                ctx.fillStyle = isCrit ? "#991b1b" : "#1d4ed8";
+                ctx.fillRect(x, ry + 7, w * a.pct / 100, 16);
+            }
+        }
+    });
+    // dipendenze
+    if (ganttStato.dip) {
+        ctx.strokeStyle = "#94a3b8";
+        ctx.lineWidth = 1.2;
+        D.visibili.forEach(a => {
+            if (!rowIdxMap.hasOwnProperty(a.idx)) return;
+            a.deps.forEach(dn => {
+                const pred = D.att.find(x => x.name === dn && rowIdxMap.hasOwnProperty(x.idx));
+                if (!pred) return;
+                const x1 = leftW + (pred.finishD - D.minD + 1) * pxDay;
+                const y1 = y0 + headH + rowIdxMap[pred.idx] * rowH + rowH / 2;
+                const x2 = leftW + (a.startD - D.minD) * pxDay;
+                const y2 = y0 + headH + rowIdxMap[a.idx] * rowH + rowH / 2;
+                const d = Math.max(14, Math.min(28, Math.abs(y2 - y1) / 2 + 8));
+                ctx.beginPath();
+                ctx.moveTo(x1, y1); ctx.lineTo(x1 + d, y1); ctx.lineTo(x1 + d, y2); ctx.lineTo(x2, y2);
+                ctx.stroke();
+            });
+        });
+    }
+    // oggi
+    const xo = leftW + (D.oggiE - D.minD) * pxDay;
+    if (xo >= leftW && xo <= W) {
+        ctx.strokeStyle = "#dc2626";
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(xo, y0); ctx.lineTo(xo, y0 + headH + D.visibili.length * rowH); ctx.stroke();
+    }
+    return cv;
+}
+
+function ganttEsportaPNG() {
+    const D = ganttPreparaDati();
+    if (D.vuoto) { alert(GANTT_L.nessuna); return; }
+    const cv = ganttDisegnaCanvas(D);
+    const a = document.createElement("a");
+    a.download = "Gantt_" + D.id + "_" + ganttISO(new Date()) + ".png";
+    a.href = cv.toDataURL("image/png");
+    a.click();
+}
+
+function ganttStampa() {
+    const D = ganttPreparaDati();
+    if (D.vuoto) { alert(GANTT_L.nessuna); return; }
+    const cv = ganttDisegnaCanvas(D);
+    const url = cv.toDataURL("image/png");
+    const w = window.open("", "_blank");
+    if (!w) { alert("Popup bloccato dal browser: consenti i popup per stampare."); return; }
+    w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Gantt ${ganttEscape(D.id)}</title>
+    <style>@page { size: A4 landscape; margin: 8mm; } body { margin:0; font-family: Arial, sans-serif; }
+    img { width:100%; height:auto; }</style></head><body><img src="${url}" onload="window.focus();window.print();"></body></html>`);
+    w.document.close();
+}
+
     </script>
 </body>
 </html>
