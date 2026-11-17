@@ -1,0 +1,297 @@
+RIEPILOGO COMMESSE — USER GUIDE (ENGLISH)
+=========================================
+
+English version. For the Italian version see LEGGIMI.txt.
+
+
+WHAT'S IN THIS FOLDER
+---------------------
+  Commesse.html                  The application in Italian (single file,
+                                 nothing to install)
+  Orders.html                    The same application in English
+  database_commesse.json         DEMO database with invented data
+  database_vuoto.json            Empty database, to start from scratch
+  demo\database_commesse.json    Copy of the demo (used online)
+  archivio_pdf\                  Folder for PDFs attached to orders
+  LEGGIMI.txt                    Instructions in Italian
+  LEGGIMI_EN.txt                 This file (English)
+  README.md                      Technical description of the project
+  LICENSE                        MIT license
+
+
+REQUIREMENTS
+------------
+  Browser: Microsoft Edge or Google Chrome (up to date).
+  Does NOT work on Firefox or Safari: they lack support for saving directly
+  to a file.
+  No internet needed. Nothing to install.
+
+
+FIRST START
+-----------
+  1. Open Orders.html with a double click (or right click > Open with >
+     Chrome/Edge)
+
+  2. The app opens ALREADY POPULATED with two demo orders:
+       70777 - Customer A, late
+       70812 - Customer B, on track
+
+  3. When you understand how it works, press "🗑️ Clear demo data" to start
+     from scratch.
+
+  4. To connect YOUR database: "🔗 Connect Shared Archive" and choose the
+     JSON file.
+
+
+TWO WAYS OF WORKING
+-------------------
+  A) LOCAL FILE (normal use, on your PC)
+     The demo data is embedded in the HTML. Your real database is connected
+     with "🔗 Connect Shared Archive": from that moment you can save.
+
+  B) ON THE WEBSITE (trying it out only)
+     If you open the page from an http/https address, the app reads the file
+     demo/database_commesse.json by itself. Nothing to connect: open and look.
+     In this mode saving is DISABLED on purpose: read-only, because there is
+     no file of yours to write to.
+
+     Online addresses:
+       Italian: https://casapad1968-hub.github.io/riepilogo-commesse/Commesse.html
+       English: https://casapad1968-hub.github.io/riepilogo-commesse/Orders.html
+
+     To update the data shown online, edit demo/database_commesse.json and
+     reload the page.
+
+
+WHY THE BROWSER WON'T OPEN YOUR FILE BY ITSELF
+----------------------------------------------
+  The browser does not allow a web page to open a file on disk without a click
+  from you. It's a security rule, not a limitation of the app.
+  That's why the demo data is embedded in the HTML, while your real database
+  is connected with one click — and only then does the browser give
+  permission to WRITE to the file, i.e. to save your changes.
+
+
+WARNING — BEFORE USING IT WITH YOUR OWN DATA
+--------------------------------------------
+  When the app is connected to a JSON file, every save OVERWRITES that file.
+  If you try it with the demo database and then save, the demo data gets
+  modified. So it's best to:
+     - keep the demo in a separate folder
+     - use database_vuoto.json (or a copy) for real work
+
+
+IMPORTING YOUR ORDERS FROM MS PROJECT
+-------------------------------------
+  In the "➕ New Order (Manual / XML)" tab:
+     - Option A: load the XML file exported from MS Project.
+       The app fills in the order number, description, activities, dates and
+       the links between phases (PredecessorLink) by itself.
+     - Fill in by hand only what the XML does not contain: order dates,
+       manufacturer, manufacturing start.
+
+  To UPDATE an existing order:
+     - open the order detail
+     - section "UPDATE MONTHLY PROJECT XML FILE"
+     - load the new XML: the activities are replaced, manually entered data
+       is kept
+
+
+THE TABS
+--------
+  📊 Dashboard
+     The operational home, on three columns:
+       - left column: four indicators (active orders, on track, late,
+         attention needed)
+       - centre column: alerts for deliveries within 15 days, quick filters
+         and the summary table
+       - right column: ORDER TREE, with nested phases
+     Click a table row or a tree node to open the order.
+
+  📋 Full Overview Table
+     The 16-column analytical table with full details of WPs,
+     manufacturing, MR and material orders. CSV export and A4 printing.
+
+  📅 Activity Schedule
+     Deadlines and milestones with priority, status and days late.
+
+  📈 Gantt — Active Orders
+     All active orders on a single timeline.
+       - each order is a summary row (red when late)
+       - click the order name to expand its phases
+       - "Expand all" / "Collapse all"
+       - filters: All / Critical only / Late / Due soon
+     It's an overview: no editing here.
+
+  📦 Orders Archive
+     Completed and archived orders.
+
+  🔍 Order Detail
+     Phases, progress notes, PDF documents and the FULL EDITABLE GANTT
+     (see the dedicated section below).
+
+  ➕ New Order (Manual / XML)
+     Manual creation or MS Project import.
+
+  📔 Diary & Issues
+     Log of events, notes and production issues.
+
+
+THE GANTT INSIDE THE ORDER DETAIL
+---------------------------------
+  Inside each order's detail there is the full MS Project-style Gantt chart.
+
+  Available tools:
+    • Scale: Days / Weeks / Months, with + and − zoom
+    • Red vertical line = TODAY, always visible
+    • 🔗 Dependencies: arrows linking the finish of one phase to the start
+      of the next
+    • 🔴 Critical path: phases that would delay the final delivery are
+      highlighted in red (CPM algorithm)
+    • Milestones: ◆ diamonds for zero-duration phases
+    • 🏖️ Working days only: excludes Saturday and Sunday from duration
+      calculations
+    • 🖼️ Export PNG  •  🖨️ Print A4 landscape
+
+  How to EDIT phases:
+    - drag the bar ......................... moves the dates
+    - drag the bar edges ................... extends / shortens
+    - double-click the bar ................. opens the full dialog
+    - % field in the table ................. changes progress instantly
+    - ✏️ button on each row ................ edits the phase
+    - ＋ New phase button .................. adds a phase
+
+  In the edit dialog you can change: name, start date, finish date, percent
+  complete, outline level (1/2/3), summary row, milestone, predecessors and
+  notes. You can also delete the phase from the same dialog.
+
+  ORDER WITH NO PROJECT FILE
+  If you create an order by hand, without loading the XML, the Gantt offers
+  two buttons:
+    ＋ New phase ............... add phases one by one
+    🗂️ Create base structure ... generates 14 ready-made phases (PO ISSUANCE,
+                                MATERIAL DELIVERABLES, MANUFACTURING,
+                                DELIVERY) with dates calculated from the
+                                order date and the contractual delivery date,
+                                and dependencies already linked.
+  You can always start from the base structure and then adjust it by
+  dragging the bars.
+
+
+TABLE DENSITY: SPACIOUS / COMPACT
+---------------------------------
+  In the top-right corner of the header there is a button that toggles two
+  table display modes.
+
+  SPACIOUS (default)
+    Taller rows, larger text, the order description on a second line, critical
+    notes fully readable.
+    Comfortable for daily work.
+
+  COMPACT
+    Shorter rows (about half the height), smaller text, description hidden,
+    critical notes truncated to one line, thin bars.
+    Meant for scrolling long lists: on the same screen you see roughly twice
+    as many rows.
+
+  The button always shows the action it will perform: if it reads "Compact"
+  you are in spacious mode and about to switch.
+  The choice is stored in the browser and persists after closing.
+
+
+WHERE THE DATA LIVES
+--------------------
+  The database is the JSON file you connected. Nothing else.
+  The app does not send data anywhere: no server, no account, no cloud.
+
+  The browser also keeps a temporary internal copy (localStorage), used to
+  reopen the app with data already loaded.
+
+
+PDF ARCHIVE OF CERTIFICATES
+---------------------------
+  PDFs attached to orders are saved in the 'archivio_pdf\' folder (split
+  automatically into subfolders by order number) and stored in the browser's
+  IndexedDB engine.
+  This keeps the JSON file very light (a few KB), with no size limits and no
+  risk of saturation.
+
+
+MULTI-USER CONCURRENCY PROTECTION
+---------------------------------
+  - Lock on opening: if a colleague already has the database open for editing,
+    the second user gets a warning screen showing who is editing and since
+    when. Access switches automatically to READ-ONLY, with editing buttons
+    disabled.
+  - Banner and status badge: a panel and a badge clearly show that the app is
+    in view-only mode.
+  - Lock file (database_commesse.lock): records the active operator, the
+    machine and the time. Released automatically when the tab is closed.
+  - Conflict detection: timestamp check before every save, with a warning and
+    the option to reload the updated data.
+
+
+DATA SAFETY TIPS
+----------------
+  1. MAKE A COPY OF THE JSON NOW AND THEN. There is no automatic backup.
+     Suggestion: once a week copy database_commesse.json into a "backup"
+     folder with the date in the name
+     (e.g. database_commesse_2026-11-17.json).
+
+  2. DO NOT put the file on a public cloud (shared Drive/Dropbox).
+     A corporate network drive is fine: that is the intended use case.
+
+  3. One user at a time in write mode: that is the correct behaviour.
+
+
+MAIN COMMANDS
+-------------
+  💾 Save Shared Data            Writes to the connected JSON file
+  🔗 Connect Shared Archive      Changes or reconnects the JSON file
+  📁 PDF Archive Folder          Choose where PDFs are saved
+  📂 Load JSON Manually          Imports a JSON without connecting it for writing
+  📊 Export CSV                  Downloads the table as a spreadsheet
+  🖨️ Print                       A4 landscape formatted report
+  🗑️ Clear demo data             Removes the demo data
+
+  After every browser restart the app asks you to reconnect the database:
+  that is normal, the browser does not remember file permissions between
+  sessions.
+
+
+KNOWN LIMITATIONS
+-----------------
+  - No password: anyone who opens the file sees everything. Fine for local or
+    protected corporate use.
+  - No automatic backup (see the tips above).
+  - Direct saving does not work on Firefox and Safari.
+
+
+FREQUENTLY ASKED QUESTIONS
+--------------------------
+  The app opens but the table is empty?
+    -> You haven't connected the database. Use "🔗 Connect Shared Archive".
+
+  It says the browser does not support direct file connection
+    -> You are using Firefox or Safari. Open with Chrome or Edge.
+
+  I lost my changes?
+    -> Check the status at the bottom right: "Saved: <file> • <time>".
+       If it says "Shared save error", the file is open in another program
+       or by another person and is not writable.
+
+  Can I use it on several computers?
+    -> Yes, by putting the JSON on a network drive. One user at a time in
+       write mode.
+
+  I opened a new order and the Gantt says there are no phases
+    -> That's normal. Press "🗂️ Create base structure" to get a ready-made
+       plan immediately, or "＋ New phase" to add them by hand.
+
+  The tables are too big / too small
+    -> Use the Compact / Spacious button in the top right.
+
+
+---
+Open source project: https://github.com/casapad1968-hub/riepilogo-commesse
+MIT license — Document version: 17 November 2026
