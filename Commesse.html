@@ -872,6 +872,7 @@
                 <button class="btn btn-warning" onclick="collegaArchivioCondiviso()" style="font-size:0.8rem; padding:0.4rem 0.8rem;">🔗 Collega Archivio Condiviso</button>
                 <button class="btn btn-info" id="btnCollegaCartellaPdf" onclick="selezionaCartellaArchivioPdf()" style="font-size:0.8rem; padding:0.4rem 0.8rem;">📁 Cartella Archivio PDF</button>
                 <button class="btn btn-warning" id="btnMigraPdf" onclick="migraPdfLegacy()" style="display:none; font-size:0.8rem; padding:0.4rem 0.8rem;">🔄 Migra PDF vecchi</button>
+                <button class="btn btn-success" id="btnEsportaPdfDisco" onclick="esportaPdfSuDisco()" style="display:none; font-size:0.8rem; padding:0.4rem 0.8rem;">💾 Salva PDF in cartella</button>
                 <button class="btn btn-warning" onclick="document.getElementById('importDbFileInput').click()" style="font-size:0.8rem; padding:0.4rem 0.8rem;">📂 Carica JSON Manuale</button>
                 <button class="btn btn-danger" id="btnSvuotaDemo" onclick="svuotaDatiDemo()" style="font-size:0.8rem; padding:0.4rem 0.8rem; display:none;">🗑️ Svuota dati demo</button>
                 <input type="file" id="importDbFileInput" accept=".json" style="display:none;" onchange="importaDatabaseJSON()">
@@ -1758,6 +1759,150 @@ async function assicuraCartellaPdf() {
         : "La cartella archivio PDF non è ancora collegata.\n\nSceglila adesso: da quel momento i PDF vengono salvati come file reali in 'archivio_pdf/<commessa>/'.\n\nSeleziona 'Annulla' per tenerli solo nel browser.");
     if (!procedi) return false;
     return await selezionaCartellaArchivioPdf();
+}
+
+
+/* ============================================================
+   ESPORTA PDF DA INDEXEDDB AL DISCO
+   Caso d'uso: la migrazione ha messo i PDF in IndexedDB ma la
+   cartella archivio_pdf non era collegata, quindi non sono stati
+   scritti come file reali. Questa funzione li scrive ora.
+   ============================================================ */
+
+function pdfIsEn2() {
+    const l = (document.documentElement.getAttribute("lang") || "").toLowerCase();
+    return l.indexOf("en") === 0;
+}
+
+/* Conta i documenti che hanno i metadati ma non un file reale su disco */
+function contaPdfSenzaFile() {
+    let totale = 0, commesse = 0;
+    const meta = AppData.metadata || {};
+    for (const cid in meta) {
+        const lista = meta[cid] && meta[cid].documentiPdf;
+        if (!Array.isArray(lista)) continue;
+        const n = lista.filter(d => d && d.idDoc && !(d.inCartella && d.percorsoRelativo)).length;
+        if (n > 0) { totale += n; commesse++; }
+    }
+    return { totale, commesse };
+}
+
+function aggiornaPulsanteEsportaPdf() {
+    const btn = document.getElementById("btnEsportaPdfDisco");
+    if (!btn) return;
+    const { totale } = contaPdfSenzaFile();
+    if (totale === 0) { btn.style.display = "none"; return; }
+    btn.style.display = "inline-flex";
+    btn.innerHTML = "💾 " + (pdfIsEn2()
+        ? "Write " + totale + " PDF to folder"
+        : "Salva " + totale + " PDF in cartella");
+    btn.title = pdfIsEn2()
+        ? "Writes the PDFs stored in the browser into archivio_pdf/<order>/ as real files"
+        : "Scrive i PDF conservati nel browser dentro archivio_pdf/<commessa>/ come file reali";
+}
+
+async function esportaPdfSuDisco() {
+    const EN = pdfIsEn2();
+    const check = contaPdfSenzaFile();
+
+    if (check.totale === 0) {
+        alert(EN ? "All PDFs are already saved as real files." : "Tutti i PDF sono già salvati come file reali.");
+        return;
+    }
+    if (MODALITA_VISUALIZZAZIONE) {
+        alert(EN ? "Read-only mode: cannot save." : "Modalità sola visualizzazione: impossibile salvare.");
+        return;
+    }
+
+    // la cartella deve essere collegata e scrivibile
+    const okFolder = await assicuraCartellaPdf();
+    if (!okFolder) {
+        alert(EN
+            ? "The PDF archive folder is not connected. Connect it first with '📁 PDF Archive Folder', then run this again.\n\nYour PDFs are safe in the browser: nothing is lost."
+            : "La cartella archivio PDF non è collegata. Collegala prima con '📁 Cartella Archivio PDF', poi rilancia questa operazione.\n\nI tuoi PDF sono al sicuro nel browser: non è stato perso nulla.");
+        return;
+    }
+
+    const domanda = EN
+        ? "Write " + check.totale + " PDFs (in " + check.commesse + " orders) into the folder as real files?"
+        : "Scrivere " + check.totale + " PDF (" + check.commesse + " commesse) nella cartella come file reali?";
+    if (!confirm(domanda)) return;
+
+    let ok = 0, mancanti = 0, errori = 0;
+    const nonTrovati = [];
+
+    const meta = AppData.metadata || {};
+    for (const cid in meta) {
+        const lista = meta[cid] && meta[cid].documentiPdf;
+        if (!Array.isArray(lista)) continue;
+
+        for (const doc of lista) {
+            if (!doc || !doc.idDoc) continue;
+            if (doc.inCartella && doc.percorsoRelativo) continue;
+
+            // 1. recupera il blob da IndexedDB
+            let blob = null;
+            try { blob = await leggiPdfDaIndexedDB(doc.idDoc); } catch (e) { }
+            if (!blob) {
+                mancanti++;
+                nonTrovati.push(cid + " · " + (doc.nomeDoc || doc.nomeFile || doc.idDoc));
+                continue;
+            }
+            // normalizza eventuale stringa base64 residua
+            if (typeof blob === "string") {
+                try {
+                    const parti = blob.split(",");
+                    const b64 = parti.length > 1 ? parti.slice(1).join(",") : parti[0];
+                    const bin = atob(b64);
+                    const bytes = new Uint8Array(bin.length);
+                    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+                    blob = new Blob([bytes], { type: "application/pdf" });
+                } catch (e) { mancanti++; nonTrovati.push(cid + " · " + doc.nomeFile); continue; }
+            }
+
+            // 2. scrive il file reale
+            try {
+                const subDir = await cartellaArchivioPdfHandle.getDirectoryHandle(String(cid), { create: true });
+                const nomeFileSicuro = String(doc.nomeFile || ("documento_" + doc.idDoc + ".pdf")).replace(/[^a-zA-Z0-9_.-]/g, "_");
+                const fh = await subDir.getFileHandle(nomeFileSicuro, { create: true });
+                const w = await fh.createWritable();
+                await w.write(blob);
+                await w.close();
+                doc.percorsoRelativo = cartellaArchivioPdfHandle.name + "/" + cid + "/" + nomeFileSicuro;
+                doc.inCartella = true;
+                if (!doc.dimensione && blob.size) {
+                    const kb = blob.size / 1024;
+                    doc.dimensione = kb < 1024 ? kb.toFixed(1) + " KB" : (kb / 1024).toFixed(2) + " MB";
+                }
+                ok++;
+            } catch (e) {
+                console.warn("Scrittura PDF fallita:", cid, doc.nomeFile, e);
+                errori++;
+            }
+        }
+    }
+
+    try { await salvaDatiCondivisi(); } catch (e) { console.warn(e); }
+
+    let msg = EN
+        ? "DONE\n\nWritten as real files: " + ok + "\nNot found in browser: " + mancanti + "\nWrite errors: " + errori
+        : "COMPLETATO\n\nScritti come file reali: " + ok + "\nNon trovati nel browser: " + mancanti + "\nErrori di scrittura: " + errori;
+
+    if (nonTrovati.length) {
+        msg += "\n\n" + (EN ? "Not found:" : "Non trovati:") + "\n- " + nonTrovati.slice(0, 10).join("\n- ");
+    }
+    if (ok > 0) {
+        msg += EN
+            ? "\n\nWhere to find them: open the folder you chose, subfolders are named after the order number."
+            : "\n\nDove trovarli: apri la cartella che hai scelto, le sottocartelle hanno il nome del numero di commessa.";
+    }
+    alert(msg);
+
+    aggiornaPulsanteEsportaPdf();
+    try { renderingDashboard(); } catch (e) { }
+    if (typeof idCommessaSelezionata !== "undefined" && idCommessaSelezionata) {
+        try { renderingTabellaPdfDettaglio(idCommessaSelezionata); } catch (e) { }
+    }
 }
 
 
