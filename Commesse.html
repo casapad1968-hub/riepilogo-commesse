@@ -413,22 +413,58 @@
             border-color: #bae6fd; 
         }
 
-        /* Modalità Compatta / Spaziosa */
+        /* ============================================================
+           DENSITÀ: Spaziosa (default) / Compatta
+           Compatta riduce altezza righe, padding e corpo testo:
+           più righe visibili a schermo, utile su tabelle lunghe.
+           ============================================================ */
+
+        /* --- SPAZIOSA (default) --- */
+        table.sinottico td, table.fasi-table td, table.pdf-table td, table.scadenze-table td {
+            padding: 0.52rem 0.6rem !important;
+            font-size: 0.82rem !important;
+            line-height: 1.45 !important;
+        }
+        table.sinottico th, table.fasi-table th, table.pdf-table th, table.scadenze-table th {
+            padding: 0.55rem 0.6rem !important;
+            font-size: 0.73rem !important;
+        }
+        #tbodyDashboard tr { height: auto; }
+
+        /* --- COMPATTA --- */
         body.density-compact table.sinottico td,
         body.density-compact table.fasi-table td,
         body.density-compact table.pdf-table td,
         body.density-compact table.scadenze-table td {
-            padding: 0.3rem 0.35rem;
-            font-size: 0.78rem;
+            padding: 0.2rem 0.38rem !important;
+            font-size: 0.735rem !important;
+            line-height: 1.15 !important;
         }
-
         body.density-compact table.sinottico th,
         body.density-compact table.fasi-table th,
         body.density-compact table.pdf-table th,
         body.density-compact table.scadenze-table th {
-            padding: 0.45rem 0.3rem;
-            font-size: 0.7rem;
+            padding: 0.28rem 0.38rem !important;
+            font-size: 0.645rem !important;
         }
+        /* nelle righe dashboard compatta: nasconde la sotto-descrizione e accorcia i puntini critici */
+        body.density-compact .dash-table-wrap td .desc-cell div,
+        body.density-compact .dash-table-wrap td div[style*="0.73rem"] {
+            display: none !important;
+        }
+        body.density-compact .dash-table-wrap td span[style*="0.74rem"] {
+            font-size: 0.68rem !important;
+            display: block;
+            max-height: 1.1em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        body.density-compact .progress-bar-container { height: 5px !important; }
+        body.density-compact .badge { padding: 0.08rem 0.34rem !important; font-size: 0.655rem !important; }
+        /* albero più stretto in compatta */
+        body.density-compact .tree-node { padding: 1px 8px 1px 6px !important; font-size: 0.735rem !important; }
+        body.density-compact .tree-child { font-size: 0.7rem !important; }
 
         .level-1 { padding-left: 8px !important; font-weight: 700; border-left: 4px solid var(--primary-light) !important; background-color: #f8fafc; }
         .level-2 { padding-left: 24px !important; font-weight: 600; color: #1e293b; border-left: 2px solid #60a5fa !important; }
