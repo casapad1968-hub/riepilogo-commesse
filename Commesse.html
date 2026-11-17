@@ -4671,7 +4671,17 @@ function ganttCalcolaCritico(att, lavorativi) {
 
 /* ---------------- preparazione ---------------- */
 function ganttAttivitaProgetto(id, lavorativi) {
-    const grezze = (AppData.commesse && AppData.commesse[id]) || [];
+    // Se e' appena stato caricato un nuovo XML nel dettaglio (non ancora salvato),
+    // il Gantt deve mostrare SUBITO quelle fasi, non le vecchie.
+    let grezze = null;
+    try {
+        if (typeof xmlTemporaneoDettaglio !== "undefined" && xmlTemporaneoDettaglio
+            && xmlTemporaneoDettaglio.attivita
+            && String(idCommessaSelezionata) === String(id)) {
+            grezze = xmlTemporaneoDettaglio.attivita;
+        }
+    } catch (e) { }
+    if (!grezze) grezze = (AppData.commesse && AppData.commesse[id]) || [];
     const att = [];
     grezze.forEach((t, i) => {
         const s = ganttParse(t.start), f = ganttParse(t.finish);
