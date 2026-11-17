@@ -2438,6 +2438,175 @@ async function assicuraCartellaPdf() {
                 document.getElementById("d_ritardoComplFasi").value = "0";
             }
         }
+        /* ============================================================
+           PARSER MS PROJECT XML — versione robusta
+           Non usa selettori CSS (che si rompono con i namespace):
+           naviga i nodi per localName, che funziona con qualsiasi
+           prefisso o namespace di default.
+           ============================================================ */
+        function xmlLocalName(n) {
+            if (!n) return "";
+            return n.localName || String(n.nodeName || "").split(":").pop();
+        }
+
+        function xmlFigli(scope, nome) {
+            const out = [];
+            if (!scope || !scope.childNodes) return out;
+            const kids = scope.childNodes;
+            for (let i = 0; i < kids.length; i++) {
+                const c = kids[i];
+                if (c.nodeType !== 1) continue;
+                if (xmlLocalName(c) === nome) out.push(c);
+            }
+            return out;
+        }
+
+        function xmlPrimo(scope, nome) {
+            const a = xmlFigli(scope, nome);
+            return a.length ? a[0] : null;
+        }
+
+        function xmlTesto(scope, nome) {
+            const n = xmlPrimo(scope, nome);
+            return n ? String(n.textContent || "").trim() : "";
+        }
+
+        /* cerca un discendente per localName, a qualsiasi profondità */
+        function xmlDiscendenti(scope, nome) {
+            const out = [];
+            if (!scope) return out;
+            const tutti = scope.getElementsByTagName("*");
+            for (let i = 0; i < tutti.length; i++) {
+                if (xmlLocalName(tutti[i]) === nome) out.push(tutti[i]);
+            }
+            return out;
+        }
+
+        function estraiDatiDaXMLDoc(xmlString, filename) {
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xmlString, "text/xml");
+
+            // file non valido?
+            const err = xmlDoc.getElementsByTagName("parsererror");
+            if (err && err.length) {
+                throw new Error("Il file XML non è valido o è danneggiato.");
+            }
+            const root = xmlDoc.documentElement;
+            if (!root) throw new Error("Il file XML è vuoto.");
+
+            /* ---- dati di testata del progetto ---- */
+            let nomeCommessa = "";
+            const titleProj = xmlTesto(root, "Title");
+            const nameProj = xmlTesto(root, "Name");
+            if (titleProj) nomeCommessa = titleProj;
+            else if (nameProj) nomeCommessa = nameProj.replace(/\.xml$/i, "").trim();
+            else nomeCommessa = String(filename || "").replace(/\.xml$/i, "").trim();
+
+            const descrizioneCliente = xmlTesto(root, "Subject");
+
+            /* ---- attività ---- */
+            let tasks = [];
+            const tasksEl = xmlPrimo(root, "Tasks");
+            if (tasksEl) tasks = xmlFigli(tasksEl, "Task");
+            if (!tasks.length) {
+                // fallback: qualunque <Task> nel documento (namespace diversi)
+                tasks = xmlDiscendenti(root, "Task");
+            }
+
+            const listaAttivita = [];
+            const mappaUid = {};     // UID -> nome (per le dipendenze)
+            const dipendenzeGrezze = [];
+            let dataFineProgetto = "";
+            let dataInizioFabbricazioneRilevata = "";
+            let dataConsegnaWpDaAttivita = "";
+
+            tasks.forEach(task => {
+                const name = xmlTesto(task, "Name");
+                const finishRaw = xmlTesto(task, "Finish");
+                if (!name) return;
+
+                const start = normalizzaDataProjectXML(xmlTesto(task, "Start"));
+                const finish = normalizzaDataProjectXML(finishRaw);
+                if (!finish) return;
+
+                const pctRaw = xmlTesto(task, "PercentComplete");
+                const pct = pctRaw ? (parseInt(pctRaw, 10) || 0) : 0;
+
+                const lvlRaw = xmlTesto(task, "OutlineLevel");
+                const level = lvlRaw ? (parseInt(lvlRaw, 10) || 1) : 1;
+
+                const sumRaw = xmlTesto(task, "Summary");
+                const isSummary = (sumRaw === "1" || sumRaw.toLowerCase() === "true");
+
+                const msRaw = xmlTesto(task, "Milestone");
+                const isMilestone = (msRaw === "1" || msRaw.toLowerCase() === "true");
+
+                const uid = xmlTesto(task, "UID");
+                const nameUpper = name.toUpperCase();
+
+                if (nameUpper.indexOf("DELIVERY") !== -1 && finish) {
+                    dataConsegnaWpDaAttivita = finish;
+                }
+                if (!dataConsegnaWpDaAttivita && (level === 0 || level === 1) && finish > dataFineProgetto) {
+                    dataFineProgetto = finish;
+                }
+                if (!dataInizioFabbricazioneRilevata &&
+                    (nameUpper.indexOf("MANUFACTUR") !== -1 ||
+                     nameUpper.indexOf("FABRICAT") !== -1 ||
+                     nameUpper.indexOf("FABBRICAT") !== -1)) {
+                    dataInizioFabbricazioneRilevata = start;
+                }
+
+                if (uid) mappaUid[uid] = name;
+
+                // predecessori (link tra fasi)
+                const linkEl = xmlPrimo(task, "PredecessorLink");
+                if (linkEl) {
+                    const pu = xmlTesto(linkEl, "PredecessorUID");
+                    if (pu) dipendenzeGrezze.push({ daUid: pu, aNome: name });
+                }
+
+                const att = { name, start, finish, pct, level, isSummary };
+                if (isMilestone) att.milestone = true;
+                if (uid) att.__uid = uid;
+                listaAttivita.push(att);
+            });
+
+            /* ---- risolve le dipendenze: UID -> nome fase ---- */
+            dipendenzeGrezze.forEach(d => {
+                const nomePred = mappaUid[d.daUid];
+                if (!nomePred || nomePred === d.aNome) return;
+                const target = listaAttivita.find(a => a.name === d.aNome);
+                if (!target) return;
+                const esistenti = target.dependencies ? String(target.dependencies).split(";") : [];
+                if (esistenti.indexOf(nomePred) === -1) esistenti.push(nomePred);
+                target.dependencies = esistenti.filter(Boolean).join(";");
+            });
+            listaAttivita.forEach(a => { delete a.__uid; });
+
+            if (dataConsegnaWpDaAttivita) dataFineProgetto = dataConsegnaWpDaAttivita;
+
+            let dataComplFormattata = "-";
+            if (dataFineProgetto) {
+                const p = dataFineProgetto.split("-");
+                if (p.length === 3) dataComplFormattata = p[2] + "/" + p[1] + "/" + p[0];
+            }
+
+            let dataManufFormattata = "-";
+            if (dataInizioFabbricazioneRilevata) {
+                const p = dataInizioFabbricazioneRilevata.split("-");
+                if (p.length === 3) dataManufFormattata = p[2] + "/" + p[1] + "/" + p[0];
+            }
+
+            return {
+                nomeCommessa,
+                descrizioneCliente,
+                listaAttivita,
+                dataComplFormattata,
+                dataManufFormattata
+            };
+        }
+
 
         function normalizzaDataProjectXML(valore) {
             if (valore == null) return "";
@@ -2463,100 +2632,6 @@ async function assicuraCartellaPdf() {
             return "";
         }
 
-        function estraiDatiDaXMLDoc(xmlString, filename) {
-            const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(xmlString, "text/xml");
-            const tasks = xmlDoc.querySelectorAll("Task, p\:Task");
-            
-            let nomeCommessa = "";
-            let descrizioneCliente = "";
-            let titleNode = xmlDoc.querySelector("Title") || xmlDoc.querySelector("p\:Title");
-            let nameNodeProj = xmlDoc.querySelector("Name") || xmlDoc.querySelector("p\:Name");
-            
-            if (titleNode && titleNode.textContent.trim() !== "") nomeCommessa = titleNode.textContent.trim();
-            else if (nameNodeProj && nameNodeProj.textContent.trim() !== "" && nameNodeProj.parentNode.nodeName === "Project") nomeCommessa = nameNodeProj.textContent.replace(".xml", "").trim();
-            else nomeCommessa = filename.replace(".xml", "").trim();
-
-            const subjectNodes = Array.from(xmlDoc.getElementsByTagNameNS("*", "Subject"));
-            const subjectNode = subjectNodes.find(node => {
-                let parent = node.parentNode;
-                while (parent && parent.nodeType === 1) {
-                    if ((parent.localName || parent.nodeName).split(":").pop() === "Project") return true;
-                    parent = parent.parentNode;
-                }
-                return false;
-            }) || Array.from(xmlDoc.getElementsByTagName("Subject")).find(node => {
-                let parent = node.parentNode;
-                while (parent && parent.nodeType === 1) {
-                    if ((parent.localName || parent.nodeName).split(":").pop() === "Project") return true;
-                    parent = parent.parentNode;
-                }
-                return false;
-            });
-            if (subjectNode && subjectNode.textContent.trim() !== "") {
-                descrizioneCliente = subjectNode.textContent.trim();
-            }
-
-            let listaAttivita = [];
-            let dataFineProgetto = "";
-            let dataInizioFabbricazioneRilevata = "";
-            let dataConsegnaWpDaAttivita = "";
-
-            tasks.forEach(task => {
-                let nameNode = task.querySelector("Name") || task.querySelector("p\:Name");
-                let startNode = task.querySelector("Start") || task.querySelector("p\:Start");
-                let finishNode = task.querySelector("Finish") || task.querySelector("p\:Finish");
-                let pctNode = task.querySelector("PercentComplete") || task.querySelector("p\:PercentComplete");
-                let outlineLevelNode = task.querySelector("OutlineLevel") || task.querySelector("p\:OutlineLevel");
-                let summaryNode = task.querySelector("Summary") || task.querySelector("p\:Summary");
-
-                if(nameNode && finishNode) {
-                    let name = nameNode.textContent.trim();
-                    let nameUpper = name.toUpperCase();
-                    let start = startNode ? normalizzaDataProjectXML(startNode.textContent) : "";
-                    let finish = normalizzaDataProjectXML(finishNode.textContent);
-                    let pct = pctNode ? parseInt(pctNode.textContent.trim()) : 0;
-                    
-                    let level = outlineLevelNode ? parseInt(outlineLevelNode.textContent.trim()) : 1;
-                    let isSummary = false;
-                    if(summaryNode) {
-                        isSummary = (summaryNode.textContent.trim() === "1" || summaryNode.textContent.trim() === "true");
-                    }
-
-                    if(nameUpper.includes("DELIVERY") && finish) {
-                        dataConsegnaWpDaAttivita = finish;
-                    }
-
-                    if(!dataConsegnaWpDaAttivita && (level === 0 || level === 1) && finish > dataFineProgetto) {
-                        dataFineProgetto = finish;
-                    }
-                    
-                    if(!dataInizioFabbricazioneRilevata && (nameUpper.includes("MANUFACTUR") || nameUpper.includes("FABRICAT") || nameUpper.includes("FABBRICAT"))) {
-                        dataInizioFabbricazioneRilevata = start;
-                    }
-
-                    if(name !== "") {
-                        listaAttivita.push({ name, start, finish, pct, level, isSummary });
-                    }
-                }
-            });
-
-            if(dataConsegnaWpDaAttivita) dataFineProgetto = dataConsegnaWpDaAttivita;
-
-            let dataComplFormattata = "-";
-            if(dataFineProgetto) {
-                let parti = dataFineProgetto.split("-");
-                dataComplFormattata = `${parti[2]}/${parti[1]}/${parti[0]}`;
-            }
-
-            let dataManufFormattata = "-";
-            if(dataInizioFabbricazioneRilevata) {
-                let partiM = dataInizioFabbricazioneRilevata.split("-");
-                dataManufFormattata = `${partiM[2]}/${partiM[1]}/${partiM[0]}`;
-            }
-
-            return { nomeCommessa, descrizioneCliente, listaAttivita, dataComplFormattata, dataManufFormattata };
-        }
 
         function calcolaMRRitardoDaAttivita(attivita) {
             const oggi = new Date();
