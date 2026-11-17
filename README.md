@@ -103,31 +103,32 @@ Nessuna dipendenza. Zero build step. Solo HTML, CSS e JavaScript vanilla in un u
 
 MIT — vedi [LICENSE](LICENSE).
 
+📈 GANTT — TWO VIEWS
 ------------------------------------------------------------------
-📈 GANTT TAB (MS Project style)
-------------------------------------------------------------------
-From the top tab bar choose "📈 Gantt (MS Project style)".
+1) "📈 Gantt — Active Orders" TAB
+   Shows ALL active orders on a single timeline.
+   Each order is a summary row (indigo bar, red when late).
+   • Click an order name to expand its phases.
+   • "Expand all" / "Collapse all" buttons.
+   • Filters: All / Critical only / Late / Due soon.
+   • Read-only: this is the overview view.
 
-What you can do:
-  • Switch order from the dropdown at the top.
-  • Time scale: Days / Weeks / Months, with + and − zoom.
-  • Red vertical line = TODAY, always visible.
-  • Dependencies: arrows linking the finish of one activity to the
-    start of the next ("dependencies" field in the database, or
-    imported automatically from an MS Project XML file - PredecessorLink).
-  • Critical path: activities that would delay the final delivery are
-    highlighted in red (CPM algorithm).
-  • Milestones: ◆ diamonds for zero-duration activities.
-  • Working days: enable the option to exclude Saturday and Sunday
-    from duration calculations.
-  • Quick filters: All / Critical only / Late / Due soon.
-  • Direct editing:
-      - drag the bar to move dates
-      - drag the bar edges to resize
-      - double-click the bar to edit name, dates, % and predecessors
-      - "＋ New activity" button to add a phase
-  • Export PNG (image to paste into an email or report).
-  • Print A4 landscape.
+2) INSIDE EACH ORDER DETAIL
+   The old chart has been replaced by the full editable Gantt:
+   • Days / Weeks / Months scale, + / - zoom, red TODAY line.
+   • Dependencies (arrows), critical path (red), milestones (diamonds).
+   • Working days: excludes Saturday and Sunday from durations.
+   • FULL MS Project-style editing:
+       - drag the bar ............................. move dates
+       - drag the bar edges ....................... resize
+       - double-click the bar ..................... opens the full dialog
+       - % field in the table ..................... updates progress instantly
+       - "✏️" button ............................... edit the phase
+       - "+ New phase" button ..................... adds a phase
+   • In the dialog you can change: name, dates, %, outline level,
+     summary row, milestone, predecessors and notes.
+   • Delete a phase from the same dialog.
+   • Export PNG and Print A4 landscape.
 
-Changes made in the Gantt are saved to the shared database, with the
-multi-user lock already in place.
+All changes are saved to the shared database, with the multi-user
+lock control already in place.
