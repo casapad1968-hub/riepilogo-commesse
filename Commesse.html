@@ -870,12 +870,12 @@
             <div class="db-sync-group">
                 <button class="btn btn-secondary" onclick="esportaDatabaseJSON()" style="font-size:0.8rem; padding:0.4rem 0.8rem;">💾 Salva Dati Condivisi</button>
                 <button class="btn btn-warning" onclick="collegaArchivioCondiviso()" style="font-size:0.8rem; padding:0.4rem 0.8rem;">🔗 Collega Archivio Condiviso</button>
-                <button class="btn btn-info" id="btnCollegaCartellaPdf" onclick="selezionaCartellaArchivioPdf()" style="font-size:0.8rem; padding:0.4rem 0.8rem;">📁 Cartella Archivio PDF</button>
                 <button class="btn btn-warning" onclick="document.getElementById('importDbFileInput').click()" style="font-size:0.8rem; padding:0.4rem 0.8rem;">📂 Carica JSON Manuale</button>
                 <button class="btn btn-danger" id="btnSvuotaDemo" onclick="svuotaDatiDemo()" style="font-size:0.8rem; padding:0.4rem 0.8rem; display:none;">🗑️ Svuota dati demo</button>
                 <input type="file" id="importDbFileInput" accept=".json" style="display:none;" onchange="importaDatabaseJSON()">
                 <span id="statoArchivioCondiviso" style="font-size:0.75rem; margin-left:0.5rem; color:#6b7280;">Archivio condiviso non collegato</span>
-                <span id="statoCartellaPdf" style="font-size:0.75rem; margin-left:0.5rem; color:#6b7280;">• Cartella PDF: non collegata</span>
+<span id="statoCachePdf" style="font-size:0.75rem; margin-left:0.5rem; color:#6b7681;"></span>
+                <button class="btn btn-secondary" onclick="svuotaCachePdf()" style="font-size:0.75rem; padding:0.25rem 0.6rem;">Svuota cache</button>
             </div>
         </div>
 
@@ -2100,6 +2100,7 @@ async function assicuraCartellaPdf() {
 
                         ripristinaPreferenzaDensita();
         try { aggiornaBannerCartellaPdf(); } catch(e) {}
+        try { aggiornaContatoreCache(); } catch(e) {}
         renderingDashboard();
                         renderingSinottico();
                         renderingArchivio();
@@ -3210,220 +3211,356 @@ async function assicuraCartellaPdf() {
             reader.readAsText(file);
         }
 
-        async function caricaDocumentoPDF() {
-            let id = idCommessaSelezionata;
-            if(!id || !AppData.metadata[id]) {
-                alert("Nessuna commessa selezionata.");
-                return;
-            }
 
-            const nomeInput = document.getElementById("pdfNomeInput");
-            const fileInput = document.getElementById("pdfFileInput");
-            if(!fileInput || fileInput.files.length === 0) {
-                alert("Seleziona prima un file PDF!");
-                return;
-            }
-            
-            const file = fileInput.files[0];
-            const isPdf = file.type === "application/pdf" || /\.pdf$/i.test(file.name);
-            if(!isPdf) {
-                alert("Puoi caricare esclusivamente file in formato PDF.");
-                return;
-            }
 
-            let nomeDoc = nomeInput.value.trim() || file.name;
-            let nomeFileSicuro = file.name.replace(/[^a-zA-Z0-9_.-]/g, "_");
-            let percorsoRelativo = "";
-            let salvatoSuDisco = false;
 
-            // Garantisce che la cartella archivio_pdf sia collegata (la chiede solo se serve)
-            try { await assicuraCartellaPdf(); } catch(e) { console.warn("Cartella PDF:", e); }
+/* ============================================================
+   GESTIONE PDF — OPZIONE C
+   Il PDF viene salvato SOLO dove decide l'utente (Salva con nome).
+   Nel JSON restano i metadati. In IndexedDB resta solo l'HANDLE
+   del file (poche centinaia di byte), che permette di riaprirlo.
+   Nessuna copia del contenuto: IndexedDB non cresce.
+   ============================================================ */
 
+function pdfIsEnC() {
+    const l = (document.documentElement.getAttribute("lang") || "").toLowerCase();
+    return l.indexOf("en") === 0;
+}
+
+/* ---- persistenza degli handle dei file PDF ---- */
+async function salvaHandlePdf(idDoc, handle) {
+    try {
+        const db = await apriDBHandleStore();
+        await new Promise((resolve, reject) => {
+            const tx = db.transaction("handles", "readwrite");
+            tx.objectStore("handles").put(handle, "pdf_" + String(idDoc));
+            tx.oncomplete = resolve;
+            tx.onerror = () => reject(tx.error);
+        });
+        db.close();
+        return true;
+    } catch (e) {
+        console.warn("Handle PDF non salvato:", e);
+        return false;
+    }
+}
+
+async function caricaHandlePdf(idDoc) {
+    try {
+        const db = await apriDBHandleStore();
+        const h = await new Promise((resolve, reject) => {
+            const tx = db.transaction("handles", "readonly");
+            const req = tx.objectStore("handles").get("pdf_" + String(idDoc));
+            req.onsuccess = () => resolve(req.result || null);
+            req.onerror = () => reject(req.error);
+        });
+        db.close();
+        return h;
+    } catch (e) {
+        return null;
+    }
+}
+
+async function eliminaHandlePdf(idDoc) {
+    try {
+        const db = await apriDBHandleStore();
+        await new Promise((resolve, reject) => {
+            const tx = db.transaction("handles", "readwrite");
+            tx.objectStore("handles").delete("pdf_" + String(idDoc));
+            tx.oncomplete = resolve;
+            tx.onerror = () => reject(tx.error);
+        });
+        db.close();
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
+/* ---- allega un PDF: l'utente sceglie dove salvarlo ---- */
+async function caricaDocumentoPDF() {
+    const EN = pdfIsEnC();
+    const id = idCommessaSelezionata;
+    if (!id || !AppData.metadata[id]) {
+        alert(EN ? "No order selected." : "Nessuna commessa selezionata.");
+        return;
+    }
+    if (MODALITA_VISUALIZZAZIONE) {
+        alert(EN ? "Read-only mode: cannot add documents." : "Modalità sola visualizzazione: impossibile aggiungere documenti.");
+        return;
+    }
+
+    const nomeInput = document.getElementById("pdfNomeInput");
+    const fileInput = document.getElementById("pdfFileInput");
+    if (!fileInput || fileInput.files.length === 0) {
+        alert(EN ? "Select a PDF first." : "Seleziona prima un file PDF!");
+        return;
+    }
+
+    const file = fileInput.files[0];
+    const isPdf = file.type === "application/pdf" || /\.pdf$/i.test(file.name);
+    if (!isPdf) {
+        alert(EN ? "Only PDF files are allowed." : "Puoi caricare esclusivamente file in formato PDF.");
+        return;
+    }
+
+    const nomeDoc = (nomeInput.value || "").trim() || file.name;
+
+    if (!window.showSaveFilePicker) {
+        alert(EN
+            ? "This browser cannot choose the destination file. Use Chrome or Edge."
+            : "Questo browser non permette di scegliere il file di destinazione. Usa Chrome o Edge.");
+        return;
+    }
+
+    let handle = null;
+    try {
+        handle = await window.showSaveFilePicker({
+            suggestedName: id + "_" + file.name.replace(/[^a-zA-Z0-9_.-]/g, "_"),
+            types: [{ description: "PDF", accept: { "application/pdf": [".pdf"] } }]
+        });
+    } catch (e) {
+        // utente ha annullato
+        return;
+    }
+
+    try {
+        const w = await handle.createWritable();
+        await w.write(file);
+        await w.close();
+    } catch (e) {
+        alert((EN ? "Cannot write the file: " : "Impossibile scrivere il file: ") + (e.message || e));
+        return;
+    }
+
+    const docId = Date.now();
+    await salvaHandlePdf(docId, handle);
+
+    const sizeStr = (file.size < 1024 * 1024)
+        ? (file.size / 1024).toFixed(1) + " KB"
+        : (file.size / (1024 * 1024)).toFixed(2) + " MB";
+
+    if (!AppData.metadata[id].documentiPdf) AppData.metadata[id].documentiPdf = [];
+    AppData.metadata[id].documentiPdf.push({
+        idDoc: docId,
+        nomeDoc: nomeDoc,
+        nomeFile: handle.name || file.name,
+        dimensione: sizeStr,
+        percorsoRelativo: (handle.name || file.name),
+        conHandle: true,
+        inCartella: false,
+        dataCaricamento: new Date().toLocaleDateString("it-IT")
+    });
+
+    await salvaDatiCondivisi();
+    renderingTabellaPdfDettaglio(id);
+    nomeInput.value = "";
+    fileInput.value = "";
+
+    alert(EN
+        ? "PDF saved as: " + (handle.name || file.name) + "\n\nIt is stored in the folder you chose. The app keeps only a reference to it (a few bytes), so the browser archive stays light."
+        : "PDF salvato come: " + (handle.name || file.name) + "\n\nÈ nella cartella che hai scelto. L'app conserva solo un riferimento al file (pochi byte), così l'archivio del browser resta leggero.");
+}
+
+/* ---- apri un PDF: prima l'handle, poi i vecchi sistemi ---- */
+async function apriDocumentoPDF(idDoc) {
+    const EN = pdfIsEnC();
+    const id = idCommessaSelezionata;
+    if (!id || !AppData.metadata[id] || !AppData.metadata[id].documentiPdf) return;
+    const doc = AppData.metadata[id].documentiPdf.find(d => String(d.idDoc) === String(idDoc));
+    if (!doc) { alert(EN ? "Document not found." : "Documento PDF non trovato."); return; }
+
+    try {
+        let blob = null;
+
+        // 1. handle del file scelto dall'utente
+        const h = await caricaHandlePdf(idDoc);
+        if (h) {
             try {
-                // Tentativo 1: Salva direttamente nella cartella su disco (archivio_pdf/<commessa>/<file.pdf>)
-                if(cartellaArchivioPdfHandle) {
-                    try {
-                        const okPerm = await verificaPermessoScrittura(cartellaArchivioPdfHandle);
-                        if(okPerm) {
-                            const subDir = await cartellaArchivioPdfHandle.getDirectoryHandle(String(id), { create: true });
-                            const fileHandle = await subDir.getFileHandle(nomeFileSicuro, { create: true });
-                            const writable = await fileHandle.createWritable();
-                            await writable.write(file);
-                            await writable.close();
-                            percorsoRelativo = cartellaArchivioPdfHandle.name + "/" + id + "/" + nomeFileSicuro;
-                            salvatoSuDisco = true;
-                        }
-                    } catch(errDir) {
-                        console.warn("Salvataggio su cartella disco fallito, uso IndexedDB come fallback:", errDir);
-                    }
+                if (h.queryPermission) {
+                    let perm = await h.queryPermission({ mode: "readwrite" });
+                    if (perm !== "granted") perm = await h.requestPermission({ mode: "readwrite" });
+                    if (perm !== "granted") throw new Error("permesso negato");
                 }
-
-                const docId = Date.now();
-                // Salva sempre anche copia binaria in IndexedDB per accesso istantaneo
-                await salvaPdfInIndexedDB(docId, file);
-
-                const sizeStr = (file.size < 1024 * 1024) 
-                    ? (file.size / 1024).toFixed(1) + " KB" 
-                    : (file.size / (1024 * 1024)).toFixed(2) + " MB";
-
-                if(!AppData.metadata[id].documentiPdf) AppData.metadata[id].documentiPdf = [];
-
-                AppData.metadata[id].documentiPdf.push({
-                    idDoc: docId,
-                    nomeDoc: nomeDoc,
-                    nomeFile: file.name,
-                    dimensione: sizeStr,
-                    percorsoRelativo: percorsoRelativo,
-                    inCartella: salvatoSuDisco,
-                    dataCaricamento: new Date().toLocaleDateString('it-IT')
-                });
-
-                await salvaDatiCondivisi();
-                renderingTabellaPdfDettaglio(id);
-                nomeInput.value = "";
-                fileInput.value = "";
-
-                let msgSuccess = "Documento PDF allegato con successo!";
-                if(salvatoSuDisco) {
-                    msgSuccess += "\n\n📁 Salvato nella cartella: " + percorsoRelativo;
-                } else {
-                    msgSuccess += "\n\n💾 Archiviato in modo sicuro in memoria IndexedDB (nessun limite di spazio).";
-                }
-                alert(msgSuccess);
-            } catch(err) {
-                console.error("Errore caricamento PDF:", err);
-                alert("Non è stato possibile caricare/salvare il PDF: " + (err.message || err));
+                blob = await h.getFile();
+            } catch (e) {
+                console.warn("Handle non più valido:", e);
+                alert(EN
+                    ? "The file cannot be opened from here (it may have been moved or renamed).\n\nFile name: " + (doc.percorsoRelativo || doc.nomeFile) + "\nOpen it from your file manager."
+                    : "Il file non è più apribile da qui (potrebbe essere stato spostato o rinominato).\n\nNome file: " + (doc.percorsoRelativo || doc.nomeFile) + "\nAprilo dal tuo gestore di file.");
+                return;
             }
         }
 
-        async function eliminaDocumentoPDF(idDoc) {
-            let id = idCommessaSelezionata;
-            if(!id || !AppData.metadata[id].documentiPdf) return;
-
-            let doc = AppData.metadata[id].documentiPdf.find(d => String(d.idDoc) === String(idDoc));
-            if(!confirm("Eliminare il documento PDF '" + (doc ? doc.nomeDoc : '') + "' dalla commessa?")) return;
-
-            // Se è su disco e abbiamo la cartella collegata, prova a cancellarlo anche dalla sottocartella
-            if(doc && doc.inCartella && cartellaArchivioPdfHandle) {
-                try {
-                    const subDir = await cartellaArchivioPdfHandle.getDirectoryHandle(String(id), { create: false });
-                    let nomeFileSicuro = doc.nomeFile.replace(/[^a-zA-Z0-9_.-]/g, "_");
-                    await subDir.removeEntry(nomeFileSicuro);
-                } catch(err) {
-                    console.warn("Impossibile rimuovere il file dalla cartella su disco:", err);
-                }
-            }
-
-            await eliminaPdfDaIndexedDB(idDoc);
-
-            AppData.metadata[id].documentiPdf = AppData.metadata[id].documentiPdf.filter(d => d.idDoc !== idDoc);
-            salvaDatiCondivisi();
-            renderingTabellaPdfDettaglio(id);
+// 2. vecchia cartella archivio_pdf (documenti storici)
+        if (!blob && cartellaArchivioPdfHandle) {
+            try {
+                const subDir = await cartellaArchivioPdfHandle.getDirectoryHandle(String(id), { create: false });
+                const nomeFileSicuro = String(doc.nomeFile).replace(/[^a-zA-Z0-9_.-]/g, "_");
+                const fh = await subDir.getFileHandle(nomeFileSicuro);
+                blob = await fh.getFile();
+            } catch (e) { }
         }
 
-        async function apriDocumentoPDF(idDoc) {
-            let id = idCommessaSelezionata;
-            if(!id || !AppData.metadata[id] || !AppData.metadata[id].documentiPdf) return;
-            let doc = AppData.metadata[id].documentiPdf.find(d => String(d.idDoc) === String(idDoc));
-
-            if(!doc) {
-                alert("Documento PDF non trovato.");
-                return;
-            }
-
-            try {
-                let blob = null;
-
-                // 1. Prova a leggere da cartella su disco se collegata
-                if(cartellaArchivioPdfHandle) {
-                    try {
-                        const subDir = await cartellaArchivioPdfHandle.getDirectoryHandle(String(id), { create: false });
-                        let nomeFileSicuro = doc.nomeFile.replace(/[^a-zA-Z0-9_.-]/g, "_");
-                        const fileHandle = await subDir.getFileHandle(nomeFileSicuro);
-                        const file = await fileHandle.getFile();
-                        blob = file;
-                    } catch(err) {
-                        console.warn("File non trovato nella cartella su disco, provo da IndexedDB:", err);
-                    }
-                }
-
-                // 2. Se non ancora trovato, leggi da IndexedDB
-                if(!blob) {
-                    const stored = await leggiPdfDaIndexedDB(idDoc);
-                    if(stored) {
-                        if(stored instanceof Blob) {
-                            blob = stored;
-                        } else if(typeof stored === 'string') {
-                            const parts = stored.split(',');
-                            const base64 = parts.slice(1).join(',') || parts[0];
-                            const binary = atob(base64);
-                            const bytes = new Uint8Array(binary.length);
-                            for(let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-                            blob = new Blob([bytes], { type: "application/pdf" });
-                        }
-                    }
-                }
-
-                // 3. Fallback per vecchi database con base64 inline
-                if(!blob && doc.base64) {
-                    const parts = doc.base64.split(',');
-                    const base64 = parts.slice(1).join(',') || parts[0];
-                    const binary = atob(base64);
-                    const bytes = new Uint8Array(binary.length);
-                    for(let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+        // 3. vecchia copia in IndexedDB
+        if (!blob) {
+            const stored = await leggiPdfDaIndexedDB(idDoc);
+            if (stored) {
+                if (stored instanceof Blob) blob = stored;
+                else if (typeof stored === "string") {
+                    const parti = stored.split(",");
+                    const b64 = parti.length > 1 ? parti.slice(1).join(",") : parti[0];
+                    const bin = atob(b64);
+                    const bytes = new Uint8Array(bin.length);
+                    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
                     blob = new Blob([bytes], { type: "application/pdf" });
-                    salvaPdfInIndexedDB(idDoc, blob);
                 }
-
-                if(!blob) {
-                    alert("Impossibile reperire i dati del PDF.\nSe il file era salvato nella cartella su disco, assicurati di aver collegato la 'Cartella Archivio PDF'.");
-                    return;
-                }
-
-                const blobUrl = URL.createObjectURL(blob);
-                const pdfWindow = window.open(blobUrl, "_blank");
-                if(!pdfWindow) {
-                    URL.revokeObjectURL(blobUrl);
-                    alert("Il browser ha bloccato l'apertura del PDF. Consenti i popup per questa pagina e riprova.");
-                    return;
-                }
-                setTimeout(() => URL.revokeObjectURL(blobUrl), 10 * 60 * 1000);
-            } catch(err) {
-                console.error("Errore apertura PDF:", err);
-                alert("Non è stato possibile aprire il PDF: " + (err.message || err));
             }
         }
 
-        function renderingTabellaPdfDettaglio(id) {
-            const tbody = document.getElementById("tbodyPdfDettaglio");
-            tbody.innerHTML = "";
-            let listaPdf = (AppData.metadata[id] && AppData.metadata[id].documentiPdf) ? AppData.metadata[id].documentiPdf : [];
-
-            if(listaPdf.length === 0) {
-                tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:1rem; color:#6b7280;'>Nessun documento PDF allegato a questa commessa.</td></tr>";
-                return;
-            }
-
-            listaPdf.forEach(doc => {
-                let badgeLoc = doc.percorsoRelativo 
-                    ? `<span style="background:#e0f2fe; color:#0369a1; padding:2px 6px; border-radius:4px; font-size:0.75rem;">📁 ${doc.percorsoRelativo}</span>`
-                    : `<span style="background:#f3f4f6; color:#4b5563; padding:2px 6px; border-radius:4px; font-size:0.75rem;">💾 IndexedDB</span>`;
-
-                let dimStr = doc.dimensione ? ` <small style="color:#6b7280;">(${doc.dimensione})</small>` : '';
-
-                let riga = `<tr>
-                    <td class="desc-cell"><strong>📄 ${doc.nomeDoc}</strong></td>
-                    <td>${doc.nomeFile}${dimStr}</td>
-                    <td>${doc.dataCaricamento}</td>
-                    <td>${badgeLoc}</td>
-                    <td>
-                        <button class="btn btn-secondary" onclick="apriDocumentoPDF(${doc.idDoc})" style="padding:0.3rem 0.6rem; font-size:0.75rem;">👁️ Apri PDF</button>
-                        <button class="btn btn-danger" onclick="eliminaDocumentoPDF(${doc.idDoc})" style="padding:0.3rem 0.6rem; font-size:0.75rem;">🗑️ Elimina</button>
-                    </td>
-                </tr>`;
-                tbody.innerHTML += riga;
-            });
+        // 4. vecchissimi database con base64 nel JSON
+        if (!blob && doc.base64) {
+            const parti = String(doc.base64).split(",");
+            const b64 = parti.length > 1 ? parti.slice(1).join(",") : parti[0];
+            const bin = atob(b64);
+            const bytes = new Uint8Array(bin.length);
+            for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+            blob = new Blob([bytes], { type: "application/pdf" });
         }
+
+        if (!blob) {
+            alert(EN
+                ? "Cannot retrieve the PDF.\nFile name: " + (doc.percorsoRelativo || doc.nomeFile) + "\nOpen it from your file manager."
+                : "Impossibile reperire il PDF.\nNome file: " + (doc.percorsoRelativo || doc.nomeFile) + "\nAprilo dal tuo gestore di file.");
+            return;
+        }
+
+        const url = URL.createObjectURL(blob);
+        const win = window.open(url, "_blank");
+        if (!win) {
+            URL.revokeObjectURL(url);
+            alert(EN ? "Popup blocked: allow popups for this page." : "Popup bloccato dal browser: consenti i popup per questa pagina.");
+            return;
+        }
+        setTimeout(() => URL.revokeObjectURL(url), 10 * 60 * 1000);
+    } catch (err) {
+        console.error("Errore apertura PDF:", err);
+        alert((EN ? "Cannot open the PDF: " : "Non è stato possibile aprire il PDF: ") + (err.message || err));
+    }
+}
+
+/* ---- elimina un documento (dal registro; il file su disco resta, salvo conferma) ---- */
+async function eliminaDocumentoPDF(idDoc) {
+    const EN = pdfIsEnC();
+    const id = idCommessaSelezionata;
+    if (!id || !AppData.metadata[id].documentiPdf) return;
+    const doc = AppData.metadata[id].documentiPdf.find(d => String(d.idDoc) === String(idDoc));
+    if (!confirm(EN
+        ? "Remove '" + (doc ? doc.nomeDoc : "") + "' from this order?\n\nThe PDF file on your disk will NOT be deleted."
+        : "Rimuovere '" + (doc ? doc.nomeDoc : "") + "' da questa commessa?\n\nIl file PDF sul tuo disco NON viene cancellato.")) return;
+
+    // vecchia copia in IndexedDB, se esiste
+    try { await eliminaPdfDaIndexedDB(idDoc); } catch (e) { }
+    // handle
+    await eliminaHandlePdf(idDoc);
+
+    // vecchio file nella cartella archivio_pdf (solo per documenti storici)
+    if (doc && doc.inCartella && cartellaArchivioPdfHandle) {
+        try {
+            const subDir = await cartellaArchivioPdfHandle.getDirectoryHandle(String(id), { create: false });
+            const nomeFileSicuro = String(doc.nomeFile).replace(/[^a-zA-Z0-9_.-]/g, "_");
+            await subDir.removeEntry(nomeFileSicuro);
+        } catch (e) { }
+    }
+
+    AppData.metadata[id].documentiPdf = AppData.metadata[id].documentiPdf.filter(d => d.idDoc !== idDoc);
+    salvaDatiCondivisi();
+    renderingTabellaPdfDettaglio(id);
+    aggiornaContatoreCache();
+}
+
+/* ---- tabella documenti ---- */
+function renderingTabellaPdfDettaglio(id) {
+    const EN = pdfIsEnC();
+    const tbody = document.getElementById("tbodyPdfDettaglio");
+    if (!tbody) return;
+    tbody.innerHTML = "";
+    const listaPdf = (AppData.metadata[id] && AppData.metadata[id].documentiPdf) ? AppData.metadata[id].documentiPdf : [];
+
+    if (listaPdf.length === 0) {
+        tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:1rem; color:#6b7681;'>" +
+            (EN ? "No PDF attached to this order." : "Nessun documento PDF allegato a questa commessa.") + "</td></tr>";
+        return;
+    }
+
+    listaPdf.forEach(doc => {
+        let badgeLoc;
+        if (doc.conHandle || doc.percorsoRelativo) {
+            badgeLoc = `<span style="background:#e8eef2; color:#2c5f8e; padding:2px 6px; border-radius:2px; font-size:0.75rem;" title="${ganttEscape(doc.percorsoRelativo || '')}">📄 ${ganttEscape(doc.percorsoRelativo || doc.nomeFile)}</span>`;
+        } else if (doc.inCartella) {
+            badgeLoc = `<span style="background:#e8eef2; color:#2c5f8e; padding:2px 6px; border-radius:2px; font-size:0.75rem;">📁 ${ganttEscape(doc.percorsoRelativo || '')}</span>`;
+        } else {
+            badgeLoc = `<span style="background:#eef0f1; color:#4a5560; padding:2px 6px; border-radius:2px; font-size:0.75rem;">💾 ${EN ? "browser copy" : "copia nel browser"}</span>`;
+        }
+
+        const dimStr = doc.dimensione ? ` <small style="color:#6b7681;">(${doc.dimensione})</small>` : "";
+
+        tbody.innerHTML += `<tr>
+            <td class="desc-cell"><strong>📄 ${ganttEscape(doc.nomeDoc)}</strong></td>
+            <td>${ganttEscape(doc.nomeFile)}${dimStr}</td>
+            <td>${ganttEscape(doc.dataCaricamento)}</td>
+            <td>${badgeLoc}</td>
+            <td>
+                <button class="btn btn-secondary" onclick="apriDocumentoPDF(${doc.idDoc})" style="padding:0.3rem 0.6rem; font-size:0.75rem;">👁️ ${EN ? "Open PDF" : "Apri PDF"}</button>
+                <button class="btn btn-danger" onclick="eliminaDocumentoPDF(${doc.idDoc})" style="padding:0.3rem 0.6rem; font-size:0.75rem;">🗑️ ${EN ? "Remove" : "Elimina"}</button>
+            </td>
+        </tr>`;
+    });
+}
+
+/* ---- spazio usato dal browser + svuota cache ---- */
+async function aggiornaContatoreCache() {
+    const el = document.getElementById("statoCachePdf");
+    if (!el) return;
+    const EN = pdfIsEnC();
+    let testo = "";
+    try {
+        if (navigator.storage && navigator.storage.estimate) {
+            const st = await navigator.storage.estimate();
+            const mb = (st.usage || 0) / (1024 * 1024);
+            testo = mb < 1 ? (mb * 1024).toFixed(0) + " KB" : mb.toFixed(1) + " MB";
+        }
+    } catch (e) { }
+    if (!testo) {
+        el.textContent = "";
+        return;
+    }
+    el.textContent = "• " + (EN ? "browser data" : "dati nel browser") + ": " + testo;
+    el.style.color = "#6b7681";
+}
+
+async function svuotaCachePdf() {
+    const EN = pdfIsEnC();
+    if (!confirm(EN
+        ? "Clear the browser cache?\n\nOnly the old PDF copies stored inside the browser are removed. The PDF files on your disk and the order data are NOT touched."
+        : "Svuotare la cache del browser?\n\nVengono rimossi solo i vecchi PDF copiati dentro il browser. I file PDF sul tuo disco e i dati delle commesse NON vengono toccati.")) return;
+    try {
+        const db = await apriDBHandleStore();
+        await new Promise((resolve, reject) => {
+            const tx = db.transaction(STORE_PDF_BLOBS, "readwrite");
+            tx.objectStore(STORE_PDF_BLOBS).clear();
+            tx.oncomplete = resolve;
+            tx.onerror = () => reject(tx.error);
+        });
+        db.close();
+        alert(EN ? "Browser PDF cache cleared." : "Cache PDF del browser svuotata.");
+        aggiornaContatoreCache();
+    } catch (e) {
+        alert((EN ? "Error: " : "Errore: ") + (e.message || e));
+    }
+}
+
+
         function sviluppaFasiInTabella(attivita) {
             const tbody = document.getElementById("tbodyFasiDettaglio");
             tbody.innerHTML = "";
