@@ -179,3 +179,32 @@ DOMANDE FREQUENTI
 ---
 Progetto open source: https://github.com/casapad1968-hub/riepilogo-commesse
 Licenza MIT
+
+------------------------------------------------------------------
+📈 SCHEDA GANTT (stile MS Project)
+------------------------------------------------------------------
+Dalla barra delle schede in alto scegli "📈 Gantt (stile MS Project)".
+
+Cosa puoi fare:
+  • Cambiare commessa dal menu a tendina in alto.
+  • Scala temporale: Giorni / Settimane / Mesi, con zoom + e −.
+  • Linea rossa verticale = OGGI, sempre visibile.
+  • Dipendenze: frecce che collegano la fine di un'attività all'inizio
+    della successiva (campo "dependencies" nel database, oppure
+    importate automaticamente dal file MS Project XML - PredecessorLink).
+  • Percorso critico: le attività che, se in ritardo, spostano la
+    consegna finale vengono evidenziate in rosso (algoritmo CPM).
+  • Milestone: rombi ◆ per le attività a durata zero.
+  • Giorni lavorativi: attiva l'opzione per escludere sabato e
+    domenica dal calcolo delle durate.
+  • Filtri rapidi: Tutte / Solo critiche / In ritardo / In scadenza.
+  • Modifica diretta:
+      - trascina la barra per spostare le date
+      - trascina i bordi della barra per allungare o accorciare
+      - doppio clic sulla barra per modificare nome, date, % e predecessori
+      - pulsante "＋ Nuova attività" per aggiungere una fase
+  • Esporta PNG (immagine da incollare in una mail o in un report).
+  • Stampa A4 orizzontale.
+
+Le modifiche fatte nel Gantt vengono salvate nel database condiviso,
+con il controllo multi-utente già attivo (file di lock).
