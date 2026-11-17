@@ -1455,6 +1455,7 @@
         let controlloConflittoInCorso = false;
         const DB_HANDLE_NAME = "CommesseArchivioCondiviso";
         const STORE_PDF_BLOBS = "documenti_pdf";
+        const STORE_APPDATA = "appdata";
         let MODALITA_VISUALIZZAZIONE = false;
         let lockInUsoDaAltroOperatore = null;
 
@@ -1512,7 +1513,7 @@
 
         function apriDBHandleStore() {
             return new Promise((resolve, reject) => {
-                const req = indexedDB.open(DB_HANDLE_NAME, 2);
+                const req = indexedDB.open(DB_HANDLE_NAME, 3);
                 req.onupgradeneeded = (e) => {
                     const db = req.result;
                     if(!db.objectStoreNames.contains("handles")) {
@@ -1521,10 +1522,53 @@
                     if(!db.objectStoreNames.contains(STORE_PDF_BLOBS)) {
                         db.createObjectStore(STORE_PDF_BLOBS);
                     }
+                    if(!db.objectStoreNames.contains(STORE_APPDATA)) {
+                        db.createObjectStore(STORE_APPDATA);
+                    }
                 };
                 req.onsuccess = () => resolve(req.result);
                 req.onerror = () => reject(req.error);
             });
+        }
+
+        /* ============================================================
+           ARCHIVIO LOCALE DEI DATI (IndexedDB)
+           I dati dell'app vivono qui: all'avvio non serve collegare
+           nessun file. Il JSON si usa solo per esportare una copia
+           o per importare un archivio esistente.
+           ============================================================ */
+        async function salvaAppDataLocale() {
+            try {
+                const db = await apriDBHandleStore();
+                await new Promise((resolve, reject) => {
+                    const tx = db.transaction(STORE_APPDATA, "readwrite");
+                    tx.objectStore(STORE_APPDATA).put(
+                        clonaAppDataLeggeroPerSalvataggio(AppData), "corrente");
+                    tx.oncomplete = resolve;
+                    tx.onerror = () => reject(tx.error);
+                });
+                db.close();
+                return true;
+            } catch (err) {
+                console.warn("Salvataggio locale fallito:", err);
+                return false;
+            }
+        }
+
+        async function caricaAppDataLocale() {
+            try {
+                const db = await apriDBHandleStore();
+                const dati = await new Promise((resolve, reject) => {
+                    const tx = db.transaction(STORE_APPDATA, "readonly");
+                    const req = tx.objectStore(STORE_APPDATA).get("corrente");
+                    req.onsuccess = () => resolve(req.result || null);
+                    req.onerror = () => reject(req.error);
+                });
+                db.close();
+                return dati;
+            } catch (err) {
+                return null;
+            }
         }
 
         async function salvaHandleArchivio(handle) {
@@ -2219,18 +2263,50 @@ async function assicuraCartellaPdf() {
                 aggiornaStatoArchivioCondiviso("Modalita' demo: dati in sola lettura", "#b45309");
                 return Promise.resolve(false);
             }
+            // 1. salvataggio locale (sempre): i dati restano nel browser
             try {
                 localStorage.setItem('AppData_Sinottico_V10_Fasi', JSON.stringify(clonaAppDataLeggeroPerSalvataggio(AppData)));
             } catch(err) {
                 console.warn("Cache localStorage non aggiornata (limite dimensione):", err);
             }
+            const salvataggioLocale = salvaAppDataLocale();
             databaseModificato = true;
-            salvataggioCondivisoInCorso = salvataggioCondivisoInCorso.then(() => scriviDatabaseCondiviso());
-            return salvataggioCondivisoInCorso;
+
+            // 2. se e' collegato un file JSON, aggiorna anche quello
+            if(archivioCondivisoHandle) {
+                salvataggioCondivisoInCorso = salvataggioCondivisoInCorso.then(() => scriviDatabaseCondiviso());
+                return salvataggioCondivisoInCorso;
+            }
+            if(!MODALITA_VISUALIZZAZIONE) {
+                aggiornaStatoArchivioCondiviso("Salvato nel browser • " + new Date().toLocaleTimeString('it-IT'), "#15803d");
+            }
+            return salvataggioLocale;
         }
 
         async function inizializzaArchivioCondiviso() {
             await inizializzaNomeOperatore();
+
+            // === ARCHIVIO LOCALE: i dati vivono nel browser, nessun file da collegare ===
+            const datiLocali = await caricaAppDataLocale();
+            if(datiLocali && datiLocali.metadata && Object.keys(datiLocali.metadata).length > 0) {
+                AppData = normalizzaDatiCompatibilita(datiLocali);
+                if(!AppData.diario) AppData.diario = [];
+                if(!AppData.scadenziario) AppData.scadenziario = [];
+                databaseModificato = false;
+                origineDati = "archivio locale del browser";
+                aggiornaStatoArchivioCondiviso("Dati nel browser • pronti", "#15803d");
+                ripristinaPreferenzaDensita();
+                renderingDashboard();
+                renderingSinottico();
+                ripristinaCartellaPdfHandle();
+                renderingArchivio();
+                renderingScadenziario();
+                renderingDiario();
+                try { aggiornaBannerCartellaPdf(); } catch(e) {}
+                return;
+            }
+
+            // primo avvio: nessun dato locale
             if(USA_DATI_PRECARICATI && AppData && AppData.metadata && Object.keys(AppData.metadata).length > 0) {
                 aggiornaStatoArchivioCondiviso("Dati precaricati (demo) - non collegato a un file", "#b45309");
                 return;
@@ -3696,6 +3772,8 @@ async function assicuraCartellaPdf() {
             // Ordina righe per data consegna
             righeDash.sort((a,b) => a.dConsVal - b.dConsVal);
             if(typeof renderingAlberoCommesse === 'function') { try { renderingAlberoCommesse(); } catch(e) {} }
+            if(typeof aggiornaPulsanteEsportaPdf === 'function') { try { aggiornaPulsanteEsportaPdf(); } catch(e) {} }
+            if(typeof aggiornaPulsanteMigrazione === 'function') { try { aggiornaPulsanteMigrazione(); } catch(e) {} }
             if(righeDash.length > 0) {
                 righeDash.forEach(r => tbody.innerHTML += r.html);
             } else {
