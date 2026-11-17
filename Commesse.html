@@ -3907,6 +3907,14 @@ function alberoSeleziona(id) {
             let lastLeft = 100 - monthSpan;
             mesiHeaderHtml += `<div style="position: absolute; left: ${lastLeft}%; width: ${monthSpan}%; border-right: 1px solid #6b7280; text-align: center; font-size: 7px; font-weight: bold; background: #e5e7eb; overflow: hidden; white-space: nowrap;">${monthName}</div>`;
 
+            // ---- LINEA OGGI (data di stampa) in percentuale sulla scala ----
+            const oggiMs = dataReport.getTime();
+            let lineaOggiPrintHtml = "";
+            if(oggiMs >= minTime && oggiMs <= maxTime && spanTempo > 0) {
+                const oggiPct = ((oggiMs - minTime) / spanTempo) * 100;
+                lineaOggiPrintHtml = `<div style="position:absolute; top:0; bottom:0; left:${oggiPct}%; width:1.5px; background:#c0392b; z-index:5; pointer-events:none;"></div>`;
+            }
+
             let idxR = 1;
             const righeAttivita = attivita.map(a => {
                 const nome = a.name || a.nome || a.taskName || a.id || "-";
@@ -3936,11 +3944,14 @@ function alberoSeleziona(id) {
                     let widthP = Math.max(1, Math.min(100 - leftP, ((fiTime - stTime) / spanTempo) * 100));
                     
                     if(isSummary) {
-                        barraHtml = `<div style="position:relative; width:100%; height:12px; background:#fafafa;">${gridLinesHtml}<div style="position: absolute; top: 2px; left: ${leftP}%; width: ${widthP}%; height: 6px;"><div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background-color: #000080;"></div><div style="position: absolute; top: 0; left: 0; width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 6px solid #000080;"></div><div style="position: absolute; top: 0; right: 0; width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 6px solid #000080;"></div></div></div>`;
+                        barraHtml = `<div style="position:relative; width:100%; height:12px; background:#fafafa;">${gridLinesHtml}${lineaOggiPrintHtml}<div style="position: absolute; top: 2px; left: ${leftP}%; width: ${widthP}%; height: 6px;"><div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background-color: #5a6a78;"></div><div style="position: absolute; top: 0; left: 0; width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 6px solid #5a6a78;"></div><div style="position: absolute; top: 0; right: 0; width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 6px solid #5a6a78;"></div></div></div>`;
                     } else {
-                        let colorBar = completata ? "#10b981" : (giorniRitardoAttivita > 0 ? "#ef4444" : "#38bdf8");
-                        let progressoPrintHtml = (pctNum > 0 && pctNum < 100) ? `<div style="position:absolute; top:0; left:0; width:${pctNum}%; height:100%; background:#f97316;"></div>` : "";
-                        barraHtml = `<div style="position:relative; width:100%; height:12px; background:#fafafa; border-radius:2px;">${gridLinesHtml}<div style="position:absolute; top:2px; left:${leftP}%; width:${widthP}%; height:8px; background:${colorBar}; border-radius:2px; overflow:hidden;">${progressoPrintHtml}</div></div>`;
+                        const isCritPrint = (giorniRitardoAttivita > 0);
+                        const bordoBar = isCritPrint ? "1px solid #a04a3c" : "1px solid rgba(44,95,142,0.55)";
+                        const sfondoBar = isCritPrint ? "rgba(160,74,60,0.16)" : "rgba(44,95,142,0.14)";
+                        const riempiBar = isCritPrint ? "rgba(160,74,60,0.42)" : "rgba(44,95,142,0.38)";
+                        let progressoPrintHtml = (pctNum > 0 && pctNum < 100) ? `<div style="position:absolute; top:0; left:0; width:${pctNum}%; height:100%; background:${riempiBar};"></div>` : "";
+                        barraHtml = `<div style="position:relative; width:100%; height:12px; background:#fafafa; border-radius:2px;">${gridLinesHtml}${lineaOggiPrintHtml}<div style="position:absolute; top:2px; left:${leftP}%; width:${widthP}%; height:8px; background:${sfondoBar}; border:${bordoBar}; border-radius:2px; overflow:hidden;">${progressoPrintHtml}</div></div>`;
                     }
                 }
 
@@ -4621,28 +4632,31 @@ function ganttDisegna(chiave) {
         let barra = "";
         if (r.kind === "p") {
             const wide = Math.max(8, (r.finishD - r.startD + 1) * pxDay);
-            const base = r.late ? "#dc2626" : "#4338ca";
-            barra = `<div style="position:absolute; top:8px; left:${left}px; width:${wide}px; height:10px; background:${base}; border-radius:3px; overflow:hidden; box-shadow:0 1px 2px rgba(0,0,0,.2);" title="${ganttEscape(r.name)} — ${r.pct}%">
-                <div style="position:absolute; top:0; left:0; width:${r.pct}%; height:100%; background:${r.late ? "#991b1b" : "#1e1b4b"};"></div>
+            const bordoP = r.late ? "1px solid #a04a3c" : "1px solid rgba(44,95,142,0.55)";
+            const sfondoP = r.late ? "rgba(160,74,60,0.16)" : "rgba(44,95,142,0.14)";
+            const riempiP = r.late ? "rgba(160,74,60,0.42)" : "rgba(44,95,142,0.38)";
+            barra = `<div style="position:absolute; top:8px; left:${left}px; width:${wide}px; height:10px; background:${sfondoP}; border:${bordoP}; border-radius:3px; overflow:hidden;" title="${ganttEscape(r.name)} — ${r.pct}%">
+                <div style="position:absolute; top:0; left:0; width:${r.pct}%; height:100%; background:${riempiP};"></div>
             </div>`;
         } else if (r.isSummary) {
             const wide = Math.max(6, (r.finishD - r.startD + 1) * pxDay);
-            const c = r.crit && st.critico ? "#b91c1c" : "#1e293b";
+            const c = r.crit && st.critico ? "#a04a3c" : "#5a6a78";
             barra = `<div class="gantt-bar" data-row="${i}" style="position:absolute; top:9px; left:${left}px; width:${wide}px; height:9px; cursor:${ro ? "default" : "grab"};">
                 <div style="position:absolute; top:0; left:0; right:0; height:4px; background:${c};"></div>
                 <div style="position:absolute; top:0; left:0; width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent; border-top:9px solid ${c};"></div>
                 <div style="position:absolute; top:0; right:0; width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent; border-top:9px solid ${c};"></div>
             </div>`;
         } else if (r.milestone) {
-            const c = (r.crit && st.critico) ? "#dc2626" : "#7c3aed";
-            barra = `<div class="gantt-bar" data-row="${i}" style="position:absolute; top:7px; left:${left - 8}px; width:16px; height:16px; background:${c}; transform:rotate(45deg); border-radius:2px; cursor:${ro ? "default" : "grab"}; box-shadow:0 1px 2px rgba(0,0,0,.25);" title="${ganttEscape(r.name)}"></div>`;
+            const c = (r.crit && st.critico) ? "#a04a3c" : "#4a7a95";
+            barra = `<div class="gantt-bar" data-row="${i}" style="position:absolute; top:7px; left:${left - 8}px; width:16px; height:16px; background:${c}; transform:rotate(45deg); border-radius:2px; cursor:${ro ? "default" : "grab"};" title="${ganttEscape(r.name)}"></div>`;
         } else {
             const wide = Math.max(3, (r.finishD - r.startD + 1) * pxDay);
             const isCrit = r.crit && st.critico;
-            const bgBar = r.pct >= 100 ? "#10b981" : (isCrit ? "#ef4444" : "#3b82f6");
+            const bgBar = r.pct >= 100 ? "rgba(107,143,114,0.16)" : (isCrit ? "rgba(160,74,60,0.16)" : "rgba(44,95,142,0.14)");
+            const bordoBar = r.pct >= 100 ? "1px solid rgba(107,143,114,0.6)" : (isCrit ? "1px solid #a04a3c" : "1px solid rgba(44,95,142,0.55)");
             const prog = (r.pct > 0 && r.pct < 100)
-                ? `<div style="position:absolute; top:0; left:0; width:${r.pct}%; height:100%; background:${isCrit ? "#991b1b" : "#1d4ed8"};"></div>` : "";
-            barra = `<div class="gantt-bar" data-row="${i}" style="position:absolute; top:6px; left:${left}px; width:${wide}px; height:18px; background:${bgBar}; border-radius:4px; overflow:hidden; cursor:${ro ? "default" : "grab"}; box-shadow:0 1px 2px rgba(0,0,0,.18);" title="${ganttEscape(r.name)} — ${r.pct}%">
+                ? `<div style="position:absolute; top:0; left:0; width:${r.pct}%; height:100%; background:${isCrit ? "rgba(160,74,60,0.45)" : "rgba(44,95,142,0.40)"};"></div>` : "";
+            barra = `<div class="gantt-bar" data-row="${i}" style="position:absolute; top:6px; left:${left}px; width:${wide}px; height:18px; background:${bgBar}; border:${bordoBar}; border-radius:4px; overflow:hidden; cursor:${ro ? "default" : "grab"};" title="${ganttEscape(r.name)} — ${r.pct}%">
                 ${prog}
                 ${ro ? "" : `<div class="gantt-h gantt-hl" data-row="${i}" style="position:absolute; top:0; left:0; width:7px; height:100%; cursor:ew-resize; background:rgba(0,0,0,.001);"></div>
                 <div class="gantt-h gantt-hr" data-row="${i}" style="position:absolute; top:0; right:0; width:7px; height:100%; cursor:ew-resize; background:rgba(0,0,0,.001);"></div>`}
@@ -4671,7 +4685,7 @@ function ganttDisegna(chiave) {
                 const giu = y2 >= y1;
                 const d = Math.max(12, Math.min(26, Math.abs(y2 - y1) / 2 + 8));
                 const isC = st.critico && pred.crit && r.crit;
-                paths += `<path d="M ${x1} ${y1} H ${x1 + d} V ${y2 + (giu ? -3 : 3)} H ${x2 - 5}" fill="none" stroke="${isC ? "#dc2626" : "#94a3b8"}" stroke-width="1.3" marker-end="url(#gArw${isC ? "C" : ""})"/>`;
+                paths += `<path d="M ${x1} ${y1} H ${x1 + d} V ${y2 + (giu ? -3 : 3)} H ${x2 - 5}" fill="none" stroke="${isC ? "#a04a3c" : "#b8c2c9"}" stroke-width="1.3" marker-end="url(#gArw${isC ? "C" : ""})"/>`;
             });
         });
         svgDip = `<svg style="position:absolute; top:0; left:0; width:${totalW}px; height:${bodyH}px; pointer-events:none; overflow:visible;">
@@ -5174,23 +5188,25 @@ function ganttCanvas(chiave) {
         const x = leftW + (r.startD - minD) * pxDay;
         const w = Math.max(3, (r.finishD - r.startD + 1) * pxDay);
         if (r.kind === "p") {
-            ctx.fillStyle = r.late ? "#dc2626" : "#4338ca";
+            ctx.fillStyle = r.late ? "rgba(160,74,60,0.42)" : "rgba(44,95,142,0.38)";
             ctx.fillRect(x, ry + 10, Math.max(8, w), 10);
-            ctx.fillStyle = r.late ? "#991b1b" : "#1e1b4b";
-            ctx.fillRect(x, ry + 10, Math.max(8, w) * r.pct / 100, 10);
         } else if (r.isSummary) {
-            ctx.fillStyle = (r.crit && st.critico) ? "#b91c1c" : "#1e293b";
+            ctx.fillStyle = (r.crit && st.critico) ? "#a04a3c" : "#5a6a78";
             ctx.fillRect(x, ry + 11, Math.max(6, w), 4);
         } else if (r.milestone) {
-            ctx.fillStyle = (r.crit && st.critico) ? "#dc2626" : "#7c3aed";
+            ctx.fillStyle = (r.crit && st.critico) ? "#a04a3c" : "#4a7a95";
             ctx.save(); ctx.translate(x, ry + rowH / 2); ctx.rotate(Math.PI / 4);
             ctx.fillRect(-7, -7, 14, 14); ctx.restore();
         } else {
             const isC = r.crit && st.critico;
-            ctx.fillStyle = r.pct >= 100 ? "#10b981" : (isC ? "#ef4444" : "#3b82f6");
+            const fondoC = r.pct >= 100 ? "rgba(107,143,114,0.16)" : (isC ? "rgba(160,74,60,0.16)" : "rgba(44,95,142,0.14)");
+            const bordoC = r.pct >= 100 ? "rgba(107,143,114,0.6)" : (isC ? "#a04a3c" : "rgba(44,95,142,0.55)");
+            ctx.fillStyle = fondoC;
             ctx.fillRect(x, ry + 7, w, 16);
+            ctx.strokeStyle = bordoC; ctx.lineWidth = 1;
+            ctx.strokeRect(x + 0.5, ry + 7.5, w - 1, 15);
             if (r.pct > 0 && r.pct < 100) {
-                ctx.fillStyle = isC ? "#991b1b" : "#1d4ed8";
+                ctx.fillStyle = isC ? "rgba(160,74,60,0.45)" : "rgba(44,95,142,0.40)";
                 ctx.fillRect(x, ry + 7, w * r.pct / 100, 16);
             }
         }
