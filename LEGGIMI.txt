@@ -1,211 +1,302 @@
 RIEPILOGO COMMESSE — ISTRUZIONI D'USO
 =====================================
 
-Cosa c'è in questa cartella
+Versione italiana.  Per la versione inglese vedi LEGGIMI_EN.txt (in fondo
+trovi anche il riferimento alla guida tecnica README.md).
+
+
+COSA C'È IN QUESTA CARTELLA
 ---------------------------
-  Commesse.html                  L'applicazione (un unico file, non serve installare nulla)
-  database_commesse.json         Database DIMOSTRATIVO con dati inventati (per provare)
-  database_vuoto.json            Database vuoto, per iniziare da zero con le tue commesse
-  demo\                          Copia del database dimostrativo (la stessa cosa)
-  LEGGIMI.txt                    Questo file
+  Commesse.html                  L'applicazione in italiano (un unico file,
+                                 non serve installare nulla)
+  Orders.html                    La stessa applicazione in inglese
+  database_commesse.json         Database DIMOSTRATIVO con dati inventati
+  database_vuoto.json            Database vuoto, per iniziare da zero
+  demo\database_commesse.json    Copia del dimostrativo (usata online)
+  archivio_pdf\                  Cartella per i PDF allegati alle commesse
+  LEGGIMI.txt                    Questo file (italiano)
+  LEGGIMI_EN.txt                 Istruzioni in inglese
   README.md                      Descrizione tecnica del progetto
   LICENSE                        Licenza MIT
 
 
 REQUISITI
 ---------
-  Browser: Microsoft Edge o Google Chrome (aggiornati)
-  NON funziona su Firefox o Safari: manca il supporto per il salvataggio diretto su file
-  Non serve internet, non serve installare niente
+  Browser: Microsoft Edge o Google Chrome (aggiornati).
+  NON funziona su Firefox o Safari: manca il supporto per il salvataggio
+  diretto sul file.
+  Non serve internet. Non serve installare niente.
 
 
-COME INIZIARE — PRIMO AVVIO
----------------------------
+PRIMO AVVIO
+-----------
   1. Apri Commesse.html con doppio clic (o tasto destro > Apri con > Chrome/Edge)
 
-  2. L'app si apre GIA' POPOLATA con due commesse dimostrative:
+  2. L'app si apre GIÀ POPOLATA con due commesse dimostrative:
        70777 - Cliente A, in ritardo
        70812 - Cliente B, in linea
 
-     Non devi selezionare nessun file. Guarda, clicca, prova.
+  3. Quando hai capito come funziona, premi "🗑️ Svuota dati demo" per partire
+     da zero.
 
-  3. Quando hai capito come funziona, premi "Svuota dati demo" (pulsante rosso
-     in alto a destra nella barra dei comandi) per partire da zero.
-
-  4. Per collegare il TUO database: "Collega Archivio Condiviso" -> scegli il file.
+  4. Per collegare il TUO database: "🔗 Collega Archivio Condiviso" e scegli
+     il file JSON.
 
 
 DUE MODI DI FUNZIONARE
 ----------------------
   A) FILE LOCALE (uso normale, sul tuo PC)
      I dati dimostrativi sono dentro l'HTML. Il tuo database vero si collega
-     con il pulsante "Collega Archivio Condiviso": da quel momento puoi salvare.
+     con "🔗 Collega Archivio Condiviso": da quel momento puoi salvare.
 
-  B) SUL SITO (solo per provare le modifiche)
+  B) SUL SITO (solo per provare)
      Se apri la pagina da un indirizzo http/https, l'app legge da sola il file
-     demo/database_commesse.json della repository. Nessun collegamento da fare:
-     apri e vedi. In questa modalita' NON si salva: e' sola lettura, apposta,
-     perche' non c'e' nessun file tuo da scrivere.
+     demo/database_commesse.json. Nessun collegamento da fare: apri e vedi.
+     In questa modalità NON si salva: è di sola lettura, apposta, perché non
+     c'è nessun file tuo da scrivere.
 
-     Indirizzo online:
-     https://casapad1968-hub.github.io/riepilogo-commesse/Commesse.html
+     Indirizzi online:
+       Italiano: https://casapad1968-hub.github.io/riepilogo-commesse/Commesse.html
+       Inglese:  https://casapad1968-hub.github.io/riepilogo-commesse/Orders.html
 
      Per aggiornare i dati mostrati online basta modificare il file
-     demo/database_commesse.json nella repository e ricaricare la pagina.
+     demo/database_commesse.json e ricaricare la pagina.
 
 
-PERCHE' IL BROWSER NON SI COLLEGA DA SOLO A UN FILE TUO
--------------------------------------------------------
+PERCHÉ IL BROWSER NON SI COLLEGA DA SOLO A UN FILE TUO
+-----------------------------------------------------
   Il browser non permette a una pagina web di aprire un file sul disco senza
-  un tuo clic. E' una regola di sicurezza, non un limite dell'app.
+  un tuo clic. È una regola di sicurezza, non un limite dell'app.
   Per questo i dati dimostrativi sono dentro l'HTML, mentre il tuo database
-  vero si collega con un clic - e solo cosi' il browser ti da' il permesso
-  di SCRIVERE sul file, cioe' di salvare le modifiche.
+  vero si collega con un clic — e solo così il browser ti dà il permesso di
+  SCRIVERE sul file, cioè di salvare le modifiche.
 
 
 ATTENZIONE — PRIMA DI USARLA CON I TUOI DATI
 --------------------------------------------
-  Quando l'app è collegata a un file JSON, ogni salvataggio SOVRASCRIVE quel file.
-  Se provi con il database dimostrativo e poi salvi, i dati demo vengono modificati.
-  Per questo conviene:
+  Quando l'app è collegata a un file JSON, ogni salvataggio SOVRASCRIVE quel
+  file. Se provi con il database dimostrativo e poi salvi, i dati demo
+  vengono modificati. Per questo conviene:
      - tenere il dimostrativo in una cartella a parte
      - usare database_vuoto.json (o una copia) per il lavoro vero
 
 
 CARICARE LE TUE COMMESSE DA MS PROJECT
 --------------------------------------
-  Nella scheda "Nuova Commessa (Manuale / XML)":
-     - Opzione A: carica il file XML esportato da MS Project
+  Nella scheda "➕ Nuova Commessa (Manuale / XML)":
+     - Opzione A: carica il file XML esportato da MS Project.
        L'app compila da sola numero commessa, descrizione, attività, date
-     - Compila a mano solo i campi che l'XML non contiene:
-       date dell'ordine, fabbricante, inizio fabbricazione
+       e le dipendenze tra le fasi (PredecessorLink).
+     - Compila a mano solo i campi che l'XML non contiene: date dell'ordine,
+       fabbricante, inizio fabbricazione.
 
   Per AGGIORNARE una commessa esistente:
      - entra nel dettaglio della commessa
      - sezione "AGGIORNA FILE PROJECT XML DEL MESE"
-     - carica il nuovo XML: le attività vengono sostituite, i dati inseriti a mano restano
+     - carica il nuovo XML: le attività vengono sostituite, i dati inseriti
+       a mano restano
+
+
+LE SCHEDE
+---------
+  📊 Dashboard
+     La home operativa, su tre colonne:
+       - colonna sinistra: quattro indicatori (commesse attive, in linea,
+         in ritardo, in attenzione)
+       - colonna centrale: avvisi sulle consegne entro 15 giorni, filtri
+         rapidi e tabella di riepilogo
+       - colonna destra: ALBERO DELLE COMMESSE, con le fasi annidate
+     Clicca una riga della tabella o un nodo dell'albero per aprire la
+     commessa.
+
+  📋 Quadro Sinottico Completo
+     La tabella analitica a 16 colonne con tutti i dettagli di WP,
+     fabbricazione, MR e ordini materiali. Export CSV e stampa A4.
+
+  📅 Scadenziario Attività
+     Scadenze e milestone con priorità, stato e giorni di ritardo.
+
+  📈 Gantt — Riepilogo Progetti
+     Tutte le commesse attive su un'unica scala temporale.
+       - ogni commessa è una riga riassuntiva (rossa se in ritardo)
+       - clicca il nome della commessa per espanderne le fasi
+       - "Espandi tutto" / "Comprimi tutto"
+       - filtri: Tutte / Solo critiche / In ritardo / In scadenza
+     È una vista di insieme: qui non si modifica.
+
+  📦 Archivio Commesse
+     Le commesse concluse e archiviate.
+
+  🔍 Dettaglio Commessa
+     Fasi, avanzamenti, documenti PDF e il GANTT COMPLETO EDITABILE
+     (vedi la sezione dedicata più sotto).
+
+  ➕ Nuova Commessa (Manuale / XML)
+     Creazione manuale o importazione da MS Project.
+
+  📔 Diario & Problematiche
+     Registro eventi, note e criticità di produzione.
+
+
+IL GANTT NEL DETTAGLIO COMMESSA
+-------------------------------
+  Dentro il dettaglio di ogni commessa c'è il diagramma di Gantt completo,
+  in stile MS Project.
+
+  Strumenti disponibili:
+    • Scala: Giorni / Settimane / Mesi, con zoom + e −
+    • Linea rossa verticale = OGGI, sempre visibile
+    • 🔗 Dipendenze: frecce che collegano la fine di una fase all'inizio
+      della successiva
+    • 🔴 Percorso critico: le fasi che, se in ritardo, spostano la consegna
+      finale vengono evidenziate in rosso (algoritmo CPM)
+    • Milestone: rombi ◆ per le fasi a durata zero
+    • 🏖️ Solo giorni lavorativi: esclude sabato e domenica dal calcolo
+      delle durate
+    • 🖼️ Esporta PNG  •  🖨️ Stampa A4 orizzontale
+
+  Come MODIFICARE le fasi:
+    - trascina la barra .................... sposta le date
+    - trascina i bordi della barra ......... allunga / accorcia
+    - doppio clic sulla barra .............. apre la finestra completa
+    - campo % nella tabella ................ cambia l'avanzamento subito
+    - pulsante ✏️ su ogni riga ............. modifica la fase
+    - pulsante ＋ Nuova fase ............... aggiunge una fase
+
+  Nella finestra di modifica puoi cambiare: nome, data inizio, data fine,
+  percentuale di avanzamento, livello gerarchico (1/2/3), riga di sintesi,
+  milestone, predecessori e note. Dalla stessa finestra puoi anche
+  eliminare la fase.
+
+  COMMESSA SENZA FILE PROJECT
+  Se crei una commessa a mano, senza caricare l'XML, il Gantt ti offre
+  due pulsanti:
+    ＋ Nuova fase ............ aggiungi le fasi una per una
+    🗂️ Crea struttura base ... genera 14 fasi già pronte (PO ISSUANCE,
+                              MATERIAL DELIVERABLES, MANUFACTURING,
+                              DELIVERY) con date calcolate dalla data
+                              apertura velina e dalla data consegna ordine,
+                              e dipendenze già collegate.
+  Puoi sempre partire dalla struttura base e poi sistemarla trascinando
+  le barre.
+
+
+DENSITÀ DELLE TABELLE: SPAZIOSA / COMPATTA
+------------------------------------------
+  In alto a destra, nell'intestazione, c'è un pulsante che alterna due
+  modalità di visualizzazione delle tabelle.
+
+  SPAZIOSA (predefinita)
+    Righe più alte, testo più grande, descrizione della commessa su una
+    seconda riga, note critiche leggibili per esteso.
+    Comoda per il lavoro quotidiano.
+
+  COMPATTA
+    Righe più basse (circa metà altezza), testo più piccolo, descrizione
+    nascosta, note critiche troncate su una riga, barre sottili.
+    Serve per scorrere elenchi lunghi: a parità di schermo vedi circa
+    il doppio delle righe.
+
+  Il pulsante mostra sempre l'azione che farà: se leggi "Compatta" sei in
+  modalità spaziosa e stai per passare all'altra.
+  La scelta viene memorizzata nel browser e resta anche dopo la chiusura.
 
 
 DOVE STANNO I DATI
 ------------------
-  Il database è il file JSON che hai selezionato all'avvio. Nient'altro.
-  L'app non manda dati da nessuna parte: nessun server, nessun account, nessun cloud.
+  Il database è il file JSON che hai collegato. Nient'altro.
+  L'app non manda dati da nessuna parte: nessun server, nessun account,
+  nessun cloud.
 
-  Il browser tiene anche una copia temporanea interna (localStorage), usata per
-  riaprire l'app con i dati già caricati.
+  Il browser tiene anche una copia temporanea interna (localStorage), usata
+  per riaprire l'app con i dati già caricati.
+
+
+ARCHIVIO PDF DEI CERTIFICATI
+----------------------------
+  I PDF allegati alle commesse vengono salvati nella cartella 'archivio_pdf\'
+  (suddivisi automaticamente in sottocartelle per numero di commessa) e
+  memorizzati nel motore IndexedDB del browser.
+  In questo modo il file JSON resta leggerissimo (pochi KB), senza limiti di
+  dimensione e senza rischi di saturazione.
+
+
+PROTEZIONE CONCORRENZA MULTI-UTENTE
+-----------------------------------
+  - Blocco all'apertura: se un collega ha già il database aperto in modifica,
+    il secondo utente riceve una schermata di avviso che indica chi sta
+    modificando e da che ora. L'accesso passa automaticamente in SOLA
+    VISUALIZZAZIONE, con i pulsanti di modifica disattivati.
+  - Banner e badge di stato: un riquadro e un badge indicano chiaramente che
+    l'app è in consultazione.
+  - File di lock (database_commesse.lock): registra l'operatore attivo, la
+    macchina e l'orario. Viene rilasciato automaticamente alla chiusura della
+    scheda.
+  - Rilevamento conflitti: controllo del timestamp prima di ogni salvataggio,
+    con avviso e opzione di ricaricare i dati aggiornati.
 
 
 CONSIGLI PER LA SICUREZZA DEI DATI
 ----------------------------------
   1. FAI UNA COPIA DEL JSON OGNI TANTO. Non c'è backup automatico.
      Suggerimento: una volta a settimana copia database_commesse.json in una
-     cartella "backup" con la data nel nome (es. database_commesse_2026-11-16.json)
+     cartella "backup" con la data nel nome
+     (es. database_commesse_2026-11-17.json).
 
-  2. NON mettere il file su un cloud pubblico (Drive/Dropbox condivisi)
-     Se lo metti su un disco di rete condiviso, va bene: è il caso d'uso previsto
+  2. NON mettere il file su un cloud pubblico (Drive/Dropbox condivisi).
+     Un disco di rete aziendale va bene: è il caso d'uso previsto.
 
-  3. GESTIONE ARCHIVIO PDF DEI CERTIFICATI:
-     I documenti PDF allegati alle commesse vengono archiviati nella cartella
-     dedicata 'archivio_pdf/' (suddivisi automaticamente in sottocartelle per
-     numero di commessa) e memorizzati nel motore IndexedDB del browser.
-     In questo modo il file JSON e il salvataggio locale restano sempre
-     leggerissimi (pochi KB), senza alcun limite di dimensione e senza rischi
-     di saturazione.
+  3. Un utente alla volta in scrittura: è il comportamento corretto.
 
 
-PROTEZIONE CONCORRENZA MULTI-UTENTE (LOCK BLOCCANTE & SOLA VISUALIZZAZIONE)
-----------------------------------------------------------------------------
-  - Gestione concorrenza avanzata con blocco all'apertura:
-    1) Avviso bloccante immediato all'apertura: se un collega ha già aperto il database
-       in modifica, il secondo utente riceve una schermata di avviso bloccante che indica
-       chi sta modificando il file e da che ora. L'accesso viene impostato automaticamente
-       in SOLA VISUALIZZAZIONE (sola lettura protetta, pulsanti di modifica e salvataggio disattivati).
-    2) Banner e badge di stato: in cima alla pagina un riquadro rosso e un badge
-       indicano chiaramente che l'app è in consultazione e proteggono i dati da qualsiasi
-       modifica accidentale.
-    3) File di lock condiviso (database_commesse.lock): registra l'operatore attivo,
-       la macchina e l'orario esatto. Rilasciato in automatico alla chiusura della scheda.
-    4) Rilevamento timestamp & conflitti: controllo aggiuntivo prima di ogni salvataggio
-       con avviso e opzione di ricaricare i dati aggiornati.
+COMANDI PRINCIPALI
+------------------
+  💾 Salva Dati Condivisi        Scrive sul file JSON collegato
+  🔗 Collega Archivio Condiviso  Cambia o ricollega il file JSON
+  📁 Cartella Archivio PDF       Scegli dove salvare i PDF
+  📂 Carica JSON Manuale         Importa un JSON senza collegarlo in scrittura
+  📊 Esporta CSV                 Scarica la tabella come foglio di calcolo
+  🖨️ Stampa                      Report impaginato in orizzontale su A4
+  🗑️ Svuota dati demo            Ripulisce i dati dimostrativi
+
+  Dopo ogni riavvio del browser l'app chiede di ricollegare il database:
+  è normale, il browser non memorizza i permessi sui file tra una sessione
+  e l'altra.
+
 
 LIMITI DA CONOSCERE
 -------------------
-  - Nessuna password: chi apre il file vede tutto. Va bene per uso locale/aziendale protetto.
-  - Nessun backup automatico (vedi consigli sopra).
-
-
-STRUTTURA DELLE SCHEDE
------------------------
-  📊 Dashboard                 Nuova Home esecutiva: schede KPI (totali, in linea, in ritardo,
-                               criticità), avvisi scadenze nei prossimi 15 giorni, tabella
-                               sintetica con semafori (🟢/🟡/🔴), barre % e filtri rapidi.
-  📋 Quadro Sinottico          La tabella analitica completa a 16 colonne con tutti i dettagli
-                               di WP, fabbricazione, MR e ordini materiali, con export CSV e stampa.
-  📅 Scadenziario Attività     Gestione scadenze e milestone con priorità.
-  📦 Archivio Commesse         Commesse completate e archiviate.
-  🔍 Dettaglio Commessa        Fasi di dettaglio MS Project, avanzamenti e archivio PDF certificati.
-  ➕ Nuova Commessa            Creazione manuale o importazione XML MS Project.
-  📔 Diario & Problematiche    Registro eventi, note e criticità di produzione.
-
-COMANDI PRINCIPALI DELL'APP
----------------------------
-  💾 Salva Dati Condivisi      Scrive sul file JSON collegato
-  🔗 Collega Archivio Condiviso  Cambia il file JSON (o lo ricollega dopo un riavvio)
-  📂 Carica JSON Manuale       Importa un JSON senza collegarlo in scrittura
-  📊 Esporta CSV               Scarica la tabella come foglio di calcolo
-  🖨️ Stampa Report             Report impaginato in orizzontale su A4
-
-  Dopo ogni riavvio del browser l'app chiede di ricollegare il database:
-  è normale, il browser non memorizza i permessi sui file tra una sessione e l'altra.
+  - Nessuna password: chi apre il file vede tutto. Va bene per uso locale o
+    aziendale protetto.
+  - Nessun backup automatico (vedi i consigli sopra).
+  - Su Firefox e Safari non funziona il salvataggio diretto.
 
 
 DOMANDE FREQUENTI
 -----------------
   L'app si apre ma la tabella è vuota?
-    -> Non hai collegato il database. Usa "🔗 Collega Archivio Condiviso"
+    -> Non hai collegato il database. Usa "🔗 Collega Archivio Condiviso".
 
-  Mi dice "Il browser in uso non supporta il collegamento diretto al file"
+  Mi dice che il browser non supporta il collegamento diretto al file
     -> Stai usando Firefox o Safari. Apri con Chrome o Edge.
 
   Ho perso le modifiche?
-    -> Controlla in basso a destra lo stato: "Salvato: <file> • <ora>"
+    -> Controlla in basso a destra lo stato: "Salvato: <file> • <ora>".
        Se dice "Errore salvataggio condiviso", il file è aperto da un altro
-       programma (o da un'altra persona) e non è scrivibile.
+       programma o da un'altra persona e non è scrivibile.
 
   Posso usarla su più computer?
-    -> Sì, mettendo il JSON su un disco di rete. Un utente alla volta.
+    -> Sì, mettendo il JSON su un disco di rete. Un utente alla volta in
+       modifica.
+
+  Ho aperto una commessa nuova e il Gantt dice che non ci sono fasi
+    -> È normale. Premi "🗂️ Crea struttura base" per avere subito una
+       pianificazione pronta, oppure "＋ Nuova fase" per aggiungerle a mano.
+
+  Le tabelle sono troppo grandi / troppo piccole
+    -> Usa il pulsante Compatta / Spaziosa in alto a destra.
 
 
 ---
 Progetto open source: https://github.com/casapad1968-hub/riepilogo-commesse
-Licenza MIT
-
-📈 GANTT — DUE VISTE
-------------------------------------------------------------------
-1) SCHEDA "📈 Gantt — Riepilogo Progetti"
-   Mostra TUTTE le commesse attive su un'unica scala temporale.
-   Ogni commessa e' una riga riassuntiva (barra indigo, rossa se in ritardo).
-   • Clicca il nome di una commessa per espanderne le fasi.
-   • "Espandi tutto" / "Comprimi tutto" per aprire o chiudere tutte.
-   • Filtri: Tutte / Solo critiche / In ritardo / In scadenza.
-   • Nessuna modifica qui: e' una vista di insieme.
-
-2) DENTRO IL DETTAGLIO DI OGNI COMMESSA
-   Il vecchio grafico e' stato sostituito dal Gantt completo editabile:
-   • Scala Giorni / Settimane / Mesi, zoom + / -, linea rossa OGGI.
-   • Dipendenze (frecce), percorso critico (rosso), milestone (rombi).
-   • Giorni lavorativi: esclude sabato e domenica dalle durate.
-   • MODIFICA COMPLETA stile Project:
-       - trascina la barra ........................ sposta le date
-       - trascina i bordi della barra ............. allunga / accorcia
-       - doppio clic sulla barra .................. apre la modale completa
-       - campo % nella tabella .................... modifica l'avanzamento subito
-       - pulsante "✏️" ............................ modifica la fase
-       - pulsante "+ Nuova fase" .................. aggiunge una fase
-   • Nella modale puoi cambiare: nome, date, %, livello gerarchico,
-     riga di sintesi, milestone, predecessori e note.
-   • Eliminazione fase dalla stessa modale.
-   • Esporta PNG e Stampa A4 orizzontale.
-
-Tutte le modifiche vengono salvate nel database condiviso, con il
-controllo multi-utente (file di lock) gia' attivo.
+Licenza MIT — Versione del documento: 17 novembre 2026
