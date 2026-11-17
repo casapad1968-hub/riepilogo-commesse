@@ -2265,7 +2265,7 @@ async function assicuraCartellaPdf() {
                 return salvataggioCondivisoInCorso;
             }
             if(!MODALITA_VISUALIZZAZIONE) {
-                aggiornaStatoArchivioCondiviso("Saved in browser • " + new Date().toLocaleTimeString('it-IT'), "#15803d");
+                aggiornaStatoArchivioCondiviso("WARNING: JSON file not connected, changes in memory only", "#b45309");
             }
             return salvataggioLocale;
         }
@@ -2273,27 +2273,11 @@ async function assicuraCartellaPdf() {
         async function inizializzaArchivioCondiviso() {
             await inizializzaNomeOperatore();
 
-            // === LOCAL ARCHIVE: data lives in the browser, no file to connect ===
-            const datiLocali = await caricaAppDataLocale();
-            if(datiLocali && datiLocali.metadata && Object.keys(datiLocali.metadata).length > 0) {
-                AppData = normalizzaDatiCompatibilita(datiLocali);
-                if(!AppData.diario) AppData.diario = [];
-                if(!AppData.scadenziario) AppData.scadenziario = [];
-                databaseModificato = false;
-                origineDati = "browser local archive";
-                aggiornaStatoArchivioCondiviso("Data in browser • ready", "#15803d");
-                ripristinaPreferenzaDensita();
-                renderingDashboard();
-                renderingSinottico();
-                ripristinaCartellaPdfHandle();
-                renderingArchivio();
-                renderingScadenziario();
-                renderingDiario();
-                try { aggiornaBannerCartellaPdf(); } catch(e) {}
-                return;
-            }
+            // === SAFE START: the JSON file must be connected on EVERY launch ===
+            // The valid data is always the one in the chosen file, never an internal copy.
+            // (IndexedDB remains only as an emergency cache, never loaded automatically.)
 
-            // first run: no local data
+            // first run: no data loaded
             if(USA_DATI_PRECARICATI && AppData && AppData.metadata && Object.keys(AppData.metadata).length > 0) {
                 aggiornaStatoArchivioCondiviso("Preloaded data (demo) - not connected to file", "#b45309");
                 return;
