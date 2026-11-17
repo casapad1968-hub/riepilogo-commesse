@@ -2278,7 +2278,7 @@ async function assicuraCartellaPdf() {
                 return salvataggioCondivisoInCorso;
             }
             if(!MODALITA_VISUALIZZAZIONE) {
-                aggiornaStatoArchivioCondiviso("Salvato nel browser • " + new Date().toLocaleTimeString('it-IT'), "#15803d");
+                aggiornaStatoArchivioCondiviso("ATTENZIONE: file JSON non collegato, modifiche solo in memoria", "#b45309");
             }
             return salvataggioLocale;
         }
@@ -2286,27 +2286,11 @@ async function assicuraCartellaPdf() {
         async function inizializzaArchivioCondiviso() {
             await inizializzaNomeOperatore();
 
-            // === ARCHIVIO LOCALE: i dati vivono nel browser, nessun file da collegare ===
-            const datiLocali = await caricaAppDataLocale();
-            if(datiLocali && datiLocali.metadata && Object.keys(datiLocali.metadata).length > 0) {
-                AppData = normalizzaDatiCompatibilita(datiLocali);
-                if(!AppData.diario) AppData.diario = [];
-                if(!AppData.scadenziario) AppData.scadenziario = [];
-                databaseModificato = false;
-                origineDati = "archivio locale del browser";
-                aggiornaStatoArchivioCondiviso("Dati nel browser • pronti", "#15803d");
-                ripristinaPreferenzaDensita();
-                renderingDashboard();
-                renderingSinottico();
-                ripristinaCartellaPdfHandle();
-                renderingArchivio();
-                renderingScadenziario();
-                renderingDiario();
-                try { aggiornaBannerCartellaPdf(); } catch(e) {}
-                return;
-            }
+            // === APERTURA SICURA: il file JSON va collegato ad OGNI avvio ===
+            // I dati validi sono sempre quelli del file scelto, mai una copia interna.
+            // (IndexedDB resta solo come cache di emergenza, non viene mai caricata in automatico.)
 
-            // primo avvio: nessun dato locale
+            // primo avvio: nessun dato caricato
             if(USA_DATI_PRECARICATI && AppData && AppData.metadata && Object.keys(AppData.metadata).length > 0) {
                 aggiornaStatoArchivioCondiviso("Dati precaricati (demo) - non collegato a un file", "#b45309");
                 return;
