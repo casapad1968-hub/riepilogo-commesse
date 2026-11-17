@@ -3793,7 +3793,10 @@ const GANTT_TXT = {
         filtro: "Mostra", tutte: "Tutte", critiche: "Solo critiche",
         ritardo: "In ritardo", prossime: "In scadenza (15 gg)",
         scala: "Scala", giorni: "Giorni", settimane: "Settimane", mesi: "Mesi",
-        hint: "Trascina la barra per spostare le date · trascina i bordi per allungare · doppio clic per modificare"
+        hint: "Trascina la barra per spostare le date · trascina i bordi per allungare · doppio clic per modificare",
+        vuotoTitolo: "Questa commessa non ha ancora fasi pianificate",
+        vuotoTesto: "Puoi creare la pianificazione da qui, senza bisogno di un file MS Project. Aggiungi le fasi una per una oppure parti da una struttura base già pronta.",
+        creaStruttura: "Crea struttura base"
     },
     en: {
         titolo: "Gantt Chart", oggi: "TODAY",
@@ -3818,7 +3821,10 @@ const GANTT_TXT = {
         filtro: "Show", tutte: "All", critiche: "Critical only",
         ritardo: "Late", prossime: "Due soon (15 d)",
         scala: "Scale", giorni: "Days", settimane: "Weeks", mesi: "Months",
-        hint: "Drag the bar to move dates · drag the edges to resize · double-click to edit"
+        hint: "Drag the bar to move dates · drag the edges to resize · double-click to edit",
+        vuotoTitolo: "This order has no planned phases yet",
+        vuotoTesto: "You can build the schedule right here, no MS Project file needed. Add phases one by one or start from a ready-made base structure.",
+        creaStruttura: "Create base structure"
     }
 };
 const GANTT_L = GANTT_TXT['en'];
@@ -4047,6 +4053,22 @@ function ganttDisegna(chiave) {
     ganttAggiornaToolbar(chiave);
 
     if (!R.righe.length) {
+        const ro0 = ganttSolaLettura();
+        if (cfg.fissa && !ro0 && st.commessa) {
+            const nFasi = ((AppData.commesse && AppData.commesse[st.commessa]) || []).length;
+            const titoloVuoto = nFasi === 0 ? GANTT_L.vuotoTitolo : GANTT_L.nessuna;
+            const testoVuoto = nFasi === 0 ? GANTT_L.vuotoTesto : GANTT_L.nessuna;
+            box.innerHTML = `<div style="padding:2.2rem 1.2rem; text-align:center; background:#f8fafc; border:1px dashed #cbd5e1; border-radius:10px;">
+                <div style="font-size:2rem; margin-bottom:6px;">📋</div>
+                <div style="font-weight:700; color:#334155; font-size:0.95rem; margin-bottom:4px;">${ganttEscape(titoloVuoto)}</div>
+                <div style="color:#64748b; font-size:0.82rem; margin-bottom:16px; max-width:460px; margin-left:auto; margin-right:auto; line-height:1.5;">${ganttEscape(testoVuoto)}</div>
+                <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+                    <button onclick="ganttNuovaFase('${chiave}')" style="font-size:12px; padding:8px 18px; background:#4f46e5; color:#fff; border:none; border-radius:7px; cursor:pointer; font-weight:700;">＋ ${ganttEscape(GANTT_L.nuova)}</button>
+                    <button onclick="ganttCreaStrutturaBase('${chiave}')" style="font-size:12px; padding:8px 18px; background:#eef2ff; color:#3730a3; border:1px solid #c7d2fe; border-radius:7px; cursor:pointer; font-weight:600;">🗂️ ${ganttEscape(GANTT_L.creaStruttura)}</button>
+                </div>
+            </div>`;
+            return;
+        }
         const msg = cfg.fissa ? GANTT_L.nessuna : GANTT_L.nessunProgetto;
         box.innerHTML = `<div style="padding:2.5rem 1rem; text-align:center; color:#64748b; background:#f8fafc; border:1px dashed #cbd5e1; border-radius:10px;">${ganttEscape(msg)}</div>`;
         return;
@@ -4527,8 +4549,7 @@ function ganttModificaFase(chiave, id, idx) {
         t.pct = Math.max(0, Math.min(100, Number(wrap.querySelector("#gm_pct").value || 0)));
         t.level = Number(wrap.querySelector("#gm_livello").value || 2);
         t.isSummary = wrap.querySelector("#gm_sintesi").checked;
-        t.milestone = ms;
-        if (t.milestone) delete t.milestone;
+        if (ms) t.milestone = true; else delete t.milestone;
         const pred = wrap.querySelector("#gm_pred").value.trim();
         if (pred) t.dependencies = pred; else delete t.dependencies;
         const note = wrap.querySelector("#gm_note").value.trim();
@@ -4816,6 +4837,92 @@ function ganttStampa(chiave) {
 }
 
 /* ---------------- init dettaglio ---------------- */
+/* ---------------- crea struttura base (commessa senza file Project) ---------------- */
+function ganttCreaStrutturaBase(chiave) {
+    if (ganttSolaLettura()) { alert(GANTT_L.solaLettura); return; }
+    const st = ganttStato(chiave);
+    const id = st.commessa;
+    if (!id) { alert(GANTT_L.nessuna); return; }
+
+    // chiede conferma solo se ci sono già fasi
+    const esistenti = (AppData.commesse && AppData.commesse[id]) || [];
+    if (esistenti.length > 0) {
+        const msgConf = (GANTT_L === GANTT_TXT.en)
+            ? "This order already has " + esistenti.length + " phases. The base structure will be ADDED after the existing ones. Continue?"
+            : "Questa commessa ha già " + esistenti.length + " fasi. La struttura base verrà AGGIUNTA in coda a quelle esistenti. Procedere?";
+        if (!confirm(msgConf)) return;
+    }
+
+    // ancore temporali: usa le date della commessa se presenti, altrimenti oggi
+    const meta = (AppData.metadata && AppData.metadata[id]) || {};
+    const dApertura = ganttParse(meta.dataAperturaVelina) || ganttParse(meta.dataConsegnaOrdine) || new Date();
+    const dConsegna = ganttParse(meta.dataConsegnaOrdine) || ganttParse(meta.dataAperturaVelina) || new Date();
+    const inizioBase = dApertura <= dConsegna ? dApertura : dConsegna;
+    const fineBase = dApertura <= dConsegna ? dConsegna : dApertura;
+
+    const inizioE = ganttGiornoEpoch(inizioBase);
+    let fineE = ganttGiornoEpoch(fineBase);
+    if (fineE <= inizioE) fineE = inizioE + 90; // minimo 3 mesi di orizzonte
+
+    const durataTot = fineE - inizioE;
+    const off = (frac) => inizioE + Math.round(durataTot * frac);
+    const iso = (e) => ganttEpochToISO(e);
+
+    // ripartizione standard 4 macro-fasi (stile Project)
+    const p1a = off(0), p1b = off(0.25);
+    const p2a = off(0.25), p2b = off(0.50);
+    const p3a = off(0.50), p3b = off(0.80);
+    const p4a = off(0.80), p4b = off(1.00);
+
+    const nomi = (GANTT_L === GANTT_TXT.en)
+        ? {
+            wp1: "PO ISSUANCE", wp1a: "PO 001 - Main items", wp1b: "PO 002 - Electrical items", wp1c: "PO 003 - Control panels",
+            wp2: "MATERIAL DELIVERABLES", wp2a: "MD - Structural steel", wp2b: "MD - Valves & fittings", wp2c: "MD - Instrumentation",
+            wp3: "MANUFACTURING", wp3a: "Fabrication - Main skid", wp3b: "Assembly & wiring",
+            wp4: "DELIVERY", wp4a: "FAT / Testing", wp4b: "Delivery to site"
+        }
+        : {
+            wp1: "PO ISSUANCE", wp1a: "PO 001 - Riduttori", wp1b: "PO 002 - Motori elettrici", wp1c: "PO 003 - Quadri elettrici",
+            wp2: "MATERIAL DELIVERABLES", wp2a: "MD - Lamiera carpenteria", wp2b: "MD - Valvole e raccorderia", wp2c: "MD - Strumentazione",
+            wp3: "MANUFACTURING", wp3a: "Fabrication - Skid principale", wp3b: "Assembly - Cablaggio",
+            wp4: "DELIVERY", wp4a: "Collaudo FAT", wp4b: "Consegna in cantiere"
+        };
+
+    const nuova = [];
+    const add = (o) => nuova.push(o);
+
+    // WP 1 - PO ISSUANCE
+    add({ name: nomi.wp1, start: iso(p1a), finish: iso(p1b), pct: 0, level: 1, isSummary: true });
+    add({ name: nomi.wp1a, start: iso(p1a), finish: iso(off(0.15)), pct: 0, level: 2, isSummary: false });
+    add({ name: nomi.wp1b, start: iso(off(0.05)), finish: iso(off(0.20)), pct: 0, level: 2, isSummary: false, dependencies: nomi.wp1a });
+    add({ name: nomi.wp1c, start: iso(off(0.10)), finish: iso(p1b), pct: 0, level: 2, isSummary: false, dependencies: nomi.wp1b });
+
+    // WP 2 - MATERIAL DELIVERABLES
+    add({ name: nomi.wp2, start: iso(p2a), finish: iso(p2b), pct: 0, level: 1, isSummary: true });
+    add({ name: nomi.wp2a, start: iso(p2a), finish: iso(off(0.42)), pct: 0, level: 2, isSummary: false, dependencies: nomi.wp1c });
+    add({ name: nomi.wp2b, start: iso(off(0.30)), finish: iso(off(0.46)), pct: 0, level: 2, isSummary: false, dependencies: nomi.wp2a });
+    add({ name: nomi.wp2c, start: iso(off(0.35)), finish: iso(p2b), pct: 0, level: 2, isSummary: false, dependencies: nomi.wp2b });
+
+    // WP 3 - MANUFACTURING
+    add({ name: nomi.wp3, start: iso(p3a), finish: iso(p3b), pct: 0, level: 1, isSummary: true });
+    add({ name: nomi.wp3a, start: iso(p3a), finish: iso(off(0.70)), pct: 0, level: 2, isSummary: false, dependencies: nomi.wp2c });
+    add({ name: nomi.wp3b, start: iso(off(0.68)), finish: iso(p3b), pct: 0, level: 2, isSummary: false, dependencies: nomi.wp3a });
+
+    // WP 4 - DELIVERY
+    add({ name: nomi.wp4, start: iso(p4a), finish: iso(p4b), pct: 0, level: 1, isSummary: true });
+    add({ name: nomi.wp4a, start: iso(p4a), finish: iso(off(0.92)), pct: 0, level: 2, isSummary: false, dependencies: nomi.wp3b });
+    add({ name: nomi.wp4b, start: iso(off(0.92)), finish: iso(p4b), pct: 0, level: 2, isSummary: false, dependencies: nomi.wp4a });
+
+    if (!AppData.commesse[id]) AppData.commesse[id] = [];
+    nuova.forEach(o => AppData.commesse[id].push(o));
+
+    try { salvaDatiCondivisi(); } catch (e) { console.warn("salvataggio:", e); }
+    ganttDisegna(chiave);
+    if (typeof renderingDashboard === "function") { try { renderingDashboard(); } catch (e) { } }
+    if (typeof renderingSinottico === "function") { try { renderingSinottico(); } catch (e) { } }
+}
+
+
 function ganttInitDettaglio(id) {
     const st = ganttStato("dettaglio");
     st.commessa = id || null;
