@@ -861,6 +861,7 @@
                 <button class="btn btn-secondary" onclick="esportaDatabaseJSON()" style="font-size:0.8rem; padding:0.4rem 0.8rem;">💾 Save Shared Data</button>
                 <button class="btn btn-warning" onclick="collegaArchivioCondiviso()" style="font-size:0.8rem; padding:0.4rem 0.8rem;">🔗 Link Shared Archive</button>
                 <button class="btn btn-info" id="btnCollegaCartellaPdf" onclick="selezionaCartellaArchivioPdf()" style="font-size:0.8rem; padding:0.4rem 0.8rem;">📁 PDF Archive Folder</button>
+                <button class="btn btn-warning" id="btnMigraPdf" onclick="migraPdfLegacy()" style="display:none; font-size:0.8rem; padding:0.4rem 0.8rem;">🔄 Migrate old PDFs</button>
                 <button class="btn btn-warning" onclick="document.getElementById('importDbFileInput').click()" style="font-size:0.8rem; padding:0.4rem 0.8rem;">📂 Load JSON File</button>
                 <button class="btn btn-danger" id="btnSvuotaDemo" onclick="svuotaDatiDemo()" style="font-size:0.8rem; padding:0.4rem 0.8rem; display:none;">🗑️ Clear Demo Data</button>
                 <input type="file" id="importDbFileInput" accept=".json" style="display:none;" onchange="importaDatabaseJSON()">
@@ -1905,6 +1906,8 @@
                     const parsedData = JSON.parse(testo);
                     if(parsedData && parsedData.metadata) {
                         AppData = normalizzaDatiCompatibilita(parsedData);
+                    try { aggiornaPulsanteMigrazione(); } catch(e) {}
+                        try { aggiornaPulsanteMigrazione(); } catch(e) {}
                         if(!AppData.commesse) AppData.commesse = {};
                         if(!AppData.diario) AppData.diario = [];
                         if(!AppData.scadenziario) AppData.scadenziario = [];
@@ -1921,6 +1924,7 @@
                         }
 
                         ripristinaPreferenzaDensita();
+        try { aggiornaPulsanteMigrazione(); } catch(e) {}
         renderingDashboard();
                         renderingSinottico();
                         renderingArchivio();
@@ -1953,6 +1957,8 @@
                     const parsedData = JSON.parse(testo);
                     if(parsedData && parsedData.metadata) {
                         AppData = normalizzaDatiCompatibilita(parsedData);
+                    try { aggiornaPulsanteMigrazione(); } catch(e) {}
+                        try { aggiornaPulsanteMigrazione(); } catch(e) {}
                         if(!AppData.commesse) AppData.commesse = {};
                         if(!AppData.diario) AppData.diario = [];
                         if(!AppData.scadenziario) AppData.scadenziario = [];
@@ -2191,6 +2197,8 @@
                     let parsedData = JSON.parse(e.target.result);
                     if(parsedData && parsedData.metadata) {
                         AppData = normalizzaDatiCompatibilita(parsedData);
+                    try { aggiornaPulsanteMigrazione(); } catch(e) {}
+                        try { aggiornaPulsanteMigrazione(); } catch(e) {}
                         if(!AppData.diario) AppData.diario = [];
                         if(!AppData.scadenziario) AppData.scadenziario = [];
                         salvaDatiCondivisi();
@@ -3615,6 +3623,173 @@ function alberoSeleziona(id) {
     alberoEspansi[id] = true;
     apriDettaglioCommessa(id, 'dashboard');
     renderingAlberoCommesse();
+}
+
+
+/* ============================================================
+   MIGRAZIONE PDF LEGACY (base64 -> file su disco + IndexedDB)
+   Serve per i database creati con la vecchia versione, dove i PDF
+   erano salvati come stringa base64 dentro il JSON.
+   Al primo salvataggio quel base64 viene rimosso: senza migrazione
+   i documenti andrebbero persi.
+   ============================================================ */
+
+/* lingua: verificata dal tag <html lang>, non da GANTT_L
+   (GANTT_L è dichiarato più avanti nello script: usarlo qui darebbe TDZ) */
+function migraIsEn() {
+    const l = (document.documentElement.getAttribute("lang") || "").toLowerCase();
+    return l.indexOf("en") === 0;
+}
+
+function contaPdfLegacy() {
+    let totale = 0, commesse = 0;
+    const meta = AppData.metadata || {};
+    for (const cid in meta) {
+        const lista = meta[cid] && meta[cid].documentiPdf;
+        if (!Array.isArray(lista)) continue;
+        const n = lista.filter(d => d && d.base64).length;
+        if (n > 0) { totale += n; commesse++; }
+    }
+    return { totale, commesse };
+}
+
+/* Aggiorna l'etichetta del pulsante migrazione */
+function aggiornaPulsanteMigrazione() {
+    const btn = document.getElementById("btnMigraPdf");
+    if (!btn) return;
+    const { totale, commesse } = contaPdfLegacy();
+    if (totale === 0) {
+        btn.style.display = "none";
+        return;
+    }
+    btn.style.display = "inline-flex";
+    btn.innerHTML = "🔄 " + (migraIsEn()
+        ? "Migrate " + totale + " old PDF" + (totale === 1 ? "" : "s")
+        : "Migra " + totale + " PDF vecchi" + (totale === 1 ? "" : "i"));
+    btn.title = migraIsEn()
+        ? "Converts " + totale + " PDFs saved inline (" + commesse + " orders) into real files"
+        : "Converte " + totale + " PDF salvati inline (" + commesse + " commesse) in file reali";
+}
+
+/* base64 -> Blob */
+function ganttBase64ToBlob(dataUri, mime) {
+    const parti = String(dataUri).split(",");
+    const b64 = parti.length > 1 ? parti.slice(1).join(",") : parti[0];
+    const binario = atob(b64);
+    const bytes = new Uint8Array(binario.length);
+    for (let i = 0; i < binario.length; i++) bytes[i] = binario.charCodeAt(i);
+    return new Blob([bytes], { type: mime || "application/pdf" });
+}
+
+async function migraPdfLegacy() {
+    const check = contaPdfLegacy();
+    const EN = migraIsEn();
+
+    if (check.totale === 0) {
+        alert(EN ? "No old PDFs to migrate." : "Nessun PDF vecchio da migrare.");
+        return;
+    }
+
+    if (MODALITA_VISUALIZZAZIONE) {
+        alert(EN ? "Read-only mode: cannot save." : "Modalità sola visualizzazione: impossibile salvare.");
+        return;
+    }
+
+    // avviso se la cartella non è collegata
+    let avvisoCartella = "";
+    if (!cartellaArchivioPdfHandle) {
+        avvisoCartella = EN
+            ? "\n\nWARNING: the PDF Archive Folder is not connected. The PDFs will be saved in the browser's IndexedDB only (not as real files). Connect the folder first to get real files."
+            : "\n\nATTENZIONE: la Cartella Archivio PDF non è collegata. I PDF verranno salvati solo in IndexedDB (memoria del browser), NON come file reali. Collega prima la cartella per ottenere file veri.";
+    }
+
+    const domanda = EN
+        ? "Migrate " + check.totale + " old PDFs found in " + check.commesse + " orders?\n\nThe PDFs will become real files in 'archivio_pdf/<order>/' and the database will be cleaned." + avvisoCartella
+        : "Migrare " + check.totale + " PDF vecchi presenti in " + check.commesse + " commesse?\n\nI PDF diventeranno file reali in 'archivio_pdf/<commessa>/' e il database verrà ripulito." + avvisoCartella;
+    if (!confirm(domanda)) return;
+
+    const esiti = { ok: 0, iddb: 0, errori: 0, senzaPercorso: 0 };
+    const dettagliErrori = [];
+
+    const meta = AppData.metadata || {};
+    for (const cid in meta) {
+        const lista = meta[cid] && meta[cid].documentiPdf;
+        if (!Array.isArray(lista)) continue;
+
+        for (const doc of lista) {
+            if (!doc || !doc.base64) continue;
+
+            let blob = null;
+            try {
+                blob = ganttBase64ToBlob(doc.base64, "application/pdf");
+            } catch (e) {
+                esiti.errori++;
+                dettagliErrori.push(cid + " · " + (doc.nomeDoc || doc.nomeFile || "?") + " (base64 illeggibile)");
+                continue;
+            }
+
+            // 1. copia in IndexedDB (sempre)
+            try { await salvaPdfInIndexedDB(doc.idDoc, blob); } catch (e) { }
+
+            // 2. scrittura su disco, se la cartella è collegata
+            let scritto = false;
+            if (cartellaArchivioPdfHandle) {
+                try {
+                    const okPerm = await verificaPermessoScrittura(cartellaArchivioPdfHandle);
+                    if (okPerm) {
+                        const subDir = await cartellaArchivioPdfHandle.getDirectoryHandle(String(cid), { create: true });
+                        const nomeFileSicuro = String(doc.nomeFile || ("documento_" + doc.idDoc + ".pdf")).replace(/[^a-zA-Z0-9_.-]/g, "_");
+                        const fh = await subDir.getFileHandle(nomeFileSicuro, { create: true });
+                        const w = await fh.createWritable();
+                        await w.write(blob);
+                        await w.close();
+                        doc.percorsoRelativo = cartellaArchivioPdfHandle.name + "/" + cid + "/" + nomeFileSicuro;
+                        doc.inCartella = true;
+                        scritto = true;
+                    }
+                } catch (e) {
+                    console.warn("Migrazione: scrittura su disco fallita per", cid, doc.nomeFile, e);
+                }
+            }
+
+            if (scritto) esiti.ok++;
+            else { esiti.iddb++; esiti.senzaPercorso++; }
+
+            // 3. il documento ora vive fuori dal JSON: rimuovo il base64
+            delete doc.base64;
+            if (!doc.dimensione) {
+                try {
+                    const kb = blob.size / 1024;
+                    doc.dimensione = kb < 1024 ? kb.toFixed(1) + " KB" : (kb / 1024).toFixed(2) + " MB";
+                } catch (e) { }
+            }
+        }
+    }
+
+    // salva solo se qualcosa è cambiato
+    try { await salvaDatiCondivisi(); } catch (e) { console.warn("Salvataggio post-migrazione:", e); }
+
+    // riepilogo
+    let msg = EN
+        ? "MIGRATION COMPLETE\n\nSaved as real files: " + esiti.ok + "\nIndexedDB only: " + esiti.iddb + "\nErrors: " + esiti.errori
+        : "MIGRAZIONE COMPLETATA\n\nSalvati come file reali: " + esiti.ok + "\nSolo in IndexedDB: " + esiti.iddb + "\nErrori: " + esiti.errori;
+
+    if (esiti.iddb > 0) {
+        msg += EN
+            ? "\n\n" + esiti.iddb + " PDFs are only in the browser memory. Connect the PDF Archive Folder and run the migration again to get real files."
+            : "\n\n" + esiti.iddb + " PDF sono solo nella memoria del browser. Collega la Cartella Archivio PDF e rilancia la migrazione per ottenere file reali.";
+    }
+    if (dettagliErrori.length) {
+        msg += "\n\n" + (EN ? "Not migrated:" : "Non migrati:") + "\n- " + dettagliErrori.slice(0, 10).join("\n- ");
+    }
+    alert(msg);
+
+    // ridisegna
+    aggiornaPulsanteMigrazione();
+    try { renderingDashboard(); } catch (e) { }
+    if (typeof idCommessaSelezionata !== "undefined" && idCommessaSelezionata) {
+        try { renderingTabellaPdfDettaglio(idCommessaSelezionata); } catch (e) { }
+    }
 }
 
 
