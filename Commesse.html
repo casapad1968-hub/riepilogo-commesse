@@ -4776,6 +4776,88 @@ function ganttPxDay(st) {
 }
 
 /* ---------------- rendering ---------------- */
+/* ============================================================
+   PALETTE WBS — colori delle macro-fasi in stile MS Project
+   Ogni livello 1 (macro-fase) prende una fascia colorata; tutte
+   le fasi figlie ereditano il colore per le barre.
+   ============================================================ */
+
+const GANTT_WBS_PALETTE = [
+    /* sfondo fascia,       bordo/testo,      barra piena,      barra chiara */
+    ["#cfe0ef", "#29587e", "#2e5f8a", "#dbe8f3"],   // 1 blu acciaio   (ENGINEERING)
+    ["#f7e8c8", "#8a6320", "#a8762c", "#fbf2dd"],   // 2 ocra          (PO ISSUANCE)
+    ["#f5f1c9", "#7c7326", "#8f8630", "#f9f7e2"],   // 3 giallo        (MATERIAL)
+    ["#d9ecd9", "#3f6a49", "#4a7a55", "#e8f3e8"],   // 4 verde         (MANUFACTURING)
+    ["#d6e9f2", "#2f6b85", "#3d7ea6", "#e6f2f7"],   // 5 azzurro       (DELIVERY)
+    ["#e6dcef", "#5c4278", "#6b4f8a", "#f0eaf5"],   // 6 viola tenue
+    ["#f0dedd", "#8a4a42", "#a04a3c", "#f7eae8"],   // 7 mattone
+    ["#dce9e6", "#39675e", "#457b70", "#eaf3f1"],   // 8 verde acqua
+];
+
+/* Sceglie l'indice di palette in base al nome della macro-fase.
+   Riconosce le parole chiave tipiche di MS Project, altrimenti cicla. */
+function ganttColorePerNome(nome, indice) {
+    const n = String(nome || "").toUpperCase();
+    if (n.indexOf("ENGINEER") !== -1 || n.indexOf("INGEGNER") !== -1) return 0;
+    if (n.indexOf("PO ISSUANCE") !== -1 || n.indexOf("PURCHASE") !== -1 || n.indexOf("ORDIN") !== -1) return 1;
+    if (n.indexOf("MATERIAL") !== -1 || n.indexOf("MATERIALI") !== -1) return 2;
+    if (n.indexOf("MANUFACT") !== -1 || n.indexOf("FABBRIC") !== -1 || n.indexOf("PRODUZ") !== -1) return 3;
+    if (n.indexOf("DELIVERY") !== -1 || n.indexOf("CONSEGNA") !== -1 || n.indexOf("SPEDIZ") !== -1) return 4;
+    return (indice % GANTT_WBS_PALETTE.length);
+}
+
+/* Costruisce la mappa: per ogni riga-fase, quale macro-fase la contiene.
+   Regola: l'ultima riga di livello 1 incontrata prima della fase. */
+function ganttAssegnaMacroFasi(righe) {
+    const mappa = {};      // idx riga -> indice palette
+    const perProgetto = {};// id progetto -> macrofase corrente
+    let contatore = {};    // conta le macro-fasi per progetto
+    righe.forEach((r, i) => {
+        if (r.kind === "p") {
+            perProgetto[r.id] = null;
+            contatore[r.id] = 0;
+            mappa[i] = -1;
+            return;
+        }
+        if (Number(r.level) === 1 && !r.milestone) {
+            const idx = ganttColorePerNome(r.name, contatore[r.id] || 0);
+            perProgetto[r.id] = idx;
+            contatore[r.id] = (contatore[r.id] || 0) + 1;
+            mappa[i] = idx;
+            return;
+        }
+        mappa[i] = (perProgetto[r.id] === null || perProgetto[r.id] === undefined) ? -1 : perProgetto[r.id];
+    });
+    return mappa;
+}
+
+/* Legenda in stile MS Project */
+function ganttLegendaHtml() {
+    const EN = (GANTT_L === GANTT_TXT.en);
+    const voci = [
+        ["barra", EN ? "Activity" : "Attività"],
+        ["summary", EN ? "Summary" : "Riepilogo"],
+        ["critical", EN ? "Critical task" : "Attività critica"],
+        ["milestone", EN ? "Milestone" : "Milestone"],
+        ["progress", EN ? "Progress" : "Avanzamento"],
+        ["today", EN ? "Today" : "Oggi"]
+    ];
+    let h = `<div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap; margin-top:10px; padding:8px 12px; background:#f8fafc; border:1px solid var(--border); font-size:10px; color:#4a5560;">`;
+    voci.forEach(v => {
+        let sim = "";
+        if (v[0] === "barra") sim = `<span style="display:inline-block; width:26px; height:9px; background:#dbe8f3; border:1px solid #29587e; vertical-align:middle;"></span>`;
+        else if (v[0] === "summary") sim = `<span style="display:inline-block; width:26px; height:9px; position:relative; vertical-align:middle;"><span style="position:absolute; top:0; left:0; right:0; height:3px; background:#40424a;"></span><span style="position:absolute; top:0; left:0; width:0; height:0; border-left:4px solid transparent; border-right:4px solid transparent; border-top:6px solid #40424a;"></span><span style="position:absolute; top:0; right:0; width:0; height:0; border-left:4px solid transparent; border-right:4px solid transparent; border-top:6px solid #40424a;"></span></span>`;
+        else if (v[0] === "critical") sim = `<span style="display:inline-block; width:26px; height:9px; background:#f0dedd; border:1px solid #a04a3c; vertical-align:middle;"></span>`;
+        else if (v[0] === "milestone") sim = `<span style="display:inline-block; width:9px; height:9px; background:#4a7a95; transform:rotate(45deg); vertical-align:middle; margin:0 8px;"></span>`;
+        else if (v[0] === "progress") sim = `<span style="display:inline-block; width:26px; height:9px; background:#dbe8f3; border:1px solid #29587e; position:relative; vertical-align:middle; overflow:hidden;"><span style="position:absolute; left:0; top:0; bottom:0; width:60%; background:#2e5f8a;"></span></span>`;
+        else if (v[0] === "today") sim = `<span style="display:inline-block; width:2px; height:13px; background:#c0392b; vertical-align:middle;"></span>`;
+        h += `<span style="display:flex; align-items:center; gap:6px; white-space:nowrap;">${sim}${ganttEscape(v[1])}</span>`;
+    });
+    h += `</div>`;
+    return h;
+}
+
+
 function ganttDisegna(chiave) {
     const cfg = GANTT_CFG[chiave];
     if (!cfg) return;
@@ -4823,6 +4905,9 @@ function ganttDisegna(chiave) {
     const bodyH = righe.length * rowH;
     const rowIdx = {};
     righe.forEach((r, i) => { rowIdx[i] = r; });
+
+    // palette WBS: ogni macro-fase (livello 1) ha il suo colore
+    const macroPerRiga = ganttAssegnaMacroFasi(righe);
 
     const showAzioni = cfg.fissa && !ro;
     const cols = showAzioni
@@ -4920,10 +5005,26 @@ function ganttDisegna(chiave) {
     righe.forEach((r, i) => {
         const dur = r.finishD - r.startD + 1;
         const indent = r.kind === "p" ? 0 : (Math.max(1, r.level) - 1) * 12;
-        const bgRow = r.kind === "p" ? "#eef2ff" : (r.isSummary ? "#f1f5f9" : "#ffffff");
+        // colore WBS della macro-fase a cui appartiene questa riga
+        const mf = macroPerRiga[i];
+        const pal = (mf >= 0) ? GANTT_WBS_PALETTE[mf] : null;
+        let bgRow, colore;
+        if (r.kind === "p") {
+            bgRow = "#eef2ff"; colore = "#3730a3";
+        } else if (pal && Number(r.level) === 1) {
+            bgRow = pal[0];            // fascia piena colorata sulla macro-fase
+            colore = pal[1];
+        } else if (pal && r.isSummary) {
+            bgRow = pal[3];            // tinta chiara per i sotto-riepiloghi
+            colore = pal[1];
+        } else if (pal) {
+            bgRow = "#ffffff"; colore = "#1e293b";
+        } else {
+            bgRow = r.isSummary ? "#f1f5f9" : "#ffffff"; colore = "#1e293b";
+        }
         const fw = (r.kind === "p" || r.isSummary) ? "700" : "400";
-        const colore = r.kind === "p" ? "#3730a3" : "#1e293b";
-        leftRows += `<div style="display:grid; grid-template-columns:${cols}; height:${rowH}px; background:${bgRow}; align-items:center; font-size:11px; font-weight:${fw}; color:${colore}; border-bottom:1px solid #dbe1e6;">`;
+        const bordoWbs = (pal && Number(r.level) === 1) ? ("border-left:3px solid " + pal[2] + ";") : "";
+        leftRows += `<div style="display:grid; grid-template-columns:${cols}; height:${rowH}px; background:${bgRow}; align-items:center; font-size:11px; font-weight:${fw}; color:${colore}; border-bottom:1px solid #dbe1e6; ${bordoWbs}">`;
         leftRows += `<div style="padding:0 4px; text-align:center; color:#94a3b8; border-right:1px solid #e2e8f0; font-size:10px;">${r.kind === "p" ? "▸" : (r.idx + 1)}</div>`;
         const icona = r.kind === "p" ? (r.espanso ? "📂" : "📁") : (r.isSummary ? "📁" : (r.milestone ? "◆" : "🔹"));
         const clickAttr = r.kind === "p" ? ` onclick="ganttToggleProgetto('${chiave}','${ganttEscape(r.id)}')" style="cursor:pointer;"` : "";
@@ -4953,6 +5054,7 @@ function ganttDisegna(chiave) {
     let rightRows = "";
     righe.forEach((r, i) => {
         const left = (r.startD - minD) * pxDay;
+        const mf = macroPerRiga[i];   // macro-fase a cui appartiene questa riga
         let barra = "";
         if (r.kind === "p") {
             const wide = Math.max(8, (r.finishD - r.startD + 1) * pxDay);
@@ -4964,7 +5066,8 @@ function ganttDisegna(chiave) {
             </div>`;
         } else if (r.isSummary) {
             const wide = Math.max(6, (r.finishD - r.startD + 1) * pxDay);
-            const c = r.crit && st.critico ? "#a04a3c" : "#5a6a78";
+            const palS = (mf >= 0) ? GANTT_WBS_PALETTE[mf] : null;
+            const c = (r.crit && st.critico) ? "#a04a3c" : (palS ? palS[2] : "#5a6a78");
             barra = `<div class="gantt-bar" data-row="${i}" style="position:absolute; top:9px; left:${left}px; width:${wide}px; height:9px; cursor:${ro ? "default" : "grab"};">
                 <div style="position:absolute; top:0; left:0; right:0; height:4px; background:${c};"></div>
                 <div style="position:absolute; top:0; left:0; width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent; border-top:9px solid ${c};"></div>
@@ -4976,10 +5079,20 @@ function ganttDisegna(chiave) {
         } else {
             const wide = Math.max(3, (r.finishD - r.startD + 1) * pxDay);
             const isCrit = r.crit && st.critico;
-            const bgBar = r.pct >= 100 ? "rgba(107,143,114,0.16)" : (isCrit ? "rgba(160,74,60,0.16)" : "rgba(44,95,142,0.14)");
-            const bordoBar = r.pct >= 100 ? "1px solid rgba(107,143,114,0.6)" : (isCrit ? "1px solid #a04a3c" : "1px solid rgba(44,95,142,0.55)");
+            // colore della barra: critica = mattone, altrimenti il colore della macro-fase
+            const palBar = (mf >= 0) ? GANTT_WBS_PALETTE[mf] : null;
+            let bgBar, bordoBar, colProg;
+            if (r.pct >= 100) {
+                bgBar = "#e8f3e8"; bordoBar = "1px solid rgba(74,122,85,0.7)"; colProg = "rgba(74,122,85,0.5)";
+            } else if (isCrit) {
+                bgBar = "#f7eae8"; bordoBar = "1px solid #a04a3c"; colProg = "rgba(160,74,60,0.55)";
+            } else if (palBar) {
+                bgBar = palBar[3]; bordoBar = "1px solid " + palBar[2]; colProg = palBar[2];
+            } else {
+                bgBar = "rgba(44,95,142,0.14)"; bordoBar = "1px solid rgba(44,95,142,0.55)"; colProg = "rgba(44,95,142,0.40)";
+            }
             const prog = (r.pct > 0 && r.pct < 100)
-                ? `<div style="position:absolute; top:0; left:0; width:${r.pct}%; height:100%; background:${isCrit ? "rgba(160,74,60,0.45)" : "rgba(44,95,142,0.40)"};"></div>` : "";
+                ? `<div style="position:absolute; top:0; left:0; width:${r.pct}%; height:100%; background:${colProg};"></div>` : "";
             barra = `<div class="gantt-bar" data-row="${i}" style="position:absolute; top:6px; left:${left}px; width:${wide}px; height:18px; background:${bgBar}; border:${bordoBar}; border-radius:4px; overflow:hidden; cursor:${ro ? "default" : "grab"};" title="${ganttEscape(r.name)} — ${r.pct}%">
                 ${prog}
                 ${ro ? "" : `<div class="gantt-h gantt-hl" data-row="${i}" style="position:absolute; top:0; left:0; width:7px; height:100%; cursor:ew-resize; background:rgba(0,0,0,.001);"></div>
@@ -5049,6 +5162,8 @@ function ganttDisegna(chiave) {
             </div>
         </div>
     </div>`;
+
+    html += ganttLegendaHtml();
 
     box.innerHTML = html;
     if (!ro) ganttInterazioni(chiave, righe, minD, pxDay);
