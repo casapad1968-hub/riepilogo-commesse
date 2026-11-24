@@ -873,10 +873,12 @@
             <div class="db-sync-group">
                 <button class="btn btn-secondary" onclick="esportaDatabaseJSON()" style="font-size:0.8rem; padding:0.4rem 0.8rem;">💾 Save Shared Data</button>
                 <button class="btn btn-warning" onclick="collegaArchivioCondiviso()" style="font-size:0.8rem; padding:0.4rem 0.8rem;">🔗 Link Shared Archive</button>
+                <button class="btn btn-info" onclick="selezionaCartellaArchivioPdf()" style="font-size:0.8rem; padding:0.4rem 0.8rem;">📁 Connect PDF Folder</button>
                 <button class="btn btn-warning" onclick="document.getElementById('importDbFileInput').click()" style="font-size:0.8rem; padding:0.4rem 0.8rem;">📂 Load JSON File</button>
                 <button class="btn btn-danger" id="btnSvuotaDemo" onclick="svuotaDatiDemo()" style="font-size:0.8rem; padding:0.4rem 0.8rem; display:none;">🗑️ Clear Demo Data</button>
                 <input type="file" id="importDbFileInput" accept=".json" style="display:none;" onchange="importaDatabaseJSON()">
                 <span id="statoArchivioCondiviso" style="font-size:0.75rem; margin-left:0.5rem; color:#6b7280;">Shared archive not linked</span>
+                <span id="statoCartellaPdf" style="font-size:0.75rem; margin-left:0.35rem; color:#6b7280;"></span>
 <span id="statoCachePdf" style="font-size:0.75rem; margin-left:0.5rem; color:#6b7681;"></span>
                 <button class="btn btn-secondary" onclick="svuotaCachePdf()" style="font-size:0.75rem; padding:0.25rem 0.6rem;">Clear cache</button>
             </div>
@@ -3311,6 +3313,10 @@ async function eliminaHandlePdf(idDoc) {
 }
 
 /* ---- allega un PDF: l'utente sceglie dove salvarlo ---- */
+function nomeCartellaSicuro(id) {
+    return String(id || "commessa").replace(/[^a-zA-Z0-9_.-]/g, "_");
+}
+
 async function caricaDocumentoPDF() {
     const EN = pdfIsEnC();
     const id = idCommessaSelezionata;
@@ -3337,62 +3343,55 @@ async function caricaDocumentoPDF() {
         return;
     }
 
-    const nomeDoc = (nomeInput.value || "").trim() || file.name;
-
-    if (!window.showSaveFilePicker) {
+    // Assicura che la cartella PDF condivisa sia collegata e autorizzata
+    const cartellaPronta = await assicuraCartellaPdf();
+    if (!cartellaPronta || !cartellaArchivioPdfHandle) {
         alert(EN
-            ? "This browser cannot choose the destination file. Use Chrome or Edge."
-            : "Questo browser non permette di scegliere il file di destinazione. Usa Chrome o Edge.");
+            ? "Connect the shared PDF network folder first using the 'Connect PDF Folder' button."
+            : "Collega prima la cartella PDF condivisa in rete tramite il pulsante '📁 Collega Cartella PDF'.");
         return;
     }
 
-    let handle = null;
+    const nomeDoc = (nomeInput.value || "").trim() || file.name;
+    const nomeFileSicuro = file.name.replace(/[^a-zA-Z0-9_.-]/g, "_");
+
     try {
-        handle = await window.showSaveFilePicker({
-            suggestedName: id + "_" + file.name.replace(/[^a-zA-Z0-9_.-]/g, "_"),
-            types: [{ description: "PDF", accept: { "application/pdf": [".pdf"] } }]
+        const subDir = await cartellaArchivioPdfHandle.getDirectoryHandle(nomeCartellaSicuro(id), { create: true });
+        const fileHandle = await subDir.getFileHandle(nomeFileSicuro, { create: true });
+        const writable = await fileHandle.createWritable();
+        await writable.write(file);
+        await writable.close();
+
+        const docId = Date.now();
+        await salvaHandlePdf(docId, fileHandle);
+
+        const sizeStr = (file.size < 1024 * 1024)
+            ? (file.size / 1024).toFixed(1) + " KB"
+            : (file.size / (1024 * 1024)).toFixed(2) + " MB";
+
+        if (!AppData.metadata[id].documentiPdf) AppData.metadata[id].documentiPdf = [];
+        AppData.metadata[id].documentiPdf.push({
+            idDoc: docId,
+            nomeDoc: nomeDoc,
+            nomeFile: nomeFileSicuro,
+            dimensione: sizeStr,
+            percorsoRelativo: nomeCartellaSicuro(id) + "/" + nomeFileSicuro,
+            conHandle: false,
+            inCartella: true,
+            dataCaricamento: new Date().toLocaleDateString("it-IT")
         });
+
+        await salvaDatiCondivisi();
+        renderingTabellaPdfDettaglio(id);
+        nomeInput.value = "";
+        fileInput.value = "";
+
+        alert(EN
+            ? "PDF saved in shared folder: " + nomeCartellaSicuro(id) + "/" + nomeFileSicuro
+            : "PDF salvato nella cartella condivisa: " + nomeCartellaSicuro(id) + "/" + nomeFileSicuro);
     } catch (e) {
-        // utente ha annullato
-        return;
+        alert((EN ? "Cannot write the file: " : "Impossibile scrivere il file nella cartella condivisa: ") + (e.message || e));
     }
-
-    try {
-        const w = await handle.createWritable();
-        await w.write(file);
-        await w.close();
-    } catch (e) {
-        alert((EN ? "Cannot write the file: " : "Impossibile scrivere il file: ") + (e.message || e));
-        return;
-    }
-
-    const docId = Date.now();
-    await salvaHandlePdf(docId, handle);
-
-    const sizeStr = (file.size < 1024 * 1024)
-        ? (file.size / 1024).toFixed(1) + " KB"
-        : (file.size / (1024 * 1024)).toFixed(2) + " MB";
-
-    if (!AppData.metadata[id].documentiPdf) AppData.metadata[id].documentiPdf = [];
-    AppData.metadata[id].documentiPdf.push({
-        idDoc: docId,
-        nomeDoc: nomeDoc,
-        nomeFile: handle.name || file.name,
-        dimensione: sizeStr,
-        percorsoRelativo: (handle.name || file.name),
-        conHandle: true,
-        inCartella: false,
-        dataCaricamento: new Date().toLocaleDateString("it-IT")
-    });
-
-    await salvaDatiCondivisi();
-    renderingTabellaPdfDettaglio(id);
-    nomeInput.value = "";
-    fileInput.value = "";
-
-    alert(EN
-        ? "PDF saved as: " + (handle.name || file.name) + "\n\nIt is stored in the folder you chose. The app keeps only a reference to it (a few bytes), so the browser archive stays light."
-        : "PDF salvato come: " + (handle.name || file.name) + "\n\nÈ nella cartella che hai scelto. L'app conserva solo un riferimento al file (pochi byte), così l'archivio del browser resta leggero.");
 }
 
 /* ---- apri un PDF: prima l'handle, poi i vecchi sistemi ---- */
@@ -3413,26 +3412,31 @@ async function apriDocumentoPDF(idDoc) {
                 if (h.queryPermission) {
                     let perm = await h.queryPermission({ mode: "readwrite" });
                     if (perm !== "granted") perm = await h.requestPermission({ mode: "readwrite" });
-                    if (perm !== "granted") throw new Error("permesso negato");
                 }
                 blob = await h.getFile();
             } catch (e) {
-                console.warn("Handle non più valido:", e);
-                alert(EN
-                    ? "The file cannot be opened from here (it may have been moved or renamed).\n\nFile name: " + (doc.percorsoRelativo || doc.nomeFile) + "\nOpen it from your file manager."
-                    : "Il file non è più apribile da qui (potrebbe essere stato spostato o rinominato).\n\nNome file: " + (doc.percorsoRelativo || doc.nomeFile) + "\nAprilo dal tuo gestore di file.");
-                return;
+                console.warn("Handle non più valido o permesso negato:", e);
             }
         }
 
-// 2. vecchia cartella archivio_pdf (documenti storici)
-        if (!blob && cartellaArchivioPdfHandle) {
-            try {
-                const subDir = await cartellaArchivioPdfHandle.getDirectoryHandle(String(id), { create: false });
-                const nomeFileSicuro = String(doc.nomeFile).replace(/[^a-zA-Z0-9_.-]/g, "_");
-                const fh = await subDir.getFileHandle(nomeFileSicuro);
-                blob = await fh.getFile();
-            } catch (e) { }
+// 2. cartella condivisa archivio_pdf/<id>/<nomeFile> (accessibile a tutti i colleghi)
+        if (!blob) {
+            const infoDir = await statoCartellaPdf();
+            if (infoDir.stato === "da_riattivare") {
+                await riattivaCartellaPdf();
+            } else if (infoDir.stato === "assente" && doc.inCartella) {
+                await assicuraCartellaPdf();
+            }
+            if (cartellaArchivioPdfHandle) {
+                try {
+                    const subDir = await cartellaArchivioPdfHandle.getDirectoryHandle(nomeCartellaSicuro(id), { create: false });
+                    const nomeFileSicuro = String(doc.nomeFile).replace(/[^a-zA-Z0-9_.-]/g, "_");
+                    const fh = await subDir.getFileHandle(nomeFileSicuro);
+                    blob = await fh.getFile();
+                } catch (e) {
+                    console.warn("Lettura da cartella PDF fallita:", e);
+                }
+            }
         }
 
         // 3. vecchia copia in IndexedDB
@@ -3468,6 +3472,9 @@ async function apriDocumentoPDF(idDoc) {
             return;
         }
 
+        if (!(blob instanceof Blob) || blob.type !== "application/pdf") {
+            blob = new Blob([blob], { type: "application/pdf" });
+        }
         const url = URL.createObjectURL(blob);
         const win = window.open(url, "_blank");
         if (!win) {
@@ -3500,7 +3507,7 @@ async function eliminaDocumentoPDF(idDoc) {
     // vecchio file nella cartella archivio_pdf (solo per documenti storici)
     if (doc && doc.inCartella && cartellaArchivioPdfHandle) {
         try {
-            const subDir = await cartellaArchivioPdfHandle.getDirectoryHandle(String(id), { create: false });
+            const subDir = await cartellaArchivioPdfHandle.getDirectoryHandle(nomeCartellaSicuro(id), { create: false });
             const nomeFileSicuro = String(doc.nomeFile).replace(/[^a-zA-Z0-9_.-]/g, "_");
             await subDir.removeEntry(nomeFileSicuro);
         } catch (e) { }
@@ -4311,7 +4318,7 @@ function alberoSeleziona(id) {
                         const bordoBar = isCritPrint ? "1px solid #a04a3c" : "1px solid rgba(44,95,142,0.55)";
                         const sfondoBar = isCritPrint ? "rgba(160,74,60,0.16)" : "rgba(44,95,142,0.14)";
                         const riempiBar = isCritPrint ? "rgba(160,74,60,0.42)" : "rgba(44,95,142,0.38)";
-                        let progressoPrintHtml = (pctNum > 0 && pctNum < 100) ? `<div style="position:absolute; top:0; left:0; width:${pctNum}%; height:100%; background:${riempiBar};"></div>` : "";
+                        let progressoPrintHtml = (pctNum > 0) ? `<div style="position:absolute; top:0; left:0; width:${pctNum}%; height:100%; background:${riempiBar};"></div>` : "";
                         barraHtml = `<div style="position:relative; width:100%; height:12px; background:#fafafa; border-radius:2px;">${gridLinesHtml}${lineaOggiPrintHtml}<div style="position:absolute; top:2px; left:${leftP}%; width:${widthP}%; height:8px; background:${sfondoBar}; border:${bordoBar}; border-radius:2px; overflow:hidden;">${progressoPrintHtml}</div></div>`;
                     }
                 }
@@ -5156,7 +5163,7 @@ function ganttDisegna(chiave) {
             } else {
                 bgBar = "rgba(44,95,142,0.14)"; bordoBar = "1px solid rgba(44,95,142,0.55)"; colProg = "rgba(44,95,142,0.40)";
             }
-            const prog = (r.pct > 0 && r.pct < 100)
+            const prog = (r.pct > 0)
                 ? `<div style="position:absolute; top:0; left:0; width:${r.pct}%; height:100%; background:${colProg};"></div>` : "";
             barra = `<div class="gantt-bar" data-row="${i}" style="position:absolute; top:6px; left:${left}px; width:${wide}px; height:18px; background:${bgBar}; border:${bordoBar}; border-radius:4px; overflow:hidden; cursor:${ro ? "default" : "grab"};" title="${ganttEscape(r.name)} — ${r.pct}%">
                 ${prog}
@@ -5733,9 +5740,9 @@ function ganttCanvas(chiave) {
             ctx.fillRect(x, ry + 7, w, 16);
             ctx.strokeStyle = bordoC; ctx.lineWidth = 1;
             ctx.strokeRect(x + 0.5, ry + 7.5, w - 1, 15);
-            if (r.pct > 0 && r.pct < 100) {
-                ctx.fillStyle = isC ? "rgba(160,74,60,0.45)" : "rgba(44,95,142,0.40)";
-                ctx.fillRect(x, ry + 7, w * r.pct / 100, 16);
+            if (r.pct > 0) {
+                ctx.fillStyle = r.pct >= 100 ? "rgba(74,122,85,0.6)" : (isC ? "rgba(160,74,60,0.45)" : "rgba(44,95,142,0.40)");
+                ctx.fillRect(x, ry + 7, w * (r.pct / 100), 16);
             }
         }
     });
