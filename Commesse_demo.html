@@ -940,7 +940,7 @@
 
     <header class="no-print">
         <div class="header-title-container">
-            <h2>🏢 Riepilogo Commesse <span style="background:#eab308; color:#000; font-size:0.72rem; font-weight:800; padding:2px 8px; border-radius:4px; margin-left:8px; vertical-align:middle; text-transform:uppercase; letter-spacing:0.5px;">DEMO</span></h2>
+            <h2>🏢 Riepilogo Commesse <span style="background:#eab308;color:#000;font-size:0.72rem;font-weight:800;padding:2px 8px;border-radius:4px;margin-left:8px;vertical-align:middle;text-transform:uppercase;letter-spacing:0.5px;">DEMO</span></h2>
             <div style="margin-left: 0.5rem; display: flex; gap: 0.35rem; align-items: center;">
                 <span style="background: rgba(255,255,255,0.22); padding: 0.2rem 0.55rem; border-radius: 6px; font-size: 0.8rem; font-weight: 700; border: 1px solid rgba(255,255,255,0.3);">🇮🇹 IT</span>
                 <a href="Orders_demo.html" style="color: rgba(255,255,255,0.8); text-decoration: none; padding: 0.2rem 0.55rem; border-radius: 6px; font-size: 0.8rem; background: rgba(0,0,0,0.2); transition: all 0.2s;">🇬🇧 EN</a>
@@ -1426,9 +1426,9 @@
 
             <!-- SEZIONE ATTIVITA' SCADENZIARIO PER QUESTA COMMESSA -->
             <div class="card" style="margin-top: 1.5rem; border-left: 4px solid var(--warning);">
-                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
+<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
                     <h3 style="margin:0;">📌 Attività & Scadenze Manuali per Questa Commessa</h3>
-                    <button class="btn btn-warning" onclick="apriModaleNuovaScadenzaDettaglio()" style="font-size:0.8rem; padding:0.35rem 0.8rem; font-weight:600; display:flex; align-items:center; gap:5px;">➕ Crea Attività</button>
+                    <button class="btn btn-warning" onclick="apriModaleNuovaScadenzaDettaglio()" style="font-size:0.8rem; padding:0.35rem 0.8rem; font-weight:600;">➕ Crea Attività</button>
                 </div>
                 <div class="table-wrapper">
                     <table class="scadenze-table">
@@ -4510,42 +4510,7 @@ function alberoSeleziona(id) {
             <div class="page page-break"><h1>Report Commessa ${esc(id)} — Diagramma di Gantt &amp; Fasi</h1><div class="sub">Data di stampa: ${esc(dataStampa.toLocaleDateString('it-IT'))} • Totale attività: ${attivita.length}</div>
             ${righeAttivita ? `<table><colgroup><col style="width:26px"><col style="width:22%"><col style="width:38px"><col style="width:52px"><col style="width:52px"><col style="width:calc(78% - 170px)"></colgroup><thead><tr><th>ID</th><th>Activity name</th><th>%</th><th>Start</th><th>End</th><th style="position:relative; height:28px; padding:0;"><div style="position:absolute; top:0; left:0; right:0; height:14px; border-bottom:1px solid #6b7280;">${mesiHeaderHtml}</div><div style="position:absolute; bottom:0; left:0; right:0; height:14px;">${settimaneHeaderHtml}</div></th></tr></thead><tbody>${righeAttivita}</tbody></table>` : '<div class="box">Nessuna attività disponibile nell\'ultima revisione WP.</div>'}
             <div class="footer">Report generato da Riepilogo Commesse</div></div>
-            
-    <!-- MODALE CREA ATTIVITA/SCADENZA IN DETTAGLIO COMMESSA -->
-    <div id="modaleScadenzaDettaglio" class="no-print" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; backdrop-filter:blur(2px);">
-        <div style="background:#fff; border-radius:8px; border:1px solid #cbd5e1; width:92%; max-width:480px; box-shadow:0 8px 30px rgba(0,0,0,0.25); overflow:hidden; animation:fadeInTab 0.2s ease-out;">
-            <div style="background:linear-gradient(135deg, #1e293b 0%, #334155 100%); color:#fff; padding:12px 18px; display:flex; justify-content:space-between; align-items:center;">
-                <div style="font-weight:700; font-size:1rem; display:flex; align-items:center; gap:6px;">📌 Nuova Scadenza / Attività</div>
-                <button onclick="chiudiModaleNuovaScadenzaDettaglio()" style="background:none; border:none; color:#cbd5e1; font-size:1.4rem; cursor:pointer; line-height:1;">&times;</button>
-            </div>
-            <div style="padding:18px;">
-                <div class="form-group" style="margin-bottom:12px;">
-                    <label style="font-size:0.85rem; font-weight:600; color:#334155;">Descrizione / Nome Attività *:</label>
-                    <input type="text" id="scadDetNome" class="form-control" placeholder="es. Sollecito fornitore, Invio disegno, Controllo qualita..." style="width:100%; margin-top:4px;">
-                </div>
-                <div class="grid-2" style="gap:10px; margin-bottom:14px;">
-                    <div class="form-group">
-                        <label style="font-size:0.85rem; font-weight:600; color:#334155;">Data Scadenza (Fine) *:</label>
-                        <input type="text" id="scadDetDataFine" class="form-control" placeholder="GG/MM/AAAA" style="width:100%; margin-top:4px;">
-                    </div>
-                    <div class="form-group">
-                        <label style="font-size:0.85rem; font-weight:600; color:#334155;">Stato Attività:</label>
-                        <select id="scadDetStato" class="form-control" style="width:100%; margin-top:4px;">
-                            <option value="Da fare">Da fare</option>
-                            <option value="In corso">In corso</option>
-                            <option value="Completata">Completata</option>
-                        </select>
-                    </div>
-                </div>
-                <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
-                    <button class="btn btn-secondary" onclick="chiudiModaleNuovaScadenzaDettaglio()">Annulla</button>
-                    <button class="btn btn-success" onclick="salvaNuovaScadenzaDettaglio()">💾 Salva Attività</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-</body></html>`;
+            </body></html>`;
             return html;
         }
 
@@ -4580,80 +4545,10 @@ function alberoSeleziona(id) {
             const head = first.substring(0, headEnd + 7);
             const bodies = reports.map(r => {
                 const b = r.indexOf("<body>");
-                const e = r.lastIndexOf("
-    <!-- MODALE CREA ATTIVITA/SCADENZA IN DETTAGLIO COMMESSA -->
-    <div id="modaleScadenzaDettaglio" class="no-print" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; backdrop-filter:blur(2px);">
-        <div style="background:#fff; border-radius:8px; border:1px solid #cbd5e1; width:92%; max-width:480px; box-shadow:0 8px 30px rgba(0,0,0,0.25); overflow:hidden; animation:fadeInTab 0.2s ease-out;">
-            <div style="background:linear-gradient(135deg, #1e293b 0%, #334155 100%); color:#fff; padding:12px 18px; display:flex; justify-content:space-between; align-items:center;">
-                <div style="font-weight:700; font-size:1rem; display:flex; align-items:center; gap:6px;">📌 Nuova Scadenza / Attività</div>
-                <button onclick="chiudiModaleNuovaScadenzaDettaglio()" style="background:none; border:none; color:#cbd5e1; font-size:1.4rem; cursor:pointer; line-height:1;">&times;</button>
-            </div>
-            <div style="padding:18px;">
-                <div class="form-group" style="margin-bottom:12px;">
-                    <label style="font-size:0.85rem; font-weight:600; color:#334155;">Descrizione / Nome Attività *:</label>
-                    <input type="text" id="scadDetNome" class="form-control" placeholder="es. Sollecito fornitore, Invio disegno, Controllo qualita..." style="width:100%; margin-top:4px;">
-                </div>
-                <div class="grid-2" style="gap:10px; margin-bottom:14px;">
-                    <div class="form-group">
-                        <label style="font-size:0.85rem; font-weight:600; color:#334155;">Data Scadenza (Fine) *:</label>
-                        <input type="text" id="scadDetDataFine" class="form-control" placeholder="GG/MM/AAAA" style="width:100%; margin-top:4px;">
-                    </div>
-                    <div class="form-group">
-                        <label style="font-size:0.85rem; font-weight:600; color:#334155;">Stato Attività:</label>
-                        <select id="scadDetStato" class="form-control" style="width:100%; margin-top:4px;">
-                            <option value="Da fare">Da fare</option>
-                            <option value="In corso">In corso</option>
-                            <option value="Completata">Completata</option>
-                        </select>
-                    </div>
-                </div>
-                <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
-                    <button class="btn btn-secondary" onclick="chiudiModaleNuovaScadenzaDettaglio()">Annulla</button>
-                    <button class="btn btn-success" onclick="salvaNuovaScadenzaDettaglio()">💾 Salva Attività</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-</body>");
+                const e = r.lastIndexOf("</body>");
                 return r.substring(b + 6, e);
             }).join('<div class="bulk-page-break"></div>');
-            const html = head + "<body>" + bodies + "
-    <!-- MODALE CREA ATTIVITA/SCADENZA IN DETTAGLIO COMMESSA -->
-    <div id="modaleScadenzaDettaglio" class="no-print" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; backdrop-filter:blur(2px);">
-        <div style="background:#fff; border-radius:8px; border:1px solid #cbd5e1; width:92%; max-width:480px; box-shadow:0 8px 30px rgba(0,0,0,0.25); overflow:hidden; animation:fadeInTab 0.2s ease-out;">
-            <div style="background:linear-gradient(135deg, #1e293b 0%, #334155 100%); color:#fff; padding:12px 18px; display:flex; justify-content:space-between; align-items:center;">
-                <div style="font-weight:700; font-size:1rem; display:flex; align-items:center; gap:6px;">📌 Nuova Scadenza / Attività</div>
-                <button onclick="chiudiModaleNuovaScadenzaDettaglio()" style="background:none; border:none; color:#cbd5e1; font-size:1.4rem; cursor:pointer; line-height:1;">&times;</button>
-            </div>
-            <div style="padding:18px;">
-                <div class="form-group" style="margin-bottom:12px;">
-                    <label style="font-size:0.85rem; font-weight:600; color:#334155;">Descrizione / Nome Attività *:</label>
-                    <input type="text" id="scadDetNome" class="form-control" placeholder="es. Sollecito fornitore, Invio disegno, Controllo qualita..." style="width:100%; margin-top:4px;">
-                </div>
-                <div class="grid-2" style="gap:10px; margin-bottom:14px;">
-                    <div class="form-group">
-                        <label style="font-size:0.85rem; font-weight:600; color:#334155;">Data Scadenza (Fine) *:</label>
-                        <input type="text" id="scadDetDataFine" class="form-control" placeholder="GG/MM/AAAA" style="width:100%; margin-top:4px;">
-                    </div>
-                    <div class="form-group">
-                        <label style="font-size:0.85rem; font-weight:600; color:#334155;">Stato Attività:</label>
-                        <select id="scadDetStato" class="form-control" style="width:100%; margin-top:4px;">
-                            <option value="Da fare">Da fare</option>
-                            <option value="In corso">In corso</option>
-                            <option value="Completata">Completata</option>
-                        </select>
-                    </div>
-                </div>
-                <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
-                    <button class="btn btn-secondary" onclick="chiudiModaleNuovaScadenzaDettaglio()">Annulla</button>
-                    <button class="btn btn-success" onclick="salvaNuovaScadenzaDettaglio()">💾 Salva Attività</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-</body></html>";
+            const html = head + "<body>" + bodies + "</body></html>";
             const win = window.open("", "_blank");
             if(!win) { alert("Il browser ha bloccato la finestra del report. Consenti i popup per questa pagina."); return; }
             win.document.open(); win.document.write(html); win.document.close();
@@ -6063,42 +5958,7 @@ function ganttStampa(chiave) {
     if (!w) { alert("Popup bloccato: consenti i popup per stampare."); return; }
     w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Gantt</title>
     <style>@page{size:A4 landscape;margin:8mm}body{margin:0;font-family:Arial,sans-serif}img{width:100%;height:auto}</style></head>
-    <body><img src="${url}" onload="window.focus();window.print();">
-    <!-- MODALE CREA ATTIVITA/SCADENZA IN DETTAGLIO COMMESSA -->
-    <div id="modaleScadenzaDettaglio" class="no-print" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; backdrop-filter:blur(2px);">
-        <div style="background:#fff; border-radius:8px; border:1px solid #cbd5e1; width:92%; max-width:480px; box-shadow:0 8px 30px rgba(0,0,0,0.25); overflow:hidden; animation:fadeInTab 0.2s ease-out;">
-            <div style="background:linear-gradient(135deg, #1e293b 0%, #334155 100%); color:#fff; padding:12px 18px; display:flex; justify-content:space-between; align-items:center;">
-                <div style="font-weight:700; font-size:1rem; display:flex; align-items:center; gap:6px;">📌 Nuova Scadenza / Attività</div>
-                <button onclick="chiudiModaleNuovaScadenzaDettaglio()" style="background:none; border:none; color:#cbd5e1; font-size:1.4rem; cursor:pointer; line-height:1;">&times;</button>
-            </div>
-            <div style="padding:18px;">
-                <div class="form-group" style="margin-bottom:12px;">
-                    <label style="font-size:0.85rem; font-weight:600; color:#334155;">Descrizione / Nome Attività *:</label>
-                    <input type="text" id="scadDetNome" class="form-control" placeholder="es. Sollecito fornitore, Invio disegno, Controllo qualita..." style="width:100%; margin-top:4px;">
-                </div>
-                <div class="grid-2" style="gap:10px; margin-bottom:14px;">
-                    <div class="form-group">
-                        <label style="font-size:0.85rem; font-weight:600; color:#334155;">Data Scadenza (Fine) *:</label>
-                        <input type="text" id="scadDetDataFine" class="form-control" placeholder="GG/MM/AAAA" style="width:100%; margin-top:4px;">
-                    </div>
-                    <div class="form-group">
-                        <label style="font-size:0.85rem; font-weight:600; color:#334155;">Stato Attività:</label>
-                        <select id="scadDetStato" class="form-control" style="width:100%; margin-top:4px;">
-                            <option value="Da fare">Da fare</option>
-                            <option value="In corso">In corso</option>
-                            <option value="Completata">Completata</option>
-                        </select>
-                    </div>
-                </div>
-                <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
-                    <button class="btn btn-secondary" onclick="chiudiModaleNuovaScadenzaDettaglio()">Annulla</button>
-                    <button class="btn btn-success" onclick="salvaNuovaScadenzaDettaglio()">💾 Salva Attività</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-</body></html>`);
+    <body><img src="${url}" onload="window.focus();window.print();"></body></html>`);
     w.document.close();
 }
 
@@ -6196,68 +6056,61 @@ function ganttInitDettaglio(id) {
     ganttDisegna("dettaglio");
 }
 
-    
-        function apriModaleNuovaScadenzaDettaglio() {
-            if(MODALITA_VISUALIZZAZIONE) {
-                alert("Modifiche disattivate in sola visualizzazione.");
-                return;
-            }
-            if(!idCommessaSelezionata) {
-                alert("Nessuna commessa selezionata.");
-                return;
-            }
-            let el = document.getElementById("modaleScadenzaDettaglio");
-            if(!el) return;
-            document.getElementById("scadDetNome").value = "";
-            document.getElementById("scadDetDataFine").value = "";
-            document.getElementById("scadDetStato").value = "Da fare";
-            el.style.display = "flex";
-            document.getElementById("scadDetNome").focus();
+
+    // === CREA ATTIVITA / SCADENZA DAL DETTAGLIO COMMESSA ===
+    function apriModaleNuovaScadenzaDettaglio() {
+        if (typeof MODALITA_VISUALIZZAZIONE !== 'undefined' && MODALITA_VISUALIZZAZIONE) {
+            alert("Modifiche disattivate in sola visualizzazione.");
+            return;
         }
+        if (!idCommessaSelezionata) { alert("Nessuna commessa selezionata."); return; }
+        var el = document.getElementById("modaleScadenzaDettaglio");
+        if (!el) return;
+        document.getElementById("scadDetNome").value = "";
+        document.getElementById("scadDetDataFine").value = "";
+        document.getElementById("scadDetStato").value = "Da fare";
+        el.style.display = "flex";
+        document.getElementById("scadDetNome").focus();
+    }
 
-        function chiudiModaleNuovaScadenzaDettaglio() {
-            let el = document.getElementById("modaleScadenzaDettaglio");
-            if(el) el.style.display = "none";
-        }
+    function chiudiModaleNuovaScadenzaDettaglio() {
+        var el = document.getElementById("modaleScadenzaDettaglio");
+        if (el) el.style.display = "none";
+    }
 
-        function salvaNuovaScadenzaDettaglio() {
-            let nome = document.getElementById("scadDetNome").value.trim();
-            let dataFineStr = document.getElementById("scadDetDataFine").value.trim();
-            let stato = document.getElementById("scadDetStato").value;
-
-            if(!nome) { alert("Inserisci una descrizione dell attività!"); return; }
-            if(!dataFineStr) { alert("Inserisci la data di scadenza (Fine)!"); return; }
-
-            if(!AppData.scadenziario) AppData.scadenziario = [];
-
-            AppData.scadenziario.push({
-                idScad: Date.now(),
-                nome: nome,
-                commessa: idCommessaSelezionata,
-                dataFine: dataFineStr,
-                stato: stato
-            });
-
-            salvaDatiCondivisi();
-            chiudiModaleNuovaScadenzaDettaglio();
-            renderingScadenziario();
-            if(idCommessaSelezionata) renderingScadenzeDettaglioCommessa(idCommessaSelezionata);
-            alert("Scadenza aggiunta per questa commessa!");
-        }
+    function salvaNuovaScadenzaDettaglio() {
+        var nome = document.getElementById("scadDetNome").value.trim();
+        var dataFineStr = document.getElementById("scadDetDataFine").value.trim();
+        var stato = document.getElementById("scadDetStato").value;
+        if (!nome) { alert("Inserisci una descrizione dell'attività!"); return; }
+        if (!dataFineStr) { alert("Inserisci la data di scadenza (Fine)!"); return; }
+        if (!AppData.scadenziario) AppData.scadenziario = [];
+        AppData.scadenziario.push({
+            idScad: Date.now(),
+            nome: nome,
+            commessa: idCommessaSelezionata,
+            dataFine: dataFineStr,
+            stato: stato
+        });
+        try { salvaDatiCondivisi(); } catch (e) { console.warn("salvataggio:", e); }
+        chiudiModaleNuovaScadenzaDettaglio();
+        if (typeof renderingScadenziario === 'function') { try { renderingScadenziario(); } catch (e) {} }
+        if (typeof renderingScadenzeDettaglioCommessa === 'function') { try { renderingScadenzeDettaglioCommessa(idCommessaSelezionata); } catch (e) {} }
+        alert("Scadenza aggiunta per questa commessa!");
+    }
 
     </script>
-
     <!-- MODALE CREA ATTIVITA/SCADENZA IN DETTAGLIO COMMESSA -->
     <div id="modaleScadenzaDettaglio" class="no-print" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; backdrop-filter:blur(2px);">
-        <div style="background:#fff; border-radius:8px; border:1px solid #cbd5e1; width:92%; max-width:480px; box-shadow:0 8px 30px rgba(0,0,0,0.25); overflow:hidden; animation:fadeInTab 0.2s ease-out;">
-            <div style="background:linear-gradient(135deg, #1e293b 0%, #334155 100%); color:#fff; padding:12px 18px; display:flex; justify-content:space-between; align-items:center;">
-                <div style="font-weight:700; font-size:1rem; display:flex; align-items:center; gap:6px;">📌 Nuova Scadenza / Attività</div>
+        <div style="background:#fff; border-radius:8px; border:1px solid #cbd5e1; width:92%; max-width:480px; box-shadow:0 8px 30px rgba(0,0,0,0.25); overflow:hidden;">
+            <div style="background:linear-gradient(135deg,#1e293b 0%,#334155 100%); color:#fff; padding:12px 18px; display:flex; justify-content:space-between; align-items:center;">
+                <div style="font-weight:700; font-size:1rem;">📌 Nuova Scadenza / Attività</div>
                 <button onclick="chiudiModaleNuovaScadenzaDettaglio()" style="background:none; border:none; color:#cbd5e1; font-size:1.4rem; cursor:pointer; line-height:1;">&times;</button>
             </div>
             <div style="padding:18px;">
                 <div class="form-group" style="margin-bottom:12px;">
                     <label style="font-size:0.85rem; font-weight:600; color:#334155;">Descrizione / Nome Attività *:</label>
-                    <input type="text" id="scadDetNome" class="form-control" placeholder="es. Sollecito fornitore, Invio disegno, Controllo qualita..." style="width:100%; margin-top:4px;">
+                    <input type="text" id="scadDetNome" class="form-control" placeholder="es. Sollecito fornitore, Invio disegno, Controllo qualità..." style="width:100%; margin-top:4px;">
                 </div>
                 <div class="grid-2" style="gap:10px; margin-bottom:14px;">
                     <div class="form-group">
