@@ -5096,10 +5096,11 @@ function ganttDisegna(chiave) {
     const macroPerRiga = ganttAssegnaMacroFasi(righe);
 
     const showAzioni = cfg.fissa && !ro;
-    const cols = showAzioni
-        ? "38px 248px 56px 62px 76px 76px 54px"
-        : "38px 268px 56px 62px 76px 76px";
-    const leftW = showAzioni ? 610 : 576;
+    const isMobileScreen = typeof window !== "undefined" && window.innerWidth < 650;
+    const cols = isMobileScreen
+        ? (showAzioni ? "28px 150px 42px 46px 56px 56px 38px" : "28px 160px 42px 46px 56px 56px")
+        : (showAzioni ? "38px 248px 56px 62px 76px 76px 54px" : "38px 268px 56px 62px 76px 76px");
+    const leftW = isMobileScreen ? (showAzioni ? 416 : 388) : (showAzioni ? 610 : 576);
 
     /* sfondo: weekend + griglia verticale visibile (per periodo) */
     let bg = "";
@@ -5336,18 +5337,20 @@ function ganttDisegna(chiave) {
     }
 
     let html = `<div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:9px; font-size:11px; color:#475569;">${info}</div>`;
-    html += `<div style="display:flex; border:1px solid #cbd5e1; border-radius:10px; overflow:hidden; background:#fff; box-shadow:0 1px 3px rgba(15,23,42,.06);">
-        <div style="flex:0 0 ${leftW}px; border-right:2px solid #94a3b8; background:#fff;">${head}${leftRows}</div>
-        <div id="gtl_${chiave}" style="flex:1; overflow-x:auto; position:relative;">
-            <div style="width:${totalW}px; position:relative;">
-                <div style="position:relative; height:${headH}px; border-bottom:1px solid #94a3b8; background:#f8fafc;">
-                    ${mesiHtml}
-                    <div style="position:absolute; top:22px; left:0; right:0; height:22px; border-top:1px solid #cbd5e1;">${subHtml}</div>
-                </div>
-                <div style="position:relative; height:${bodyH}px;">
-                    ${bg}${oggiHtml}
-                    <div style="position:relative;">${rightRows}</div>
-                    ${svgDip}
+    html += `<div class="gantt-scroll-outer" style="overflow-x:auto; -webkit-overflow-scrolling:touch; width:100%; border:1px solid #cbd5e1; border-radius:8px; background:#fff; box-shadow:0 1px 3px rgba(15,23,42,.06); margin-bottom:12px;">
+        <div style="display:flex; min-width:${leftW + totalW}px; width:max-content;">
+            <div style="flex:0 0 ${leftW}px; width:${leftW}px; border-right:2px solid #94a3b8; background:#fff;">${head}${leftRows}</div>
+            <div id="gtl_${chiave}" style="flex:0 0 ${totalW}px; width:${totalW}px; position:relative;">
+                <div style="width:${totalW}px; position:relative;">
+                    <div style="position:relative; height:${headH}px; border-bottom:1px solid #94a3b8; background:#f8fafc;">
+                        ${mesiHtml}
+                        <div style="position:absolute; top:22px; left:0; right:0; height:22px; border-top:1px solid #cbd5e1;">${subHtml}</div>
+                    </div>
+                    <div style="position:relative; height:${bodyH}px;">
+                        ${bg}${oggiHtml}
+                        <div style="position:relative;">${rightRows}</div>
+                        ${svgDip}
+                    </div>
                 </div>
             </div>
         </div>
